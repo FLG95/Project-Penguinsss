@@ -26,7 +26,7 @@ player* createPlayers(){
         scanf("%d", &n);
         if(b == 10) {
             printf("Trop de tentative raté");
-            exit(-1);
+            exit(2);
         }
         b++;
     }
