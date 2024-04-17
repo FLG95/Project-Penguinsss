@@ -3,4 +3,5 @@ project(Project_Pinguinsss C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(Project_Pinguinsss main.c)
+add_executable(Project_Pinguinsss main.c
+)
