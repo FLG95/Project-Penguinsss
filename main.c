@@ -1,7 +1,10 @@
-#include "stdio.h"
+
+#include "curses.h"
+
 #include "stdlib.h"
 #include "string.h"
 #include "time.h"
+#include <unistd.h>
 
 const int l = 4;
 const int c = 4;
@@ -135,9 +138,20 @@ void showBoard(tile** board){
 
 int main() {
 
+
     tile** board = NULL;
 
     srand(time(NULL));
+
+
+    initscr();
+    refresh();
+
+    sleep(1);
+
+    getch();
+
+    endwin();
 
 
     //player* players;
@@ -150,12 +164,7 @@ int main() {
     showBoard(board);
 
 
-
-
-
-
-
-
+    //scanf("%d", &a);
 
     //free(players);
     free(board);
