@@ -1,10 +1,17 @@
 #include "stdio.h"
+
 #include "stdlib.h"
 #include "string.h"
 #include "time.h"
 
+<<<<<<< HEAD
 const int ROW = 4;
 const int COL= 4;
+=======
+
+const int l = 4;
+const int c = 4;
+>>>>>>> 6bc412e1e4dc208c6bfb9eea2fb1fce2663c5205
 
 typedef struct {
     char* name;
@@ -151,7 +158,6 @@ void showBoard(Tile** board){
         }
 
     }
-    
 
 }
 
@@ -181,6 +187,7 @@ void checkMove(Tile** board, Player player){
 
 int main() {
 
+
     Tile** board = NULL;
 
     srand(time(NULL));
@@ -188,11 +195,12 @@ int main() {
 
     //Player* players;
 
-    //players = createPlayers();
+    player* players;
+
+    players = createPlayers();
 
     board = createBoard();
     //checkfish = checkFish(board, players);
-
 
     showBoard(board);
     //showScore(players);
@@ -200,12 +208,7 @@ int main() {
 
 
 
-
-
-
-
-
-    //free(players);
+    free(players);
     free(board);
     return 0;
 }
