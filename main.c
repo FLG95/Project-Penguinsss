@@ -3,48 +3,42 @@
 #include "string.h"
 #include "time.h"
 
-const int l = 4;
-const int c = 4;
+const int ROW = 4;
+const int COL= 4;
 
 typedef struct {
-
     char* name;
     int num;
-
-
-}player;
+    int score;
+    int penguins;
+}Player;
 
 typedef struct{
-
     int fish;
     int isTherePlayer;
     int isAlive;
+}Tile;
 
-}tile;
 
-
-player* createPlayers(){
+Player* createPlayers(){
     int n = 0, b = 0;
     unsigned long length;
     char name[100];
 
-    player* player;
+    Player* players;
 
-    printf("How many players? between 2 and 6");
-    scanf("%d", &n);
-
-    while(n < 2 || n > 6){
-        printf("between 2 and 6 please");
+    do{
+        printf("How many players? between 2 and 6");
         scanf("%d", &n);
-        if(b == 10) {
-            printf("Too much try miss");
-            exit(2);
-        }
         b++;
+        if(b == 10) {
+        printf("Too much try miss");
+        exit(2);
     }
+    }while(n < 2 || n > 6);
 
-    player = malloc( n * sizeof(player));
-    if(!player){
+    players = malloc( n * sizeof(Player));
+    if(players == NULL){
         exit(1);
     }
 
@@ -54,54 +48,83 @@ player* createPlayers(){
         scanf("%s", name);
         length = strlen(name);
 
-        player[i].name = malloc( length * sizeof(char));
-        if(!player[i].name){
+        players[i].name = malloc( length * sizeof(char));
+        if(players[i].name == NULL){
             exit(1);
         }
-        player[i].name = name;
-        player[i].num = i+1;
+        players[i].name = name;
+        players[i].num = i+1;
+        players[i].score = 0;
+        if(n == 2){
+            players[i].penguins = 4;
+        }
+        else if(n == 3){
+            players[i].penguins = 3;
+        }
+        else if(n == 4){
+            players[i].penguins = 2;
+        }
+        else{
+            players[i].penguins = 1;
+        }
     }
 
-    return player;
+    return players;
 
 }
 
-tile creatTiles(){
+Tile createTiles(){
 
-    tile tile;
+    Tile tile;
 
-    tile.isAlive = 1;
+    Tile.isAlive = 1;
 
-    tile.fish = (rand()%3) + 1;
+    Tile.fish = (rand()%3) + 1;
 
-    tile.isTherePlayer = 0;
+    Tile.isTherePlayer = 0;
 
 
 }
 
-tile** createBoard(){
+Tile** createBoard(){
 
-    tile** board;
+    Tile** board;
 
-    board = malloc( c * sizeof(tile*));
-    if(!board){
+    board = malloc( COL * sizeof(Tile*));
+    if(board == NULL){
         exit(2);
     }
 
-    for (int i = 0; i < l; ++i) {
-        board[i] = malloc( l * sizeof (tile));
-        if(!board[i]){
+    for (int i = 0; i < ROW; ++i) {
+        board[i] = malloc( ROW * sizeof (Tile));
+        if(board[i] ==  NULL){
             exit(2);
         }
-        for (int j = 0; j < c; ++j) {
-            board[i][j] = creatTiles();
+        for (int j = 0; j < COL; ++j) {
+            board[i][j] = createTiles();
         }
     }
 
     return board;
 }
+int checkFish(Tile** board, Player* players){
+    int cnt = 0;
 
-void showTiles(tile tiles){
+    for(int i = 0; i < ROW; i++){
+        for(int j = 0; j < COL; j++){
+            if(board[i][j].fish == 1){
+                cnt++;
+            }
+        }
+    }
+    if(cnt < strlen(players)){
+        return checkFish(createBoard(), players);
+    }
+    return 1;
+}
+
+
+void showTiles(Tile tiles){
 
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
@@ -118,13 +141,13 @@ void showTiles(tile tiles){
     }
 }
 
-void showBoard(tile** board){
+void showBoard(Tile** board){
 
 
-    for (int i = 0; i < l; ++i) {
-        for (int j = 0; j < c; ++j) {
+    for (int i = 0; i < ROW; ++i) {
+        for (int j = 0; j < COL; ++j) {
             showTiles(board[i][j]);
-            //printf("l : %d, c : %d\n", i, j);
+            //printf("ROW : %d, COL : %d\n", i, j);
         }
 
     }
@@ -132,22 +155,46 @@ void showBoard(tile** board){
 
 }
 
+void showScore(Player* players){
+    length = strlen(players);
+    for(int i = 0; i < length; i++){
+        printf("Score joueur %s: %d\n", players[i].name, players[i].score);
+    }
+
+}
+
+void checkMove(Tile** board, Player player){
+    int penguin;
+    do{
+        printf("Choose your penguins that you want to move:\n");
+        scanf("%d", penguin);
+    }while(penguin < 1 || penguin > player.penguins);
+    for(int i = 0; i < ROW; i++){
+        for(int j = 0; j < COL; j++){
+            //if(board[i][j].isTherePlayer == 1){
+                //continue;
+            //}
+        }
+    }
+}
 
 int main() {
 
-    tile** board = NULL;
+    Tile** board = NULL;
 
     srand(time(NULL));
 
 
-    //player* players;
+    //Player* players;
 
     //players = createPlayers();
 
     board = createBoard();
+    //checkfish = checkFish(board, players);
 
 
     showBoard(board);
+    //showScore(players);
 
 
 
