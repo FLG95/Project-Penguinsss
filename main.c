@@ -168,6 +168,7 @@ void checkMove(Tile** board, Player player){
     do{
         printf("Choose your penguins that you want to move:\n");
         scanf("%d", penguin);
+        //recuperer les coordonnees du penguin choisi
     }while(penguin < 1 || penguin > player.penguins);
     for(int i = 0; i < ROW; i++){
         for(int j = 0; j < COL; j++){
