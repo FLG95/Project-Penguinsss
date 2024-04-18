@@ -1,9 +1,10 @@
-#include "stdio.h"
+
+#include "curses.h"
 
 #include "stdlib.h"
 #include "string.h"
 #include "time.h"
-
+#include <unistd.h>
 
 const int l = 4;
 const int c = 4;
@@ -141,6 +142,9 @@ int main() {
 
     srand(time(NULL));
 
+    initscr();
+    printw("Hello World");
+    sleep(1);
 
 
     player* players;
@@ -153,6 +157,8 @@ int main() {
 
 
 
+    getch();
+    endwin();
 
     free(players);
     free(board);
