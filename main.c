@@ -144,29 +144,33 @@ int main() {
     srand(time(NULL));
 
 
+/*
     initscr();
     refresh();
 
     sleep(1);
-
-    getch();
-
-    endwin();
+*/
 
 
-    //player* players;
 
-    //players = createPlayers();
+    player* players;
+
+    players = createPlayers();
 
     board = createBoard();
+
 
 
     showBoard(board);
 
 
-    //scanf("%d", &a);
 
-    //free(players);
+    /*
+    getch();
+
+    endwin();
+*/
+    free(players);
     free(board);
     return 0;
 }
