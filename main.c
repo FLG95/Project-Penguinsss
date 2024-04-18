@@ -4,14 +4,8 @@
 #include "string.h"
 #include "time.h"
 
-<<<<<<< HEAD
 const int ROW = 4;
 const int COL= 4;
-=======
-
-const int l = 4;
-const int c = 4;
->>>>>>> 6bc412e1e4dc208c6bfb9eea2fb1fce2663c5205
 
 typedef struct {
     char* name;
@@ -28,6 +22,7 @@ typedef struct{
 
 
 Player* createPlayers(){
+    /*This function allows you to create each player adnd fill in each of their attributes.*/
     int n = 0, b = 0;
     unsigned long length;
     char name[100];
@@ -42,12 +37,12 @@ Player* createPlayers(){
         printf("Too much try miss");
         exit(2);
     }
-    }while(n < 2 || n > 6);
+    }while(n < 2 || n > 6); /*We check that the number of players entered by the user is valid.*/
 
     players = malloc( n * sizeof(Player));
     if(players == NULL){
         exit(1);
-    }
+    } /*We check whether or not the memory allocation has been successfull.*/
 
 
     for (int i = 0; i < n; ++i) {
@@ -58,10 +53,12 @@ Player* createPlayers(){
         players[i].name = malloc( length * sizeof(char));
         if(players[i].name == NULL){
             exit(1);
-        }
+        } /*We check whether or not the memory allocation has been successfull.*/
         players[i].name = name;
         players[i].num = i+1;
         players[i].score = 0;
+
+        /*Depending on the number of players, we will attribute a different number of penguins to each player.*/
         if(n == 2){
             players[i].penguins = 4;
         }
@@ -81,7 +78,7 @@ Player* createPlayers(){
 }
 
 Tile createTiles(){
-
+    /*This function allows us to create each octagon of the ice pack and fill this attribute.*/
     Tile tile;
 
     Tile.isAlive = 1;
@@ -94,36 +91,40 @@ Tile createTiles(){
 }
 
 Tile** createBoard(){
-
+    /*This function allows us to create the game board.*/
     Tile** board;
 
     board = malloc( COL * sizeof(Tile*));
     if(board == NULL){
         exit(2);
-    }
+    } /*We check whether or not the memory allocation has been successfull.*/
 
     for (int i = 0; i < ROW; ++i) {
         board[i] = malloc( ROW * sizeof (Tile));
         if(board[i] ==  NULL){
             exit(2);
-        }
+        } /*We check whether or not the memory allocation has been successfull.*/
         for (int j = 0; j < COL; ++j) {
-            board[i][j] = createTiles();
+            board[i][j] = createTiles(); /*We fill each cell of the table with a tile and all its attributes.*/
         }
     }
 
     return board;
 }
 int checkFish(Tile** board, Player* players){
+    /*This function allows us to check whether there atre enough octagons available containing only one fish, 
+    depending on the number of players int the game.*/
     int cnt = 0;
 
     for(int i = 0; i < ROW; i++){
         for(int j = 0; j < COL; j++){
             if(board[i][j].fish == 1){
-                cnt++;
+                cnt++; /*we see how many octagons contain only one fish.*/
             }
         }
     }
+    /*If the number of octagons with one fish is insufficient, our fonction is rerun by recreating a new game table
+     and using it as an argument.*/
     if(cnt < strlen(players)){
         return checkFish(createBoard(), players);
     }
@@ -132,7 +133,7 @@ int checkFish(Tile** board, Player* players){
 
 
 void showTiles(Tile tiles){
-
+    /*This function displays an octagon.*/
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
             if(j == 0 || j == 2 || i == 0 || i == 2 ){
@@ -149,7 +150,7 @@ void showTiles(Tile tiles){
 }
 
 void showBoard(Tile** board){
-
+    /*This function displays the ice pack.*/
 
     for (int i = 0; i < ROW; ++i) {
         for (int j = 0; j < COL; ++j) {
@@ -162,6 +163,7 @@ void showBoard(Tile** board){
 }
 
 void showScore(Player* players){
+    /*This function displays the name and score of each player.*/
     length = strlen(players);
     for(int i = 0; i < length; i++){
         printf("Score joueur %s: %d\n", players[i].name, players[i].score);
@@ -170,6 +172,7 @@ void showScore(Player* players){
 }
 
 void checkMove(Tile** board, Player player){
+    /*This function checks whether a move is possible based on the penguin chosen by the player.*/
     int penguin;
     do{
         printf("Choose your penguins that you want to move:\n");
