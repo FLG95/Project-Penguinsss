@@ -6,8 +6,9 @@
 #include "time.h"
 #include <unistd.h>
 
-const int l = 4;
-const int c = 4;
+const int l = 4; // y
+const int c = 4; // x
+const int tilesSquare = 4;
 
 typedef struct {
 
@@ -22,6 +23,8 @@ typedef struct{
     int fish;
     int isTherePlayer;
     int isAlive;
+    int posX;
+    int posY;
 
 }tile;
 
@@ -69,7 +72,7 @@ player* createPlayers(){
 
 }
 
-tile creatTiles(){
+tile creatTiles(int x, int y){
 
     tile tile;
 
@@ -79,7 +82,10 @@ tile creatTiles(){
 
     tile.isTherePlayer = 0;
 
+    tile.posX = x;
+    tile.posY = y;
 
+    return tile;
 }
 
 tile** createBoard(){
@@ -91,13 +97,13 @@ tile** createBoard(){
         exit(2);
     }
 
-    for (int i = 0; i < l; ++i) {
+    for (int i = 0; i < l; ++i) { // y
         board[i] = malloc( l * sizeof (tile));
         if(!board[i]){
             exit(2);
         }
-        for (int j = 0; j < c; ++j) {
-            board[i][j] = creatTiles();
+        for (int j = 0; j < c; ++j) { // x
+            board[i][j] = creatTiles(j*tilesSquare, i*tilesSquare);
         }
     }
 
@@ -106,61 +112,126 @@ tile** createBoard(){
 
 void showTiles(tile tiles){
 
-    for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j) {
-            if(j == 0 || j == 2 || i == 0 || i == 2 ){
-                printf("#");
+    int x= tiles.posX;
+    int y = tiles.posY;
+
+
+    move(tiles.posY, tiles.posX);
+
+    for (int i = 0; i < tilesSquare; ++i) {// colone
+        for (int j = 0; j < tilesSquare; ++j) { // ligne
+            if(i == 0 || i == tilesSquare-1 ){
+                printw("-");
+            }
+            else if(j == 0 || j == tilesSquare-1 ){
+                printw("|");
             }
             else{
-                printf(" ");
+                printw(" ");
+
             }
         }
-        if(i != 2){
-            printf("\n");
+        y++;
+        if(i != tilesSquare-1){
+            move( y, tiles.posX);
         }
+        refresh();
     }
 }
 
-void showBoard(tile** board){
-
+void showBoard(tile** board, WINDOW *window){
 
     for (int i = 0; i < l; ++i) {
         for (int j = 0; j < c; ++j) {
             showTiles(board[i][j]);
-            //printf("l : %d, c : %d\n", i, j);
         }
-
     }
 
+    wrefresh(window);
+}
+
+void destroyTiles(tile tiles){
+
+    int x= tiles.posX;
+    int y = tiles.posY;
+
+
+    move(tiles.posY, tiles.posX);
+
+    for (int i = 0; i < tilesSquare; ++i) {// colone
+        for (int j = 0; j < tilesSquare; ++j) { // ligne
+            if(i == 0 || i == tilesSquare-1 ){
+                printw(" ");
+            }
+            else if(j == 0 || j == tilesSquare-1 ){
+                printw(" ");
+            }
+            else{
+                printw(" ");
+
+            }
+        }
+        y++;
+        if(i != tilesSquare-1){
+            move( y, tiles.posX);
+        }
+        refresh();
+    }
 }
 
 
-int main() {
+void mainCurse() {
+
+    int ch;
+    initscr();
 
 
+    int height, width, start_y, start_x;
     tile** board = NULL;
 
     srand(time(NULL));
 
-    initscr();
-    printw("Hello World");
-    sleep(1);
+    height = l*tilesSquare;
+    width = c*tilesSquare;
+
+    start_y = 0;
+    start_x = 0;
+
+    WINDOW *window = newwin(height, width, start_y, start_x);
+    wrefresh(window);
 
 
+    //box(window, 0, 0);
+
+
+
+
+/*
     player* players;
 
-    players = createPlayers();
+    //players = createPlayers();
+
+*/
 
     board = createBoard();
 
-    showBoard(board);
+    showBoard(board, window);
+
+    destroyTiles(board[1][0]);
 
 
+    int b = 1;
+    while( b ){
+        noecho(); // empeche d'écrire ce qu'on tape au clavier
+        ch = getch();
+        if( ch == 27){
+            b = 0;
+        }
+    }
 
-    getch();
-    endwin();
 
-    free(players);
+    //free(players);
+
     free(board);
     return 0;
 }
