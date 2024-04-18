@@ -180,7 +180,7 @@ void destroyTiles(tile tiles){
 }
 
 
-void mainCurse() {
+int main() {
 
     int ch;
     initscr();
