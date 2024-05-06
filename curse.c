@@ -308,14 +308,7 @@ void destroyTiles(tile tiles){
 int closeGame(){
     char ch;
 
-    ch = getch();
-    if( ch == 27){
-        return 1;
-    }
-    else{
-        return 0;
-    }
-}
+void main() {
 
 void Inputs(){
 
