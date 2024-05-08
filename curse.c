@@ -1,19 +1,96 @@
 
 #include <ncurse/curses.h>
+#include "ncurses.h"
 
 #include "stdlib.h"
 #include "string.h"
 #include "time.h"
 #include <unistd.h>
+#include "wchar.h"
 
-const int l = 4;
-const int c = 4;
+
+#define PLAYER_PAIR 1;
+
+
+/*
+
+  VARIANTE :
+
+ GRILLES : 3
+ START : 1
+ FISH : 1
+
+
+  (^v^)
+ <(   )>
+   W W
+
+ /🐟\ /   \ /   \ /  \
+|🐟🐟|     |     |    |
+ \  / \   /  \   / \  /
+   |    |   |   |   |
+ /  \ /  \ /  \ /  \ /
+|    |    |    |    |
+ \  / \  / \  / \  /
+
+aaaaaaaaaaaaa
+🐟|︿﹀^
+  ︿ ︿  ︿ ︿
+ |🐟|🐟|🐟|🐟|
+  ﹀ ﹀  ﹀ ﹀
+
+
+L7 C9  millieu L4, C3
+ 0123456789
+0    #       #       #
+1  #   #   #   #   #   #
+2#       #       #       #
+3#       #       #       #
+4#       #       #       #
+6  #   #   #   #   #   #   #
+7    #       #       #       #
+8    #       #       #       #
+9    #       #       #       #
+   #   #   #   #   #   #   #
+ #       #       #       #
+ #       #       #       #
+ #       #       #       #
+   #   #   #   #   #   #
+     #       #       #
+
+ */
+
+
+
+/*
+ / \
+| 🐟 |
+ \ /
+
+
+
+ (^v^)
+<(   )>
+  W W
+
+  -O<
+
+  🐧 🐟
+
+ */
+
+
+
+const int l = 4; // y
+const int c = 4; // x
+const int tilesSquare = 4;
 
 typedef struct {
 
     char* name;
     int num;
-
+    int tileX;
+    int tilesY;
 
 }player;
 
@@ -22,8 +99,11 @@ typedef struct{
     int fish;
     int isTherePlayer;
     int isAlive;
+    int posX;
+    int posY;
 
 }tile;
+
 
 
 player* createPlayers(){
@@ -69,7 +149,7 @@ player* createPlayers(){
 
 }
 
-tile creatTiles(){
+tile creatTiles(int x, int y){
 
     tile tile;
 
@@ -79,7 +159,10 @@ tile creatTiles(){
 
     tile.isTherePlayer = 0;
 
+    tile.posX = x;
+    tile.posY = y;
 
+    return tile;
 }
 
 tile** createBoard(){
@@ -91,76 +174,225 @@ tile** createBoard(){
         exit(2);
     }
 
-    for (int i = 0; i < l; ++i) {
+    for (int i = 0; i < l; ++i) { // y
         board[i] = malloc( l * sizeof (tile));
         if(!board[i]){
             exit(2);
         }
-        for (int j = 0; j < c; ++j) {
-            board[i][j] = creatTiles();
+        for (int j = 0; j < c; ++j) { // x
+            board[i][j] = creatTiles(j*tilesSquare, i*tilesSquare);
         }
     }
 
     return board;
 }
 
-void showTiles(tile tiles){
+void showTilesExa(tile tiles){
 
-    for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j) {
-            if(j == 0 || j == 2 || i == 0 || i == 2 ){
-                printf("#");
+    int x = tiles.posX;
+    int y = tiles.posY;
+
+
+    move(tiles.posY, tiles.posX);
+
+    for (int i = 0; i < tilesSquare; ++i) {// colone
+        for (int j = 0; j < tilesSquare; ++j) { // ligne
+
+
+        }
+        y++;
+        if(i != tilesSquare-1){
+            move( y, x);
+        }
+        refresh();
+
+    }
+}
+
+
+void showTiles(tile tiles, bool first){
+
+    int x;
+    int y;
+
+    if(first){// si première ligne on dessine normalement la case
+        x = tiles.posX;
+        y = tiles.posY;
+    }
+    else{ // sinon on décale de 1 cran pour superposer la case avec celle d'avant
+        x = tiles.posX-1;
+        y = tiles.posY-1;
+    }
+
+    move(tiles.posY, tiles.posX);
+
+    for (int i = 0; i < tilesSquare; ++i) {// ligne
+        for (int j = 0; j < tilesSquare; ++j) { // colone
+            if(i == 0 || i == tilesSquare-1 ){
+                printw("#");
+            }
+            else if(j == 0 || j == tilesSquare-1 ){
+                printw("#");
             }
             else{
-                printf(" ");
+                printw("-");
             }
         }
-        if(i != 2){
-            printf("\n");
+
+        y++;
+        if(i != tilesSquare-1){
+            move( y, x);
         }
+        refresh();
     }
 }
 
-void showBoard(tile** board){
 
 
-    for (int i = 0; i < l; ++i) {
-        for (int j = 0; j < c; ++j) {
-            showTiles(board[i][j]);
-            //printf("l : %d, c : %d\n", i, j);
+
+
+void showBoard(tile** board, WINDOW *window){
+
+    for (int i = 0; i < l; ++i) {  // ligne
+        for (int j = 0; j < c; ++j) {  // colone
+
+
+
+
+            if( (i%2 == 1) && (j == 0)){
+
+            }
+            else{
+                if(i == 0){
+                    showTiles(board[i][j], true);
+                }
+                else {
+                    showTiles(board[i][j], false);
+                }
+            }
+
         }
-
     }
 
+    wrefresh(window);
 }
 
+void destroyTiles(tile tiles){
+
+    int x = tiles.posX;
+    int y = tiles.posY;
+
+
+    move(tiles.posY, tiles.posX);
+
+    for (int i = 0; i < tilesSquare; ++i) {// colone
+        for (int j = 0; j < tilesSquare; ++j) { // ligne
+            if(i == 0 || i == tilesSquare-1 ){
+                printw(" ");
+            }
+            else if(j == 0 || j == tilesSquare-1 ){
+                printw(" ");
+            }
+            else{
+                printw(" ");
+
+            }
+        }
+        y++;
+        if(i != tilesSquare-1){
+            move( y, tiles.posX);
+        }
+        refresh();
+    }
+}
+
+int closeGame(){
+    char ch;
+
+void main() {
+
+void Inputs(){
+
+}
 
 int main() {
 
+    initscr();
 
+
+    int height, width, start_y, start_x;
     tile** board = NULL;
 
     srand(time(NULL));
 
-    initscr();
-    printw("Hello World");
-    sleep(1);
+    height = l*tilesSquare;
+    width = c*tilesSquare;
+
+    start_y = 0;
+    start_x = 5;
+
+    WINDOW *window = newwin(height, width, start_y, start_x);
+    wrefresh(window);
+
+    if (has_colors() == false){
+        endwin();
+        printf("Terminal dont support color \n");
+        exit(1);
+    }
+
+    start_color();
+    init_pair( 1, COLOR_RED, COLOR_BLACK);
 
 
+
+/*
     player* players;
 
-    players = createPlayers();
+    //players = createPlayers();
+
+*/
 
     board = createBoard();
 
-    showBoard(board);
+    showBoard(board, window);
+
+    //destroyTiles(board[1][1]);
+
+
+    attron(COLOR_PAIR(1));
+
+    move(0,0);
+    printw("P");
+
+    wrefresh(window);
+    refresh();
+
+    attroff(COLOR_PAIR(1));
+
+    /*
+    mvprintw(0, 0, "%lc \uFE3F");
+    mvprintw(10, 10, "%lc \uFE40");
+    refresh();
+    */
+
+    while(  closeGame() == 0){
+        noecho(); // empeche d'écrire ce qu'on tape au clavier
+        Inputs(); // fonction pour gérer les touches
 
 
 
-    getch();
-    endwin();
 
-    free(players);
+
+
+
+
+
+    }
+
+
+
+    //free(players);
+
     free(board);
     return 0;
 }

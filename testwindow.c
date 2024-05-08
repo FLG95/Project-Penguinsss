@@ -30,10 +30,7 @@ int makeWindow(){
     noecho();
     init_pair(1, COLOR_CYAN, COLOR_BLACK);
     attron(COLOR_PAIR(1));
-    printw("Press echap to exit\n");
-    printw("︿\n");
-    printw("🐧\n");
-    printw("﹀");
+    printw("Press echap to exit");
     refresh();
     attroff(COLOR_PAIR(1));
     

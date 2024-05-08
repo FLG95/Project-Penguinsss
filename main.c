@@ -3,6 +3,8 @@
 #include "string.h"
 #include "time.h"
 
+
+
 const int ROW = 4;
 const int COL= 4;
 
@@ -80,9 +82,9 @@ Tile createTiles(){
     /*This function allows us to create each octagon of the ice pack and fill this attribute.*/
     Tile tile;
 
-    Tile.isAlive = 1;
+    tile.isAlive = 1;
 
-    Tile.fish = (rand()%3) + 1;
+    tile.fish = (rand()%3) + 1;
 
     Tile.isTherePlayer = 0;
     return Tile;
@@ -162,7 +164,7 @@ void showBoard(Tile** board){
 
 void showScore(Player* players){
     /*This function displays the name and score of each player.*/
-    length = strlen(players);
+    int length = strlen(players);
     for(int i = 0; i < length; i++){
         printf("Score joueur %s: %d\n", players[i].name, players[i].score);
     }
@@ -194,9 +196,8 @@ int main() {
     srand(time(NULL));
 
 
-    //Player* players;
 
-    player* players;
+    Player* players;
 
     players = createPlayers();
 
