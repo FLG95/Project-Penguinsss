@@ -18,7 +18,7 @@ void printEmoji(int x, int y){ //affiche le pinguin
 }
 
 
-void showTiles(){
+void showTilestest(){
     initscr();
     start_color();
     init_pair(1, COLOR_CYAN, COLOR_BLACK);
@@ -44,7 +44,7 @@ void showTiles(){
 void showIceFloe(){
     for(int i = 0; i < 1; i++){
         for(int j  = 0; j < 2; j++){
-            showTiles();
+            showTilestest();
         }
     }
     

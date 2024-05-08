@@ -83,7 +83,6 @@ L7 C9  millieu L4, C3
 
 const int l = 4; // y
 const int c = 4; // x
-const int tilesSquare = 4;
 
 typedef struct {
 
@@ -255,10 +254,6 @@ void showBoard(tile** board, WINDOW *window){
 
     for (int i = 0; i < l; ++i) {  // ligne
         for (int j = 0; j < c; ++j) {  // colone
-
-
-
-
             if( (i%2 == 1) && (j == 0)){
 
             }
@@ -309,7 +304,6 @@ void destroyTiles(tile tiles){
 int closeGame(){
     char ch;
 
-void main() {
 
 void Inputs(){
 
@@ -321,12 +315,12 @@ int main() {
 
 
     int height, width, start_y, start_x;
-    tile** board = NULL;
+    tile **board = NULL;
 
     srand(time(NULL));
 
-    height = l*tilesSquare;
-    width = c*tilesSquare;
+    height = l * tilesSquare;
+    width = c * tilesSquare;
 
     start_y = 0;
     start_x = 5;
@@ -334,14 +328,14 @@ int main() {
     WINDOW *window = newwin(height, width, start_y, start_x);
     wrefresh(window);
 
-    if (has_colors() == false){
+    if (has_colors() == false) {
         endwin();
         printf("Terminal dont support color \n");
         exit(1);
     }
 
     start_color();
-    init_pair( 1, COLOR_RED, COLOR_BLACK);
+    init_pair(1, COLOR_RED, COLOR_BLACK);
 
 
 
@@ -361,7 +355,7 @@ int main() {
 
     attron(COLOR_PAIR(1));
 
-    move(0,0);
+    move(0, 0);
     printw("P");
 
     wrefresh(window);
@@ -375,7 +369,7 @@ int main() {
     refresh();
     */
 
-    while(  closeGame() == 0){
+    while (closeGame() == 0) {
         noecho(); // empeche d'écrire ce qu'on tape au clavier
         Inputs(); // fonction pour gérer les touches
 
@@ -388,7 +382,6 @@ int main() {
 
 
     }
-
 
 
     //free(players);
