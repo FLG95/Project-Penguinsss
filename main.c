@@ -1,5 +1,4 @@
 #include "stdio.h"
-
 #include "stdlib.h"
 #include "string.h"
 #include "time.h"
@@ -86,8 +85,7 @@ Tile createTiles(){
     Tile.fish = (rand()%3) + 1;
 
     Tile.isTherePlayer = 0;
-
-
+    return Tile;
 }
 
 Tile** createBoard(){
@@ -114,18 +112,18 @@ Tile** createBoard(){
 int checkFish(Tile** board, Player* players){
     /*This function allows us to check whether there atre enough octagons available containing only one fish, 
     depending on the number of players int the game.*/
-    int cnt = 0;
+    int counter = 0;
 
     for(int i = 0; i < ROW; i++){
         for(int j = 0; j < COL; j++){
             if(board[i][j].fish == 1){
-                cnt++; /*we see how many octagons contain only one fish.*/
+                counter++; /*we see how many octagons contain only one fish.*/
             }
         }
     }
     /*If the number of octagons with one fish is insufficient, our fonction is rerun by recreating a new game table
      and using it as an argument.*/
-    if(cnt < strlen(players)){
+    if(counter < strlen(players)){
         return checkFish(createBoard(), players);
     }
     return 1;
