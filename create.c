@@ -2,9 +2,7 @@
 #include "deps/create.h"
 
 
-const int tilesSquare = 4;
-const int l = 9; // y
-const int c = 9; // x
+
 
 
 Player* createPlayers(){
@@ -66,7 +64,7 @@ Tile creatTiles(int x, int y){
     return Tile;
 }
 
-Tile** createBoard(){
+Tile** createBoard(int l, int c, int tilesSquare){
 
     Tile** board;
 

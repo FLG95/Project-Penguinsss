@@ -46,7 +46,6 @@ L7 C9  millieu L4, C3
 1  #   #   #   #   #   #
 2#       #       #       #
 3#       #       #       #
-4#       #       #       #
 6  #   #   #   #   #   #   #
 7    #       #       #       #
 8    #       #       #       #
@@ -58,8 +57,15 @@ L7 C9  millieu L4, C3
    #   #   #   #   #   #
      #       #       #
 
+   #     #
+#     #     #
+#     #     #
+#     #     #
+   #     #     #
+   #     #     #
+   #     #     #
+      #     #
  */
-
 
 
 /*
@@ -80,7 +86,7 @@ L7 C9  millieu L4, C3
  */
 
 
-
+const int tilesSquare = 4;
 const int l = 4; // y
 const int c = 4; // x
 
@@ -301,13 +307,6 @@ void destroyTiles(tile tiles){
     }
 }
 
-int closeGame(){
-    char ch;
-
-
-void Inputs(){
-
-}
 
 int main() {
 
@@ -372,11 +371,6 @@ int main() {
     while (closeGame() == 0) {
         noecho(); // empeche d'écrire ce qu'on tape au clavier
         Inputs(); // fonction pour gérer les touches
-
-
-
-
-
 
 
 
