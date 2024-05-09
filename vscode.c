@@ -1,5 +1,5 @@
-#include "ncurses.h"
-//#include <curse/ncurses.h>
+//#include "ncurses.h"
+#include "ncurses\curses.h"
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
@@ -51,11 +51,11 @@ Player* createPlayers(){
 
     Player* player;
 
-    printf("How many players? between 2 and 6");
+    printf("How many players? (between 2 and 6)\n");
     scanf("%d", &n);
 
     while(n < 2 || n > 6){
-        printf("between 2 and 6 please");
+        printf("between 2 and 6 please\n");
         scanf("%d", &n);
         if(b == 10) {
             printf("Too much try miss");
@@ -71,7 +71,7 @@ Player* createPlayers(){
 
 
     for (int i = 0; i < n; ++i) {
-        printf("Enter the name of the player %d", i+1);
+        printf("Enter the name of the player %d:\n", i+1);
         scanf("%s", name);
         length = strlen(name);
 
@@ -104,7 +104,6 @@ Tile creatTiles(int x, int y){
 }
 
 Tile** createBoard(int l, int c, int tilesSquare){
-
     Tile** board;
 
     board = malloc( c * sizeof(Tile*));
@@ -121,7 +120,6 @@ Tile** createBoard(int l, int c, int tilesSquare){
             board[i][j] = creatTiles(j*tilesSquare, i*tilesSquare);
         }
     }
-
     return board;
 }
 
@@ -141,39 +139,28 @@ void printEmoji(int x, int y){ //affiche le pinguin
 }
 
 
-void showTiles(){
+void showTiles(int x, int y){
     init_pair(1, COLOR_CYAN, COLOR_BLACK);
     attron(COLOR_PAIR(1));
-    for(int i = 0; i < 11; i++){ //affiche la premiere colonne
-        if(i == 0){
-            printw("   #      #\n"); //tab-1 puis tab+2
-        }
-        else if(i == 10){
-            printw("   #\n"); //tab-1
-        }
-        else if((i >= 4 && i < 7)){
-            printw("   #     #\n"); //tab-1 puis tab+3
-        }
-        else{
-            printw("#     #\n"); //tab+3
-        }
-    }
+    mvprintw(y, x, "  #"); //tab-1
+    mvprintw(y-1, x-1, "#     #"); //tab+3
+    mvprintw(y-2, x-1, "#     #"); //tab+3
+    mvprintw(y-3, x-1, "#     #"); //tab+3
+    mvprintw(y-4, x, "  #");
     attroff(COLOR_PAIR(1));
 }
 
 void showTile00(Tile tiles, int tilesSquareX, int tilesSquareY){
-
     move(tiles.posY, tiles.posX+3);
     printw("#");
 }
 
+
+
 void showTile0X(Tile tiles, int tilesSquare){
-
     int x;
     int y;
-
     move(tiles.posY, tiles.posX);
-
     for (int i = 0; i < tilesSquare; ++i) {// ligne
         for (int j = 0; j < tilesSquare; ++j) { // colone
 
@@ -183,13 +170,12 @@ void showTile0X(Tile tiles, int tilesSquare){
         refresh();
     }
 }
+
+
 void showTileY0(Tile tiles, int tilesSquare){
-
     int x;
     int y;
-
     move(tiles.posY, tiles.posX);
-
     for (int i = 0; i < tilesSquare; ++i) {// ligne
         for (int j = 0; j < tilesSquare; ++j) { // colone
 
@@ -199,14 +185,13 @@ void showTileY0(Tile tiles, int tilesSquare){
         refresh();
     }
 }
+
+
 
 void showTileYX(Tile tiles, int tilesSquare){
-
     int x;
     int y;
-
     move(tiles.posY, tiles.posX);
-
     for (int i = 0; i < tilesSquare; ++i) {// ligne
         for (int j = 0; j < tilesSquare; ++j) { // colone
 
@@ -218,11 +203,18 @@ void showTileYX(Tile tiles, int tilesSquare){
 }
 
 
-
-void showIceFloe(){
-    for(int i = 0; i < 1; i++){
-        for(int j  = 0; j < 2; j++){
-            showTiles();
+void showIceFloe(int x, int y){
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 18; j++) {
+            showTiles(x + j * 8, y + i * 6); // on gere l'espacement des #
+            if(j % 2 != 1){
+                x-=5; //on baisse la coordonne de x pour aligner a droite le losange
+                y+=3;//on augmente la coordonne de y pour aligner a droite le losange
+            }
+            else{
+                x+=5;  // si ont met + ont a 4 ligne mais decoller si ont met - on a 2 lignes et tout coller
+                y-=3;
+            }
         }
     }
 }
@@ -235,9 +227,9 @@ void showBoard(Tile** board, WINDOW *window, int l, int c) {
 
             } else {
                 if (i == 0) {
-                    showTiles(board[i][j]);
+                    //showTiles(board[i][j]);
                 } else {
-                    showTiles(board[i][j]);
+                    //showTiles(board[i][j]);
                 }
             }
 
@@ -280,8 +272,8 @@ void makeWindow(){
     refresh();
 
     win = createWindow(pinguin_height, pinguin_width, startx, starty);
-    showIceFloe();
-    printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
+    showIceFloe(20, 5);
+    //printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
 
 
 
