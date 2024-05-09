@@ -1,9 +1,9 @@
 #include "ncurses.h"
+//#include <curse/ncurses.h>
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
 #include "time.h"
-
 
 const int tilesSquare = 4;
 const int l = 9; // y
