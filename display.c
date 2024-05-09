@@ -1,4 +1,4 @@
-#include "deps/display.h"
+#include "include/display.h"
 
 #define pinguin_height  2
 #define pinguin_width  2

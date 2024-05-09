@@ -1,6 +1,6 @@
 
 
-#include "deps/display.h"
+#include "include/display.h"
 #include "time.h"
 
 const int tilesSquare = 4;
