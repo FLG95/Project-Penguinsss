@@ -342,13 +342,13 @@ int main(){
 
     srand(time(NULL));
 
-    //makeWindow();
+    makeWindow();
 
     players = createPlayers();
 
     board = createBoard(l, c, tilesSquare);
 
-    showBoard(board, l, c);
+    showBoard(board, window, l, c);
 
 
     //checkfish = checkFish(board, players);
