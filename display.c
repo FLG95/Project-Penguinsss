@@ -8,6 +8,7 @@
 void printEmoji(int x, int y){ //affiche le pinguin
     move(x, y);
     printw("🐧");
+
     refresh();
 }
 
