@@ -1,4 +1,5 @@
 #include "ncurses.h"
+//#include <curse/ncurses.h>
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
