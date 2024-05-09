@@ -126,8 +126,7 @@ void destroyWin(WINDOW *win){
 
 
 
-void makeWindow(){
-    WINDOW* win;
+void makeWindow(WINDOW * window){
     PinguinCoords p_coords;
     int startx = 0, starty = 0;
 
@@ -151,7 +150,6 @@ void makeWindow(){
     //printw("Press echap to exit");
     refresh();
 
-    win = createWindow(pinguin_height, pinguin_width, startx, starty);
     showIceFloe();
     printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
 
@@ -161,8 +159,8 @@ void makeWindow(){
         switch(touch){
             case KEY_LEFT:
                 if(starty > 0){ //verifie que le pinguin sort pas de l'écran
-                    destroyWin(win);
-                    win = createWindow(pinguin_height, pinguin_width, startx, starty--);
+                    destroyWin(window);
+                    window = createWindow(pinguin_height, pinguin_width, startx, starty--);
                     printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
                     p_coords.x = startx; //on met a jour les coordonnées du pinguin
                     p_coords.y = starty;
@@ -171,8 +169,8 @@ void makeWindow(){
 
             case KEY_RIGHT:
                 if(starty < COLS - pinguin_width){ //verifie que le pinguin sort pas de l'écran
-                    destroyWin(win);
-                    win = createWindow(pinguin_height, pinguin_width, startx, starty++);
+                    destroyWin(window);
+                    window = createWindow(pinguin_height, pinguin_width, startx, starty++);
                     printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
                     p_coords.x = startx; //on met a jour les coordonnées du pinguin
                     p_coords.y = starty;
@@ -181,8 +179,8 @@ void makeWindow(){
 
             case KEY_UP:
                 if(startx > 0){ //verifie que le pinguin sort pas de l'écran
-                    destroyWin(win);
-                    win = createWindow(pinguin_height, pinguin_height, startx--, starty);
+                    destroyWin(window);
+                    window = createWindow(pinguin_height, pinguin_height, startx--, starty);
                     printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
                     p_coords.x = startx; //on met a jour les coordonnées du pinguin
                     p_coords.y = starty;
@@ -191,8 +189,8 @@ void makeWindow(){
 
             case KEY_DOWN:
                 if(startx < LINES - pinguin_height){ //verifie que le pinguin sort pas de l'écran
-                    destroyWin(win);
-                    win = createWindow(pinguin_height, pinguin_width, startx++, starty);
+                    destroyWin(window);
+                    window = createWindow(pinguin_height, pinguin_width, startx++, starty);
                     printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
                     p_coords.x = startx; //on met a jour les coordonnées du pinguin
                     p_coords.y = starty;

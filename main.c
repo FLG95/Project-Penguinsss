@@ -19,15 +19,19 @@ int main(){
     Player* players;
     WINDOW* window;
 
+
     srand(time(NULL));
 
-    //makeWindow();
+    window = createWindow(pinguin_height, pinguin_width, startX, startY);
 
-    players = createPlayers();
+
+    makeWindow();
+
+    //players = createPlayers();
 
     board = createBoard(l, c, tilesSquare);
 
-    showBoard(board, l, c);
+    showBoard(board, window, l, c);
 
 
     //checkfish = checkFish(board, players);
