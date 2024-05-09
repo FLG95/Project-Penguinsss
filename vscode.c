@@ -212,12 +212,13 @@ void showIceFloe(int x, int y){
                 y+=3;//on augmente la coordonne de y pour aligner a droite le losange
             }
             else{
-                x+=5;  // si ont met + ont a 4 ligne mais decoller si ont met - on a 2 lignes et tout coller
+                x-=5;  // si ont met + ont a 4 ligne mais decoller si ont met - on a 2 lignes et tout coller
                 y-=3;
             }
         }
     }
 }
+
 
 void showBoard(Tile** board, WINDOW *window, int l, int c) {
 
