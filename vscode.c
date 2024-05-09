@@ -5,7 +5,6 @@
 #include "string.h"
 #include "time.h"
 
-
 const int tilesSquare = 4;
 const int l = 9; // y
 const int c = 9; // x
