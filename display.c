@@ -13,91 +13,33 @@ void printEmoji(int x, int y){ //affiche le pinguin
 }
 
 
-void showTiles(){
+void showTiles(int x, int y){
     init_pair(1, COLOR_CYAN, COLOR_BLACK);
     attron(COLOR_PAIR(1));
-    for(int i = 0; i < 11; i++){ //affiche la premiere colonne
-        if(i == 0){
-            printw("   #      #\n"); //tab-1 puis tab+2
-        }
-        else if(i == 10){
-            printw("   #\n"); //tab-1
-        }
-        else if((i >= 4 && i < 7)){
-            printw("   #     #\n"); //tab-1 puis tab+3
-        }
-        else{
-            printw("#     #\n"); //tab+3
-        }
-    }
+    mvprintw(y, x, "  #"); //tab-1
+    mvprintw(y-1, x-1, "#     #"); //tab+3
+    mvprintw(y-2, x-1, "#     #"); //tab+3
+    mvprintw(y-3, x-1, "#     #"); //tab+3
+    mvprintw(y-4, x, "  #");
     attroff(COLOR_PAIR(1));
 }
 
-void showTile00(Tile tiles, int tilesSquareX, int tilesSquareY){
-
-    move(tiles.posY, tiles.posX+3);
-    printw("#");
-}
-
-void showTile0X(Tile tiles, int tilesSquare){
-
-    int x;
-    int y;
-
-    move(tiles.posY, tiles.posX);
-
-    for (int i = 0; i < tilesSquare; ++i) {// ligne
-        for (int j = 0; j < tilesSquare; ++j) { // colone
 
 
+void showIceFloe(int x, int y){
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 18; j++) {
+            showTiles(x + j * 8, y + i * 6); // on gere l'espacement des #
+            if(j % 2 != 1){
+                x-=5; //on baisse la coordonne de x pour aligner a droite le losange
+                y+=3;//on augmente la coordonne de y pour aligner a droite le losange
+            }
+            else{
+                x-=5;  // si ont met + ont a 4 ligne mais decoller si ont met - on a 2 lignes et tout coller
+                y-=3;
+            }
         }
-
-        refresh();
-    }
-}
-void showTileY0(Tile tiles, int tilesSquare){
-
-    int x;
-    int y;
-
-    move(tiles.posY, tiles.posX);
-
-    for (int i = 0; i < tilesSquare; ++i) {// ligne
-        for (int j = 0; j < tilesSquare; ++j) { // colone
-
-
-        }
-
-        refresh();
-    }
-}
-
-void showTileYX(Tile tiles, int tilesSquare){
-
-    int x;
-    int y;
-
-    move(tiles.posY, tiles.posX);
-
-    for (int i = 0; i < tilesSquare; ++i) {// ligne
-        for (int j = 0; j < tilesSquare; ++j) { // colone
-
-
-        }
-
-        refresh();
-    }
-}
-
-
-
-void showIceFloe(){
-    for(int i = 0; i < 1; i++){
-        for(int j  = 0; j < 2; j++){
-            showTiles();
-        }
-    }
-}
+    }v}
 
 void showBoard(Tile** board, WINDOW *window, int l, int c) {
 

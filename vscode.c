@@ -1,5 +1,5 @@
-//#include "ncurses.h"
-#include "ncurses\curses.h"
+#include "ncurses.h"
+//#include "ncurses\curses.h"
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
@@ -15,15 +15,21 @@ const int width ;
 const int startX = 0;
 const int startY = 0;
 
-
+typedef struct {
+    int x;
+    int y;
+} PinguinCoords;
 
 typedef struct {
 
     char* name;
     int num;
-    int tileX;
+    int PX;
     int tilesY;
-
+    int tilesX;
+    int posX;
+    int posY;
+    WINDOW* pinguinsWin;
 }Player;
 
 typedef struct{
@@ -32,24 +38,30 @@ typedef struct{
     int isTherePlayer;
     int isAlive;
     int posX;
-    int posY;
+    int posY
 
 }Tile;
 
 
 
-typedef struct {
-    int x;
-    int y;
-} PinguinCoords;
+WINDOW *createWindow(int height, int width, int startX, int startY){
+    WINDOW *win = newwin(height, width, startX, startY);
+    box(win , 0, 0);
+    wrefresh(win);
+
+    return win;
+}
+
 
 
 Player* createPlayers(){
-    int n = 0, b = 0;
+    int n = 0, b = 0, randX, randY;
     unsigned long length;
     char name[100];
 
     Player* player;
+    PinguinCoords p_coords;
+
 
     printf("How many players? (between 2 and 6)\n");
     scanf("%d", &n);
@@ -79,8 +91,16 @@ Player* createPlayers(){
         if(!player[i].name){
             exit(1);
         }
+
         player[i].name = name;
         player[i].num = i+1;
+
+        randX = rand() % 10;
+        randY = rand() % 10;
+
+        player[i].posX = randX;
+        player[i].posY = randY;
+        player[i].pinguinsWin = createWindow(pinguin_height, pinguin_width, player[i].posX, player[i].posX);
     }
 
     return player;
@@ -123,13 +143,7 @@ Tile** createBoard(int l, int c, int tilesSquare){
     return board;
 }
 
-WINDOW *createWindow(int height, int width, int startX, int startY){
-    WINDOW *win = newwin(height, width, startX, startY);
-    box(win , 0, 0);
-    wrefresh(win);
 
-    return win;
-}
 
 
 void printEmoji(int x, int y){ //affiche le pinguin
@@ -139,9 +153,12 @@ void printEmoji(int x, int y){ //affiche le pinguin
 }
 
 
-void showTiles(int x, int y){
+void showTiles(Tile tile, int x, int y){
+    int a = tile.posX;
+    int b = tile.posY;
     init_pair(1, COLOR_CYAN, COLOR_BLACK);
     attron(COLOR_PAIR(1));
+
     mvprintw(y, x, "  #"); //tab-1
     mvprintw(y-1, x-1, "#     #"); //tab+3
     mvprintw(y-2, x-1, "#     #"); //tab+3
@@ -150,63 +167,11 @@ void showTiles(int x, int y){
     attroff(COLOR_PAIR(1));
 }
 
-void showTile00(Tile tiles, int tilesSquareX, int tilesSquareY){
-    move(tiles.posY, tiles.posX+3);
-    printw("#");
-}
 
-
-
-void showTile0X(Tile tiles, int tilesSquare){
-    int x;
-    int y;
-    move(tiles.posY, tiles.posX);
-    for (int i = 0; i < tilesSquare; ++i) {// ligne
-        for (int j = 0; j < tilesSquare; ++j) { // colone
-
-
-        }
-
-        refresh();
-    }
-}
-
-
-void showTileY0(Tile tiles, int tilesSquare){
-    int x;
-    int y;
-    move(tiles.posY, tiles.posX);
-    for (int i = 0; i < tilesSquare; ++i) {// ligne
-        for (int j = 0; j < tilesSquare; ++j) { // colone
-
-
-        }
-
-        refresh();
-    }
-}
-
-
-
-void showTileYX(Tile tiles, int tilesSquare){
-    int x;
-    int y;
-    move(tiles.posY, tiles.posX);
-    for (int i = 0; i < tilesSquare; ++i) {// ligne
-        for (int j = 0; j < tilesSquare; ++j) { // colone
-
-
-        }
-
-        refresh();
-    }
-}
-
-
-void showIceFloe(int x, int y){
+void showIceFloe(Tile** board, int x, int y){
     for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 18; j++) {
-            showTiles(x + j * 8, y + i * 6); // on gere l'espacement des #
+            showTiles(board[i][j], 20 + j * 8, 5 + i * 6); // on gere l'espacement des #
             if(j % 2 != 1){
                 x-=5; //on baisse la coordonne de x pour aligner a droite le losange
                 y+=3;//on augmente la coordonne de y pour aligner a droite le losange
@@ -273,7 +238,7 @@ void makeWindow(){
     refresh();
 
     win = createWindow(pinguin_height, pinguin_width, startx, starty);
-    showIceFloe(20, 5);
+    //showIceFloe(20, 5);
     //printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
 
 
@@ -324,10 +289,78 @@ void makeWindow(){
     endwin();
 }
 
+void InitCurse(){
+    initscr();
+    start_color();
+    cbreak(); // ??
+    keypad(stdscr, TRUE);
+
+    noecho();
+
+    init_pair(1, COLOR_RED, COLOR_BLACK);
+    attron(COLOR_PAIR(1));
+    printw("Press echap to exit\n \n");
+    refresh();
+    attroff(COLOR_PAIR(1));
+    curs_set(0); // desactive le curseur
+    refresh();
+
+}
 
 
+void Inputs(int touch, Player player){
+    int startx, starty;
+
+    startx = (LINES - pinguin_height) / 2;
+    starty = (COLS - pinguin_width) / 2;
+
+    switch(touch){
+        case KEY_LEFT:
+            if(player.posY > 0){ //verifie que le pinguin sort pas de l'écran
+                destroyWin(player.pinguinsWin);
+                player.pinguinsWin = createWindow(pinguin_height, pinguin_width, startx, starty--);
+                printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
+                player.posX = startx; //on met a jour les coordonnées du pinguin
+                player.posY = starty;
+            }
+            break;
+
+        case KEY_RIGHT:
+            if(starty < COLS - pinguin_width){ //verifie que le pinguin sort pas de l'écran
+                destroyWin(player.pinguinsWin);
+                player.pinguinsWin = createWindow(pinguin_height, pinguin_width, startx, starty++);
+                printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
+                player.posX = startx; //on met a jour les coordonnées du pinguin
+                player.posY = starty;
+            }
+            break;
+
+        case KEY_UP:
+            if(startx > 0){ //verifie que le pinguin sort pas de l'écran
+                destroyWin(player.pinguinsWin);
+                player.pinguinsWin = createWindow(pinguin_height, pinguin_height, startx--, starty);
+                printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
+                player.posX = startx; //on met a jour les coordonnées du pinguin
+                player.posY = starty;
+            }
+            break;
+
+        case KEY_DOWN:
+            if(startx < LINES - pinguin_height){ //verifie que le pinguin sort pas de l'écran
+                destroyWin(player.pinguinsWin);
+                player.pinguinsWin = createWindow(pinguin_height, pinguin_width, startx++, starty);
+                printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
+                player.posX = startx; //on met a jour les coordonnées du pinguin
+                player.posY = starty;
+            }
+            break;
+    }
+    printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
+
+}
 
 int main(){
+    int touch;
 
     Tile** board = NULL;
     Player* players;
@@ -335,13 +368,10 @@ int main(){
 
     srand(time(NULL));
 
-    makeWindow();
+    //makeWindow();
 
     players = createPlayers();
-
     board = createBoard(l, c, tilesSquare);
-
-    showBoard(board, window, l, c);
 
 
     //checkfish = checkFish(board, players);
@@ -349,11 +379,27 @@ int main(){
     //showBoard(board, window);
     //showScore(players);
 
+    InitCurse();
 
 
 
-    //free(players);
-    //free(board);
+    showIceFloe(board, 20, 5);
+
+
+
+
+    while((touch = getch()) != 27){
+
+        Inputs(touch, players[0]);// a changer en fonction des différent joueurs
+
+
+    }
+    endwin();
+
+
+
+    free(players);
+    free(board);
     return 0;
 
 }
