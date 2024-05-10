@@ -150,58 +150,6 @@ void showTiles(int x, int y){
     attroff(COLOR_PAIR(1));
 }
 
-void showTile00(Tile tiles, int tilesSquareX, int tilesSquareY){
-    move(tiles.posY, tiles.posX+3);
-    printw("#");
-}
-
-
-
-void showTile0X(Tile tiles, int tilesSquare){
-    int x;
-    int y;
-    move(tiles.posY, tiles.posX);
-    for (int i = 0; i < tilesSquare; ++i) {// ligne
-        for (int j = 0; j < tilesSquare; ++j) { // colone
-
-
-        }
-
-        refresh();
-    }
-}
-
-
-void showTileY0(Tile tiles, int tilesSquare){
-    int x;
-    int y;
-    move(tiles.posY, tiles.posX);
-    for (int i = 0; i < tilesSquare; ++i) {// ligne
-        for (int j = 0; j < tilesSquare; ++j) { // colone
-
-
-        }
-
-        refresh();
-    }
-}
-
-
-
-void showTileYX(Tile tiles, int tilesSquare){
-    int x;
-    int y;
-    move(tiles.posY, tiles.posX);
-    for (int i = 0; i < tilesSquare; ++i) {// ligne
-        for (int j = 0; j < tilesSquare; ++j) { // colone
-
-
-        }
-
-        refresh();
-    }
-}
-
 
 void showIceFloe(int x, int y){
     for (int i = 0; i < 2; i++) {
