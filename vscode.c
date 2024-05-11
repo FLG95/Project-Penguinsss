@@ -5,26 +5,24 @@
 #include "string.h"
 #include "time.h"
 
-const int tilesSquare = 4;
+
+
 const int l = 9; // y
 const int c = 9; // x
+const int tileHeigth = 5;
+const int tileWidthlessone = 6; //largeur de la tile -1 pour le décalage  7-1 = 6
 const int pinguin_width = 2;
 const int pinguin_height = 2;
-const int height ;
-const int width ;
-const int startX = 0;
-const int startY = 0;
 
-typedef struct {
-    int x;
-    int y;
-} PinguinCoords;
+
+const int startTilesTabX = 0; // coordoné X de la première Tile en haut a gauche du tableau
+const int startTilesTabY = 5;// coordoné Y de la première Tile en haut a gauche du tableau
 
 typedef struct {
 
     char* name;
     int num;
-    int PX;
+    int PX; // c'est quoi??
     int tilesY;
     int tilesX;
     int posX;
@@ -38,7 +36,7 @@ typedef struct{
     int isTherePlayer;
     int isAlive;
     int posX;
-    int posY
+    int posY;
 
 }Tile;
 
@@ -58,9 +56,7 @@ Player* createPlayers(){
     int n = 0, b = 0, randX, randY;
     unsigned long length;
     char name[100];
-
     Player* player;
-    PinguinCoords p_coords;
 
 
     printf("How many players? (between 2 and 6)\n");
@@ -80,7 +76,6 @@ Player* createPlayers(){
     if(!player){
         exit(1);
     }
-
 
     for (int i = 0; i < n; ++i) {
         printf("Enter the name of the player %d:\n", i+1);
@@ -107,6 +102,7 @@ Player* createPlayers(){
 
 }
 
+
 Tile creatTiles(int x, int y){
 
     Tile Tile;
@@ -114,6 +110,7 @@ Tile creatTiles(int x, int y){
     Tile.isAlive = 1;
 
     Tile.fish = (rand() % 3) + 1;
+
 
     Tile.isTherePlayer = 0;
 
@@ -123,27 +120,37 @@ Tile creatTiles(int x, int y){
     return Tile;
 }
 
-Tile** createBoard(int l, int c, int tilesSquare){
+
+Tile** createBoard(){
     Tile** board;
+    int x = startTilesTabX; // origine en x de la premère tile
+    int y = startTilesTabY; // origine en y de la première tile
 
     board = malloc( c * sizeof(Tile*));
     if(!board){
         exit(2);
     }
 
-    for (int i = 0; i < l; ++i) { // y
+    for (int i = 0; i < l; ++i) { // y ligne
+
         board[i] = malloc( l * sizeof (Tile));
         if(!board[i]){
             exit(2);
         }
-        for (int j = 0; j < c; ++j) { // x
-            board[i][j] = creatTiles(j*tilesSquare, i*tilesSquare);
+        for (int j = 0; j < c; ++j) { // x colone
+
+            if(i % 2 == 0) {// ligne paire
+                    board[i][j] = creatTiles(x + j * tileWidthlessone, y + i * tileHeigth); // On créer notre tile avec les bonne coordoné  *6 car largeur d'une tile-1  *5 car hauteur d'une tile
+            }
+            else{ // ligne impaire
+                    board[i][j] = creatTiles(x+3 + j * tileWidthlessone, y + i * tileHeigth); // on doit décaler notre tile de 3 vers la droite pour être au milleu de celle du dessus
+            }
         }
+        y-= 2;
+
     }
     return board;
 }
-
-
 
 
 void printEmoji(int x, int y){ //affiche le pinguin
@@ -153,55 +160,42 @@ void printEmoji(int x, int y){ //affiche le pinguin
 }
 
 
-void showTiles(Tile tile, int x, int y){
-    int a = tile.posX;
-    int b = tile.posY;
+void showTiles(Tile tile){ // print une tile au cooordonés stockées dans la tile envoyé
+    int x = tile.posX-1;
+    int y = tile.posY;
+
     init_pair(1, COLOR_CYAN, COLOR_BLACK);
     attron(COLOR_PAIR(1));
 
-    mvprintw(y, x, "  #"); //tab-1
-    mvprintw(y-1, x-1, "#     #"); //tab+3
-    mvprintw(y-2, x-1, "#     #"); //tab+3
-    mvprintw(y-3, x-1, "#     #"); //tab+3
-    mvprintw(y-4, x, "  #");
+    mvprintw(y, x,   "   #");
+    mvprintw(y+1, x, "#     #"); //tab+3
+    mvprintw(y+2, x, "#     #"); //tab+3
+    mvprintw(y+3, x, "#     #"); //tab+3
+    mvprintw(y+4, x, "   #"); //tab-1
+
+
+    //mvprintw(y, 0, "Y"); //tab-1 // position de la case x, y
+    //mvprintw(0, x, "X"); //tab-1 // position de la case x, y
+    //mvprintw(y, x, "%d", 0); //tab-1 // position de la case x, y
+
+
     attroff(COLOR_PAIR(1));
+    printf("a ");
+
 }
 
 
 void showIceFloe(Tile** board, int x, int y){
-    for (int i = 0; i < 2; i++) {
-        for (int j = 0; j < 18; j++) {
-            showTiles(board[i][j], 20 + j * 8, 5 + i * 6); // on gere l'espacement des #
-            if(j % 2 != 1){
-                x-=5; //on baisse la coordonne de x pour aligner a droite le losange
-                y+=3;//on augmente la coordonne de y pour aligner a droite le losange
-            }
-            else{
-                x-=5;  // si ont met + ont a 4 ligne mais decoller si ont met - on a 2 lignes et tout coller
-                y-=3;
-            }
+    int a = 0;
+    for (int i = 0; i < l; i++) { // on boucle sur le nb de ligne
+        for (int j = 0; j < c; j++) { //on boucle sur le nb de colone par ligne
+            showTiles(board[i][j]); // on print la tile grace au donné stocké dans board
         }
     }
+    refresh();
+
 }
 
-
-void showBoard(Tile** board, WINDOW *window, int l, int c) {
-
-    for (int i = 0; i < l; ++i) {  // ligne
-        for (int j = 0; j < c; ++j) {  // colone
-            if ((i % 2 == 1) && (j == 0)) {
-
-            } else {
-                if (i == 0) {
-                    //showTiles(board[i][j]);
-                } else {
-                    //showTiles(board[i][j]);
-                }
-            }
-
-        }
-    }
-}
 
 void destroyWin(WINDOW *win){
     wborder(win, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
@@ -209,85 +203,6 @@ void destroyWin(WINDOW *win){
     delwin(win);
 }
 
-
-
-
-void makeWindow(){
-    WINDOW* win;
-    PinguinCoords p_coords;
-    int startx = 0, starty = 0;
-
-    int touch;
-
-    initscr();
-    start_color();
-    cbreak(); // ??
-    keypad(stdscr, TRUE);
-
-    noecho();
-    init_pair(1, COLOR_RED, COLOR_BLACK);
-    attron(COLOR_PAIR(1));
-    printw("Press echap to exit\n \n");
-    refresh();
-    attroff(COLOR_PAIR(1));
-    curs_set(0); // desactive le curseur
-
-    startx = (LINES - pinguin_height) / 2;
-    starty = (COLS - pinguin_width) / 2;
-    //printw("Press echap to exit");
-    refresh();
-
-    win = createWindow(pinguin_height, pinguin_width, startx, starty);
-    //showIceFloe(20, 5);
-    //printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
-
-
-
-    while((touch = getch()) != 27){
-        switch(touch){
-            case KEY_LEFT:
-                if(starty > 0){ //verifie que le pinguin sort pas de l'écran
-                    destroyWin(win);
-                    win = createWindow(pinguin_height, pinguin_width, startx, starty--);
-                    printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
-                    p_coords.x = startx; //on met a jour les coordonnées du pinguin
-                    p_coords.y = starty;
-                }
-                break;
-
-            case KEY_RIGHT:
-                if(starty < COLS - pinguin_width){ //verifie que le pinguin sort pas de l'écran
-                    destroyWin(win);
-                    win = createWindow(pinguin_height, pinguin_width, startx, starty++);
-                    printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
-                    p_coords.x = startx; //on met a jour les coordonnées du pinguin
-                    p_coords.y = starty;
-                }
-                break;
-
-            case KEY_UP:
-                if(startx > 0){ //verifie que le pinguin sort pas de l'écran
-                    destroyWin(win);
-                    win = createWindow(pinguin_height, pinguin_height, startx--, starty);
-                    printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
-                    p_coords.x = startx; //on met a jour les coordonnées du pinguin
-                    p_coords.y = starty;
-                }
-                break;
-
-            case KEY_DOWN:
-                if(startx < LINES - pinguin_height){ //verifie que le pinguin sort pas de l'écran
-                    destroyWin(win);
-                    win = createWindow(pinguin_height, pinguin_width, startx++, starty);
-                    printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
-                    p_coords.x = startx; //on met a jour les coordonnées du pinguin
-                    p_coords.y = starty;
-                }
-                break;
-        }
-    }
-    endwin();
-}
 
 void InitCurse(){
     initscr();
@@ -364,14 +279,14 @@ int main(){
 
     Tile** board = NULL;
     Player* players;
-    WINDOW* window;
+
+    WINDOW* window; //Sert a rien
 
     srand(time(NULL));
 
-    //makeWindow();
 
-    players = createPlayers();
-    board = createBoard(l, c, tilesSquare);
+    //players = createPlayers();
+    board = createBoard();
 
 
     //checkfish = checkFish(board, players);
@@ -381,21 +296,24 @@ int main(){
 
     InitCurse();
 
-
-
-    showIceFloe(board, 20, 5);
-
-
+    showIceFloe(board, 10, 10);
 
 
     while((touch = getch()) != 27){
 
         Inputs(touch, players[0]);// a changer en fonction des différent joueurs
 
-
     }
     endwin();
 
+
+    for (int i = 0; i < l; ++i) {
+        printf("\n");
+        for (int j = 0; j < c; ++j) {
+            printf("%d", board[i][j].isTherePlayer);
+        }
+
+    }
 
 
     free(players);
