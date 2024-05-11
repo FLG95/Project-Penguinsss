@@ -6,27 +6,27 @@
 
 
 Player* createPlayers(){
-    int n = 0, b = 0;
+    int n = 0, try = 0;
     unsigned long length;
     char name[100];
 
-    Player* player;
+    Player* tabplayers;
 
-    printf("How many players? between 2 and 6");
+    printf("How many players? between 2 and 6 : ");
     scanf("%d", &n);
 
     while(n < 2 || n > 6){
-        printf("between 2 and 6 please");
+        printf("between 2 and 6 please : ");
         scanf("%d", &n);
-        if(b == 10) {
+        if(try == 10) {
             printf("Too much try miss");
             exit(2);
         }
-        b++;
+        try++;
     }
 
-    player = malloc( n * sizeof(player));
-    if(!player){
+    tabplayers = malloc( n * sizeof(tabplayers));
+    if(!tabplayers){
         exit(1);
     }
 
@@ -36,15 +36,15 @@ Player* createPlayers(){
         scanf("%s", name);
         length = strlen(name);
 
-        player[i].name = malloc( length * sizeof(char));
-        if(!player[i].name){
+        tabplayers[i].name = malloc( length * sizeof(char));
+        if(!tabplayers[i].name){
             exit(1);
         }
-        player[i].name = name;
-        player[i].num = i+1;
+        tabplayers[i].name = name;
+        tabplayers[i].num = i+1;
     }
 
-    return player;
+    return tabplayers;
 
 }
 
