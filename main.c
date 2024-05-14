@@ -85,7 +85,7 @@ tile createTiles(){
 }
 
 tile** createBoard(){
-
+    /*BONNE ou MAUVAISE fonction ??????????? */
     tile** board;
 
     board = malloc( c * sizeof(tile*));
@@ -124,7 +124,7 @@ void showTiles(tile tiles){
 }
 
 void showBoard(tile** board){
-
+    /*Inutile aussi a supprimer !!!!!!!!!!! */
 
     for (int i = 0; i < l; ++i) {
         for (int j = 0; j < c; ++j) {
