@@ -27,6 +27,7 @@ typedef struct{
 
 
 player* createPlayers(){
+    /*This function is used to create the player array for the game.*/
     int n = 0, b = 0;
     unsigned long length;
     char name[100];
@@ -36,7 +37,7 @@ player* createPlayers(){
     printf("How many players? between 2 and 6");
     scanf("%d", &n);
 
-    while(n < 2 || n > 6){
+    while(n < 2 || n > 6){  /* We check that the number of players entered by the user is between 2 and 6.*/
         printf("between 2 and 6 please");
         scanf("%d", &n);
         if(b == 10) {
@@ -47,18 +48,19 @@ player* createPlayers(){
     }
 
     player = malloc( n * sizeof(player));
-    if(!player){
+    if(!player){ /*We check that the allocation has been successful.*/
         exit(1);
     }
 
 
-    for (int i = 0; i < n; ++i) {
+    for (int i = 0; i < n; ++i) { /*For each player, we ask the user to enter the player's name
+         and the we create a array containing the player's name and number.*/
         printf("Enter the name of the player %d", i+1);
         scanf("%s", name);
         length = strlen(name);
 
         player[i].name = malloc( length * sizeof(char));
-        if(!player[i].name){
+        if(!player[i].name){ /*We check that the allocation has been successful.*/
             exit(1);
         }
         player[i].name = name;
@@ -69,13 +71,13 @@ player* createPlayers(){
 
 }
 
-tile creatTiles(){
-
+tile createTiles(){
+    /*This function create tiles and fills in each attribute.*/
     tile tile;
 
     tile.isAlive = 1;
 
-    tile.fish = (rand()%3) + 1;
+    tile.fish = (rand()%3) + 1; /*Each tile contain between 1 and 3 fish.*/
 
     tile.isTherePlayer = 0;
 
@@ -97,7 +99,7 @@ tile** createBoard(){
             exit(2);
         }
         for (int j = 0; j < c; ++j) {
-            board[i][j] = creatTiles();
+            board[i][j] = createTiles();
         }
     }
 
