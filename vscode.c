@@ -9,13 +9,13 @@
 
 const int l = 9; // y
 const int c = 9; // x
-const int tileHeigth = 5;
-const int tileWidthlessone = 6; //largeur de la tile -1 pour le décalage  7-1 = 6
+const int tileHeigth = 8;
+const int tileWidthlessone = 8; //largeur de la tile -1 pour le décalage  7-1 = 6
 const int pinguin_width = 2;
 const int pinguin_height = 2;
 
 
-const int startTilesTabX = 0; // coordoné X de la première Tile en haut a gauche du tableau
+const int startTilesTabX = 5; // coordoné X de la première Tile en haut a gauche du tableau
 const int startTilesTabY = 5;// coordoné Y de la première Tile en haut a gauche du tableau
 
 typedef struct {
@@ -103,7 +103,7 @@ Player* createPlayers(){
 }
 
 
-Tile creatTiles(int x, int y){
+Tile creatTile(int x, int y){
 
     Tile Tile;
 
@@ -119,6 +119,7 @@ Tile creatTiles(int x, int y){
 
     return Tile;
 }
+
 
 
 Tile** createBoard(){
@@ -140,13 +141,13 @@ Tile** createBoard(){
         for (int j = 0; j < c; ++j) { // x colone
 
             if(i % 2 == 0) {// ligne paire
-                    board[i][j] = creatTiles(x + j * tileWidthlessone, y + i * tileHeigth); // On créer notre tile avec les bonne coordoné  *6 car largeur d'une tile-1  *5 car hauteur d'une tile
+                board[i][j] = creatTile(x + j * tileWidthlessone, y + i * tileHeigth-1); // On créer notre tile avec les bonne coordoné  *6 car largeur d'une tile-1  *5 car hauteur d'une tile
             }
             else{ // ligne impaire
-                    board[i][j] = creatTiles(x+3 + j * tileWidthlessone, y + i * tileHeigth); // on doit décaler notre tile de 3 vers la droite pour être au milleu de celle du dessus
+                board[i][j] = creatTile(x+4 + j * tileWidthlessone, y + i * tileHeigth-1); // on doit décaler notre tile de 3 vers la droite pour être au milleu de celle du dessus
             }
         }
-        y-= 2;
+        y-= 4;  // valeur a changer en fonction des tile qu'on affiche (de base 2)
 
     }
     return board;
@@ -160,36 +161,49 @@ void printEmoji(int x, int y){ //affiche le pinguin
 }
 
 
-void showTiles(Tile tile){ // print une tile au cooordonés stockées dans la tile envoyé
+
+void showTile(Tile tile){ // print une tile au cooordonés stockées dans la tile envoyé
     int x = tile.posX-1;
     int y = tile.posY;
 
     init_pair(1, COLOR_CYAN, COLOR_BLACK);
     attron(COLOR_PAIR(1));
 
-    mvprintw(y, x,   "   #");
-    mvprintw(y+1, x, "#     #"); //tab+3
-    mvprintw(y+2, x, "#     #"); //tab+3
-    mvprintw(y+3, x, "#     #"); //tab+3
-    mvprintw(y+4, x, "   #"); //tab-1
+
+    // height =  8 ;width = 7
 
 
-    //mvprintw(y, 0, "Y"); //tab-1 // position de la case x, y
-    //mvprintw(0, x, "X"); //tab-1 // position de la case x, y
-    //mvprintw(y, x, "%d", 0); //tab-1 // position de la case x, y
 
+/*
+    mvprintw(y+1, x+2, "   ");
+    mvprintw(y+4, x+2, "   ");
+*/
 
     attroff(COLOR_PAIR(1));
+
+    init_pair(2, COLOR_CYAN, COLOR_CYAN);
+    attron(COLOR_PAIR(2));
+
+    mvprintw(y, x+2, "   ");
+    mvprintw(y+1, x, "       ");
+    mvprintw(y+2, x, "       ");
+    mvprintw(y+3, x+2, "   ");
+
+
+
+    attroff(COLOR_PAIR(2));
+
+    mvprintw(y, x, "X");
     printf("a ");
 
 }
 
 
-void showIceFloe(Tile** board, int x, int y){
+void showIceFloe(Tile** board){
     int a = 0;
     for (int i = 0; i < l; i++) { // on boucle sur le nb de ligne
         for (int j = 0; j < c; j++) { //on boucle sur le nb de colone par ligne
-            showTiles(board[i][j]); // on print la tile grace au donné stocké dans board
+            showTile(board[i][j]); // on print la tile grace au donné stocké dans board
         }
     }
     refresh();
@@ -336,7 +350,7 @@ int main(){
 
     InitCurse();
 
-    showIceFloe(board, 10, 10);
+    showIceFloe(board);
 
 
     while((touch = getch()) != 27){
