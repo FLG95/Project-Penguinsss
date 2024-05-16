@@ -11,4 +11,4 @@ add_executable(Project_Pinguinsss
 )
 
 
-target_link_libraries(Project_Pinguinsss ncurses)
+target_link_libraries(Project_Pinguinsss ncursesw)

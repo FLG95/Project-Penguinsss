@@ -1,4 +1,5 @@
 #include "ncurses.h"
+#include "locale.h"
 //#include "ncurses\curses.h"
 #include "stdlib.h"
 #include "stdio.h"
@@ -218,6 +219,7 @@ void destroyWin(WINDOW *win){
 
 
 void InitCurse(){
+    setlocale(LC_ALL, "");
     initscr();
     start_color();
     cbreak(); // ??
