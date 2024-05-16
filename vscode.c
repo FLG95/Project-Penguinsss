@@ -1,6 +1,6 @@
-#include "ncurses.h"
+//#include "ncurses.h"
 #include "locale.h"
-//#include "ncurses\curses.h"
+#include "ncurses\curses.h"
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
@@ -302,6 +302,44 @@ void InitCurse(){
     refresh();
 
 }
+
+
+void HomePage(WINDOW *win){
+    if(!win){
+        exit(1);
+    }
+    wclear(win);
+
+    int title_length = strlen("CY FISH");
+    int title_width = (getmaxx(win) - title_length) / 2;
+    wattr_set(win, A_BOLD, COLOR_MAGENTA, NULL);
+    mvwprintw(win, 1, title_width, "CY FISH"); //affiche a la ligne 1 et colonne title length (pour le centrer)
+
+    wattr_set(win, A_NORMAL, COLOR_WHITE, NULL);
+    mvwprintw(win, 3, 2, "START THE GAME");
+    mvprintw(win, 4, 2, "EXIT");
+
+    wmove(win, 2, 0);
+
+    int ch = wgetch(win); //on recupere la saisi de l'utilisateur
+    
+    switch (ch)
+    {
+    case '1':
+        // on lance la fonction jeu
+        break;
+    case '2':
+        // on sort du jeu
+        endwin(); 
+        exit(1);
+    default:
+        mvwprintw(win, 6, 2, "Invalid selection, please select any key to continue.");
+        wgetch(win);
+        break;
+    }
+
+}
+
 
 /*
 void Inputs(Player player) {
