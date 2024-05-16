@@ -4,3 +4,5 @@ cmake-build-debug/
 cmake-build-debug-event-trace/
 deps/
 *.dll
+**/*/exe
+

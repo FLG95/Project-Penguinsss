@@ -244,8 +244,11 @@ void Inputs(int touch, Player player){
     PinguinCoords p_coords;
 
 
-    startx = (LINES - pinguin_height) / 2;
-    starty = (COLS - pinguin_width) / 2;
+    //startx = (LINES - pinguin_height) / 2;
+    //starty = (COLS - pinguin_width) / 2;
+
+    startx = 5;
+    starty = 5;
 
     win = createWindow(pinguin_height, pinguin_width, startx, starty);
 
@@ -256,7 +259,7 @@ void Inputs(int touch, Player player){
             case 113:
                 if (starty > 0) { //verifie que le pinguin sort pas de l'écran
                     destroyWin(win);
-                    win = createWindow(pinguin_height, pinguin_width, startx, starty--);
+                    win = createWindow(pinguin_height, pinguin_width, startx, starty-=8);
                     printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
                     p_coords.x = startx; //on met a jour les coordonnées du pinguin
                     p_coords.y = starty;
@@ -266,7 +269,7 @@ void Inputs(int touch, Player player){
             case 100:
                 if (starty < COLS - pinguin_width) { //verifie que le pinguin sort pas de l'écran
                     destroyWin(win);
-                    win = createWindow(pinguin_height, pinguin_width, startx, starty++);
+                    win = createWindow(pinguin_height, pinguin_width, startx, starty+=8);
                     printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
                     p_coords.x = startx; //on met a jour les coordonnées du pinguin
                     p_coords.y = starty;
@@ -276,7 +279,7 @@ void Inputs(int touch, Player player){
             case 122:
                 if (startx > 0) { //verifie que le pinguin sort pas de l'écran
                     destroyWin(win);
-                    win = createWindow(pinguin_height, pinguin_height, startx--, starty);
+                    win = createWindow(pinguin_height, pinguin_height, startx-=8, starty);
                     printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
                     p_coords.x = startx; //on met a jour les coordonnées du pinguin
                     p_coords.y = starty;
@@ -286,7 +289,7 @@ void Inputs(int touch, Player player){
             case 120:
                 if (startx < LINES - pinguin_height) { //verifie que le pinguin sort pas de l'écran
                     destroyWin(win);
-                    win = createWindow(pinguin_height, pinguin_width, startx++, starty);
+                    win = createWindow(pinguin_height, pinguin_width, startx+=8, starty);
                     printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
                     p_coords.x = startx; //on met a jour les coordonnées du pinguin
                     p_coords.y = starty;
@@ -296,7 +299,7 @@ void Inputs(int touch, Player player){
             case 97:
                 if (startx < LINES - pinguin_height) { //verifie que le pinguin sort pas de l'écran
                     destroyWin(win);
-                    win = createWindow(pinguin_height, pinguin_width, startx--, starty--);
+                    win = createWindow(pinguin_height, pinguin_width, startx-=8, starty-=8);
                     printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
                     p_coords.x = startx; //on met a jour les coordonnées du pinguin
                     p_coords.y = starty;
@@ -306,7 +309,7 @@ void Inputs(int touch, Player player){
             case 101:
                 if (startx < LINES - pinguin_height) { //verifie que le pinguin sort pas de l'écran
                     destroyWin(win);
-                    win = createWindow(pinguin_height, pinguin_width, startx--, starty++);
+                    win = createWindow(pinguin_height, pinguin_width, startx-=8, starty+=8);
                     printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
                     p_coords.x = startx; //on met a jour les coordonnées du pinguin
                     p_coords.y = starty;
@@ -316,7 +319,7 @@ void Inputs(int touch, Player player){
             case 119:
                 if (startx < LINES - pinguin_height) { //verifie que le pinguin sort pas de l'écran
                     destroyWin(win);
-                    win = createWindow(pinguin_height, pinguin_width, startx++, starty--);
+                    win = createWindow(pinguin_height, pinguin_width, startx += 8, starty -= 8);
                     printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
                     p_coords.x = startx; //on met a jour les coordonnées du pinguin
                     p_coords.y = starty;
@@ -326,7 +329,7 @@ void Inputs(int touch, Player player){
             case 99:
                 if (startx < LINES - pinguin_height) { //verifie que le pinguin sort pas de l'écran
                     destroyWin(win);
-                    win = createWindow(pinguin_height, pinguin_width, startx++, starty++);
+                    win = createWindow(pinguin_height, pinguin_width, startx += 8, starty+= 8);
                     printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
                     p_coords.x = startx; //on met a jour les coordonnées du pinguin
                     p_coords.y = starty;
@@ -340,6 +343,7 @@ void Inputs(int touch, Player player){
 
 int main(){
     int touch;
+    int b;
 
     Tile** board = NULL;
     Player* players;
@@ -352,13 +356,16 @@ int main(){
     //players = createPlayers();
     board = createBoard();
 
-
     //checkfish = checkFish(board, players);
-
     //showBoard(board, window);
     //showScore(players);
 
+    printf("Mettez votre jeu en pleine écran svp");
+    scanf("%d", b);
+
     InitCurse();
+
+
 
     showIceFloe(board);
 
@@ -376,7 +383,6 @@ int main(){
         for (int j = 0; j < c; ++j) {
             printf("%d", board[i][j].isTherePlayer);
         }
-
     }
 
 
