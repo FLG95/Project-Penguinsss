@@ -323,18 +323,18 @@ void HomePage(WINDOW *win){
 
     int ch = wgetch(win); //on recupere la saisi de l'utilisateur
     
-    switch (ch)
-    {
-    case '1':
-        // on lance la fonction jeu
+    switch (ch){
+
+        case '1':
+            // on lance la fonction jeu
         break;
-    case '2':
-        // on sort du jeu
-        endwin(); 
-        exit(1);
-    default:
-        mvwprintw(win, 6, 2, "Invalid selection, please select any key to continue.");
-        wgetch(win);
+        case '2':
+            // on sort du jeu
+            endwin(); 
+            exit(1);
+        default:
+            mvwprintw(win, 6, 2, "Invalid selection, please select any key to continue.");
+            wgetch(win);
         break;
     }
 
