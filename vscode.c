@@ -40,7 +40,10 @@ typedef struct{
 
 }Tile;
 
-
+typedef struct {
+    int x;
+    int y;
+} PinguinCoords;
 
 WINDOW *createWindow(int height, int width, int startX, int startY){
     WINDOW *win = newwin(height, width, startX, startY);
@@ -192,10 +195,6 @@ void showTile(Tile tile){ // print une tile au cooordonés stockées dans la til
 
 
     attroff(COLOR_PAIR(2));
-
-    mvprintw(y, x, "X");
-    printf("a ");
-
 }
 
 
@@ -239,92 +238,101 @@ void InitCurse(){
 
 void Inputs(int touch, Player player){
     int startx, starty;
+    WINDOW *win;
+    PinguinCoords p_coords;
+
 
     startx = (LINES - pinguin_height) / 2;
     starty = (COLS - pinguin_width) / 2;
 
-    switch(touch){
-        case 113: //on va a gauche
-            if(player.posY > 0){ //verifie que le pinguin sort pas de l'écran
-                destroyWin(player.pinguinsWin);
-                player.pinguinsWin = createWindow(pinguin_height, pinguin_width, startx, starty--);
-                printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
-                player.posX = startx; //on met a jour les coordonnées du pinguin
-                player.posY = starty;
-            }
-            break;
+    win = createWindow(pinguin_height, pinguin_width, startx, starty);
 
-        case 100: //on va a droite
-            if(starty < COLS - pinguin_width){ //verifie que le pinguin sort pas de l'écran
-                destroyWin(player.pinguinsWin);
-                player.pinguinsWin = createWindow(pinguin_height, pinguin_width, startx, starty++);
-                printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
-                player.posX = startx; //on met a jour les coordonnées du pinguin
-                player.posY = starty;
-            }
-            break;
 
-        case 122: //on va en haut
-            if(startx > 0){ //verifie que le pinguin sort pas de l'écran
-                destroyWin(player.pinguinsWin);
-                player.pinguinsWin = createWindow(pinguin_height, pinguin_height, startx--, starty);
-                printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
-                player.posX = startx; //on met a jour les coordonnées du pinguin
-                player.posY = starty;
-            }
-            break;
 
-        case 120: //on va en bas
-            if(startx < LINES - pinguin_height){ //verifie que le pinguin sort pas de l'écran
-                destroyWin(player.pinguinsWin);
-                player.pinguinsWin = createWindow(pinguin_height, pinguin_width, startx++, starty);
-                printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
-                player.posX = startx; //on met a jour les coordonnées du pinguin
-                player.posY = starty;
-            }
-            break;
-
-        case 97: //on va en haut a gauche
-            if(startx < LINES - pinguin_height){ //verifie que le pinguin sort pas de l'écran
-                destroyWin(player.pinguinsWin);
-                player.pinguinsWin = createWindow(pinguin_height, pinguin_width, startx--, starty--);
-                printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
-                player.posX = startx; //on met a jour les coordonnées du pinguin
-                player.posY = starty; 
-            }
-            break;
-
-            case 101: //on va en haut a droite
-            if(startx < LINES - pinguin_height){ //verifie que le pinguin sort pas de l'écran
-                destroyWin(player.pinguinsWin);
-                player.pinguinsWin = createWindow(pinguin_height, pinguin_width, startx--, starty++);
-                printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
-                player.posX = startx; //on met a jour les coordonnées du pinguin
-                player.posY = starty;
-            }
-            break;
-
-            case 119: //on va en bas a gauche
-            if(startx < LINES - pinguin_height){ //verifie que le pinguin sort pas de l'écran
-               destroyWin(player.pinguinsWin);
-                player.pinguinsWin = createWindow(pinguin_height, pinguin_width, startx++, starty--);
-                printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
-                player.posX = startx; //on met a jour les coordonnées du pinguin
-                player.posY = starty;            
+    while((touch = getch()) != 27) {
+        switch (touch) {
+            case 113:
+                if (starty > 0) { //verifie que le pinguin sort pas de l'écran
+                    destroyWin(win);
+                    win = createWindow(pinguin_height, pinguin_width, startx, starty--);
+                    printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
+                    p_coords.x = startx; //on met a jour les coordonnées du pinguin
+                    p_coords.y = starty;
                 }
-            break;
+                break;
 
-            case 99: //on va en bas a droite
-            if(startx < LINES - pinguin_height){ //verifie que le pinguin sort pas de l'écran
-                destroyWin(player.pinguinsWin);
-                player.pinguinsWin = createWindow(pinguin_height, pinguin_width, startx++, starty++);
-                printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
-                player.posX = startx; //on met a jour les coordonnées du pinguin
-                player.posY = starty; 
-            }
-            break;
+            case 100:
+                if (starty < COLS - pinguin_width) { //verifie que le pinguin sort pas de l'écran
+                    destroyWin(win);
+                    win = createWindow(pinguin_height, pinguin_width, startx, starty++);
+                    printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
+                    p_coords.x = startx; //on met a jour les coordonnées du pinguin
+                    p_coords.y = starty;
+                }
+                break;
+
+            case 122:
+                if (startx > 0) { //verifie que le pinguin sort pas de l'écran
+                    destroyWin(win);
+                    win = createWindow(pinguin_height, pinguin_height, startx--, starty);
+                    printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
+                    p_coords.x = startx; //on met a jour les coordonnées du pinguin
+                    p_coords.y = starty;
+                }
+                break;
+
+            case 120:
+                if (startx < LINES - pinguin_height) { //verifie que le pinguin sort pas de l'écran
+                    destroyWin(win);
+                    win = createWindow(pinguin_height, pinguin_width, startx++, starty);
+                    printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
+                    p_coords.x = startx; //on met a jour les coordonnées du pinguin
+                    p_coords.y = starty;
+                }
+                break;
+
+            case 97:
+                if (startx < LINES - pinguin_height) { //verifie que le pinguin sort pas de l'écran
+                    destroyWin(win);
+                    win = createWindow(pinguin_height, pinguin_width, startx--, starty--);
+                    printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
+                    p_coords.x = startx; //on met a jour les coordonnées du pinguin
+                    p_coords.y = starty;
+                }
+                break;
+
+            case 101:
+                if (startx < LINES - pinguin_height) { //verifie que le pinguin sort pas de l'écran
+                    destroyWin(win);
+                    win = createWindow(pinguin_height, pinguin_width, startx--, starty++);
+                    printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
+                    p_coords.x = startx; //on met a jour les coordonnées du pinguin
+                    p_coords.y = starty;
+                }
+                break;
+
+            case 119:
+                if (startx < LINES - pinguin_height) { //verifie que le pinguin sort pas de l'écran
+                    destroyWin(win);
+                    win = createWindow(pinguin_height, pinguin_width, startx++, starty--);
+                    printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
+                    p_coords.x = startx; //on met a jour les coordonnées du pinguin
+                    p_coords.y = starty;
+                }
+                break;
+
+            case 99:
+                if (startx < LINES - pinguin_height) { //verifie que le pinguin sort pas de l'écran
+                    destroyWin(win);
+                    win = createWindow(pinguin_height, pinguin_width, startx++, starty++);
+                    printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
+                    p_coords.x = startx; //on met a jour les coordonnées du pinguin
+                    p_coords.y = starty;
+                }
+                break;
+        }
     }
-    printEmoji(startx + pinguin_height / 2, starty + pinguin_width / 2);
+    endwin();
 
 }
 
