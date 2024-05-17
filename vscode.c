@@ -312,7 +312,7 @@ void HomePage(WINDOW *win){
 
     int title_length = strlen("CY FISH");
     int title_width = (getmaxx(win) - title_length) / 2;
-    wattr_set(win, A_BOLD, COLOR_MAGENTA, NULL);
+    wattr_set(win, A_BOLD, COLOR_MAGENTA, NULL); //je met le texte dans la fenetre en gras et en violet
     mvwprintw(win, 1, title_width, "CY FISH"); //affiche a la ligne 1 et colonne title length (pour le centrer)
 
     wattr_set(win, A_NORMAL, COLOR_WHITE, NULL);
@@ -338,6 +338,63 @@ void HomePage(WINDOW *win){
         break;
     }
 
+}
+
+
+void ColorPinguins(Player * tab, int size){
+    /*This function displays each player's pinguins with a different background to differentiate them from each other.*/
+    for(int i = 0; i < size; i++){
+        switch ((tab[i].num))
+        {
+        case '1':
+            init_pair(1, COLOR_WHITE, COLOR_BLACK);
+            attron(COLOR_PAIR(1));
+            printw("\U0001f427");
+            refresh();
+            attroff(COLOR_PAIR(10));
+        break;
+        
+        case '2':
+            init_pair(1, COLOR_WHITE, COLOR_BLUE);
+            attron(COLOR_PAIR(1));
+            printw("\U0001f427");
+            refresh();
+            attroff(COLOR_PAIR(1));
+        break;
+
+        case '3':
+            init_pair(1, COLOR_WHITE, COLOR_MAGENTA);
+            attron(COLOR_PAIR(1));
+            printw("\U0001f427");
+            refresh();
+            attroff(COLOR_PAIR(1));
+        break;
+
+        case '4':
+            init_pair(1, COLOR_WHITE, COLOR_RED);
+            attron(COLOR_PAIR(1));
+            printw("\U0001f427");
+            refresh();
+            attroff(COLOR_PAIR(1));
+        break;
+
+        case '5':
+            init_pair(1, COLOR_WHITE, COLOR_YELLOW);
+            attron(COLOR_PAIR(1));
+            printw("\U0001f427");
+            refresh();
+            attroff(COLOR_PAIR(1));
+        break;
+
+        case '6':
+            init_pair(1, COLOR_WHITE, COLOR_GREEN);
+            attron(COLOR_PAIR(1));
+            printw("\U0001f427");
+            refresh();
+            attroff(COLOR_PAIR(1));
+        break;
+        }
+    }
 }
 
 
