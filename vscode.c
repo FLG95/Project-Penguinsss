@@ -225,16 +225,45 @@ int showTile(Tile tile) { // print une tile au cooordonés stockées dans la til
 
     attron(COLOR_PAIR(1));
 
-    mvprintw(y, x + 2, "   ");
-    mvprintw(y + 1, x, "       ");
-    mvprintw(y + 2, x, "       ");
-    mvprintw(y + 3, x + 2, "   ");
+    if(tile.isTherePlayer == 0 && tile.isAlive == 1){               // if no penguins on tile and tile alive
+        if(tile.fish == 1){
+            mvprintw(y, x+2, "   ");
+            mvprintw(y+1, x, "   \U0001f41f    ");
+            mvprintw(y+2, x, "       ");
+            mvprintw(y+3, x+2, "   ");
+        }
+        else if(tile.fish == 2){
+            mvprintw(y, x+2, "   ");
+            mvprintw(y+1, x, "   \U0001f41f    ");
+            mvprintw(y+2, x, "   \U0001f41f    ");
+            mvprintw(y+3, x+2, "   ");
+        }
+        else{
+            mvprintw(y, x+2, "   ");
+            mvprintw(y+1, x, "   \U0001f41f\U0001f41f    ");
+            mvprintw(y+2, x, "   \U0001f41f    ");
+            mvprintw(y+3, x+2, "   ");
+        }
+    }
+    else if(tile.isTherePlayer == 1 && tile.isAlive == 1){
+        mvprintw(y+1, x+2, "🐧");
+        // ou colorPinguins
+    }
+    else{                                                           // if tile dead
+        mvprintw(y, x+2, "   ");
+        mvprintw(y+1, x, "       ");
+        mvprintw(y+2, x, "       ");
+        mvprintw(y+3, x+2, "   ");
+    }
+    // ici si la tile est dead la fonction va return direct (cf L 218) donc jsp si c'est mieux d'afficher une croix
+    // "vide" genre noire grace aux espaces
 
-    if (tile.isTherePlayer ==
-        1) { // mettre un switch pour les différente tile : soit détruite, soit poisson, soit penguin
+    /*
+    if (tile.isTherePlayer == 1) { // mettre un switch pour les différente tile : soit détruite, soit poisson, soit penguin
         mvprintw(y + 1, x + 2, "🐧");
         refresh();
     }
+    */
 
 
     attroff(COLOR_PAIR(1));
