@@ -49,6 +49,7 @@ typedef struct {
     int isAlive;
     int posX;
     int posY;
+    int penguinColor;
 
 } Tile;
 
@@ -143,7 +144,11 @@ Penguin createPenguin(Tile **board, int color, int num) {
     penguin.tileY = randY;
 
     penguin.color = color;
-    penguin.num = num;
+    //penguin.num = num;
+
+    board[randY][randX].penguinColor = color;
+
+
 
     return penguin;
 }
@@ -201,12 +206,36 @@ Player *createPlayers(Tile **board, int nbPlayer) {
 
 }
 
+char* colorHandle(int n){
+    char* color;
+    switch(n){
+        case 1: //Black
+            color = "black";
+            break;
+        case 2: // Blue
+            color = "blue";
+            break;
+        case 3: // Magenta
+            color = "magenta";
+            break;
+        case 4: // Red
+            color = "red";
+            break;
+        case 5: // Yellow
+            color = "yellow";
+            break;
+        case 6: // Green
+            color = "green";
+            break;
+    }
+    return color;
+}
 
 
-void ColorPenguins(Player* player, int nbPlayer, int y, int x){
+void ColorPenguins(Tile tile, Player* player, int nbPlayer, int y, int x){
     //This function displays each player's penguins with a different background to differentiate them from each other.
     //for(int i = 0; i < nbPlayer; i++){
-        switch ((player[i].penguin[0].color))
+        switch (( tile.penguinColor ))
         {
             case 1:
                 init_pair(1, COLOR_WHITE, COLOR_BLACK);
@@ -260,7 +289,7 @@ int showTile(Tile tile, Player* player, int nbPlayer) { // print une tile au coo
     int x = tile.posX;
     int y = tile.posY;
 
-    if (tile.isAlive == 0) {
+    if (tile.isAlive == 0) { // if tile not alive dont go further = no tile draw
 
         return 0;
     }
@@ -272,59 +301,63 @@ int showTile(Tile tile, Player* player, int nbPlayer) { // print une tile au coo
 
     attron(COLOR_PAIR(10));
 
-    if(tile.isTherePlayer == 0 && tile.isAlive == 1){               // if no penguins on tile and tile alive
+    if(tile.isTherePlayer == 0){               // if no penguins on tile
         if(tile.fish == 1){
-            mvprintw(y, x+2, "   ");
-            mvprintw(y+1, x, "   \U0001f41f    ");
+            mvprintw(y, x+2,   "   ");
+            mvprintw(y+1, x, "   FF  "); // \U0001f41f code émoji marche pas sur mon linux
             mvprintw(y+2, x, "       ");
             mvprintw(y+3, x+2, "   ");
         }
         else if(tile.fish == 2){
-            mvprintw(y, x+2, "   ");
-            mvprintw(y+1, x, "   \U0001f41f    ");
-            mvprintw(y+2, x, "   \U0001f41f    ");
+            mvprintw(y, x+2,   "   ");
+            mvprintw(y+1, x, "   FF  ");
+            mvprintw(y+2, x, "   FF  ");
             mvprintw(y+3, x+2, "   ");
         }
         else{
-            mvprintw(y, x+2, "   ");
-            mvprintw(y+1, x, "   \U0001f41f\U0001f41f    ");
-            mvprintw(y+2, x, "   \U0001f41f    ");
+            mvprintw(y, x+2,   "   ");
+            mvprintw(y+1, x, "  FFFF ");
+            mvprintw(y+2, x, "  FF   ");
             mvprintw(y+3, x+2, "   ");
         }
     }
-    else if(tile.isTherePlayer == 1 && tile.isAlive == 1){
-        mvprintw(y+1, x+2, "🐧");
-        // ou colorPinguins
-    }
-    else{                                                           // if tile dead
-        mvprintw(y, x+2, "   ");
+    else if(tile.isTherePlayer == 1){
+
+        mvprintw(y, x+2,   "   ");
         mvprintw(y+1, x, "       ");
         mvprintw(y+2, x, "       ");
         mvprintw(y+3, x+2, "   ");
+
+
+        ColorPenguins(tile, player, nbPlayer, y, x);
+        // ou colorPinguins
     }
+
     // ici si la tile est dead la fonction va return direct (cf L 218) donc jsp si c'est mieux d'afficher une croix
     // "vide" genre noire grace aux espaces
+
+    /*
     mvprintw(y, x + 2, "   ");
     mvprintw(y + 1, x, "       ");
     mvprintw(y + 2, x, "       ");
     mvprintw(y + 3, x + 2, "   ");
+     */
     attroff(COLOR_PAIR(10));
-
 
     if (tile.isTherePlayer == 1) {
         //move(y+1, x+2);
-        ColorPenguins(player, nbPlayer, y, x);
+        ColorPenguins(tile, player, nbPlayer, y, x);
 
         //mvprintw(y + 1, x + 2, "🐧");
-    /*
-    if (tile.isTherePlayer == 1) { // mettre un switch pour les différente tile : soit détruite, soit poisson, soit penguin
-        mvprintw(y + 1, x + 2, "🐧");
-        refresh();
+        /*
+        if (tile.isTherePlayer == 1) { // mettre un switch pour les différente tile : soit détruite, soit poisson, soit penguin
+            mvprintw(y + 1, x + 2, "🐧");
+            refresh();
+        }
+        */
+
+
     }
-    */
-
-
-
 
     //mvprintw(y, x, "X"); Debug to show Anchor of the Tile
 
@@ -600,15 +633,32 @@ void Game(Player *player, Tile **board, int nbPlayer) {
         mvprintw(0, 50, " tour : %d", turn);
         mvprintw(5, 100, "%s", player[currentPlayer].name); // debug only
 
-
-        for (int i = 0; i < nbPenguin; ++i) {
-            mvprintw(6+i, 100, "penguins: %d  in y: %d, x: %d", i+1, player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+        switch(currentPlayer){
+            case 0: //Black
+                mvprintw(6, 100, "You play the black penguins");
+                break;
+            case 1: // Blue
+                mvprintw(6, 100, "You play the blue penguins");
+                break;
+            case 2: // Magenta
+                mvprintw(6, 100, "You play the magenta penguins");
+                break;
+            case 3: // Red
+                mvprintw(6, 100, "You play the red penguins");
+                break;
+            case 4: // Yellow
+                mvprintw(6, 100, "You play the yellow penguins");
+                break;
+            case 5: // Green
+                mvprintw(6, 100, "You play the green penguins");
+                break;
         }
 
-        mvprintw(20, 100, "endTurn : %d", endTurn); // debug only
+        for (int i = 0; i < nbPenguin; ++i) {
+            mvprintw(7+i, 100, "penguins: %d  in y: %d, x: %d", i+1, player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+        }
 
-
-        mvprintw(10, 100, "Choose Your Penguin");
+        mvprintw(11, 100, "Choose Your Penguin");
 
         do{
             touch = getch();
@@ -639,7 +689,7 @@ void Game(Player *player, Tile **board, int nbPlayer) {
         mvprintw(12, 100, "Enter the number of movement you want to do. Between 1 and 6");
         do{
 
-        }while(true);// condition pour boucler
+        }while(true);// condition pour boucler sur les déplacements
 
 
         do {// On attend que le joueur appuie sur une bonne touch
