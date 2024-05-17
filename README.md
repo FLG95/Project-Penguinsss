@@ -61,7 +61,7 @@ You can now play, by following these rules :
 - The player who collects the most fish with his penguins wins the game.
 - **Turn-by-turn**, each player will have to make a move, by choosing a direction **for one** of his penguins, and by choosing a distance (1 or more icebergs, admitting there is no penguins on an iceberg between start and destination)
 - An iceberg can only be occupied **by one penguin at a time**. A penguin **cannot cross** an iceberg occupied by another penguin.
-- Due to global warming, when a pinguin leaves an iceberg, the latter will melt. You can't go on a melted iceberg.
+- Due to global warming, when a penguin leaves an iceberg, the latter will melt. You can't go on a melted iceberg.
 - Players can collect fishes by moving on an iceberg with fishes. Depending on the number of fishes on this iceberg, the player's score will change.
 - If a player cannot move any of their penguins on the grid (i.e stuck because all icebergs around them is melted), their turn is skipped until the end of the game.
 - The game concludes when all players are stuck.
