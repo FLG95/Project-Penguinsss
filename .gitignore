@@ -1,5 +1,8 @@
 .idea/
+.vscode/
 cmake-build-debug/
 cmake-build-debug-event-trace/
 deps/
 *.dll
+**/*/.exe
+*.o

@@ -1,18 +1,24 @@
 
-#include "curses.h"
 
-#include "stdlib.h"
-#include "string.h"
+#include "include/display.h"
 #include "time.h"
-#include <unistd.h>
 
-const int l = 4;
-const int c = 4;
+const int tilesSquare = 4;
+const int l = 9; // y
+const int c = 9; // x
+const int pinguin_width = 2;
+const int pinguin_height = 2;
+const int height ;
+const int width ;
+const int startX = 0;
+const int startY = 0;
 
-typedef struct {
+int main(){
 
-    char* name;
-    int num;
+    Tile** board = NULL;
+    Player* players;
+    WINDOW* window;
+
 
 
 }player;
@@ -146,29 +152,25 @@ int main() {
     srand(time(NULL));
 
 
-    initscr();
-    refresh();
-
-    sleep(1);
-
-    getch();
-
-    endwin();
-
-
-    //player* players;
+    makeWindow();
 
     //players = createPlayers();
 
-    board = createBoard();
+    board = createBoard(l, c, tilesSquare);
+
+    showBoard(board, window, l, c);
 
 
-    showBoard(board);
+    //checkfish = checkFish(board, players);
+
+    //showBoard(board, window);
+    //showScore(players);
 
 
-    //scanf("%d", &a);
+
 
     //free(players);
-    free(board);
+    //free(board);
     return 0;
+
 }
