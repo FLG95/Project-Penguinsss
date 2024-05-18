@@ -312,7 +312,7 @@ int showTile(Tile tile, Player* player, int nbPlayer) { // print une tile au coo
     attron(COLOR_PAIR(color));
 
     if(tile.isTherePlayer == 0){      // if no penguins on tile
-        // can be replace by switch
+        // can be replace by a switch
         if(tile.fish == 1){
             mvprintw(y, x+2,   "   ");
             mvprintw(y+1, x, "   FF  "); // \U0001f41f code émoji marche pas sur mon linux
@@ -332,7 +332,6 @@ int showTile(Tile tile, Player* player, int nbPlayer) { // print une tile au coo
             mvprintw(y+3, x+2, "   ");
         }
     }
-
     else if(tile.isTherePlayer == 1){
 
         mvprintw(y, x+2,   "   ");
@@ -341,7 +340,7 @@ int showTile(Tile tile, Player* player, int nbPlayer) { // print une tile au coo
         mvprintw(y+3, x+2, "   ");
 
         attroff(COLOR_PAIR(color));
-        ColorPenguins(tile, player, nbPlayer, y, x);
+        ColorPenguins(tile, player, nbPlayer, y, x); // ne réaffiche pas les pingouins quand on jouer
         //mvprintw(y + 1, x + 2, "🐧");
 
         // ou colorPinguins
@@ -582,13 +581,13 @@ void Inputs(Tile **board, Player* player, Penguin* virtualPenguin, int touch, in
             }
             break;
 
+
         case 27: // échap = revenir au menu et redémarrer tout le jeu
             clear();
             exit(7);
             break;
 
         case KEY_ENTER: // Si ne peut/veut pas bouger
-
             break;
 
 
@@ -604,19 +603,19 @@ void Inputs(Tile **board, Player* player, Penguin* virtualPenguin, int touch, in
     *extraMove = moreMove;
 
     showIceFloe(board, player, nbPlayer);
-
+    mvprintw(21, 100, "Inputs: %d, %d", virtualPenguin->tileY,virtualPenguin->tileX);
 
 }
 
 
-void deplacement(Tile** board, Player* player, Penguin virtualPenguin, int touch, int nbPlayer, int* extraMove, int movementNb){
+void deplacement(Tile** board, Player* player, Penguin *virtualPenguin, int touch, int nbPlayer, int* extraMove, int movementNb){
 
     mvprintw(15, 100, "Now move your penguin if you cant move just try an other movement");
 
 
-
     for (int i = 0; i < movementNb;) {
         if(i == 0){
+            board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
         }
 
         showIceFloe(board, player, nbPlayer);
@@ -625,7 +624,7 @@ void deplacement(Tile** board, Player* player, Penguin virtualPenguin, int touch
 
         do {
             touch = getch();
-            Inputs(board, player, &virtualPenguin, touch, nbPlayer, extraMove);
+            Inputs(board, player, virtualPenguin, touch, nbPlayer, extraMove);
 
 
         } while (touch != 'a' && touch != 'e' && touch != 'q' && touch != 'd' && touch != 'w' && touch != 'x' && touch != KEY_ENTER); // On attend que le joueur appuie sur une bonne touche
@@ -634,9 +633,11 @@ void deplacement(Tile** board, Player* player, Penguin virtualPenguin, int touch
     }
 
     mvprintw(16, 100, "                                                ");
-    mvprintw(15, 100, "Press Enter to confirm your deplacement or press space to remake it");
-}
+    mvprintw(15, 100, "Press L to confirm your deplacement or press k to remake it");
+    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+    mvprintw(22, 100, "deplacement: %d, %d", virtualPenguin->tileY,virtualPenguin->tileX);
 
+}
 
 
 void Game(Player *player, Tile **board, int nbPlayer) {
@@ -766,6 +767,10 @@ void Game(Player *player, Tile **board, int nbPlayer) {
                 case 'l':
                     movementNb = 6;
                     break;
+
+                case KEY_RESIZE:
+                    showIceFloe(board, player, nbPlayer);
+                    break;
             }
 
         }while(touch != 'f' && touch != 'g' && touch != 'h' && touch != 'j' && touch != 'k' && touch != 'l');// condition pour boucler sur les déplacements
@@ -773,33 +778,44 @@ void Game(Player *player, Tile **board, int nbPlayer) {
 
         mvprintw(14, 100, "You want to do %d movement", movementNb);
 
+        mvprintw(15, 100, "Press K");
+
 
 
 
         do{
             touch = getch();
-
             switch(touch){
-                case KEY_ENTER:
+                case 'l':
+
+                    board[player[currentPlayer].penguin[selectedPenguinNb].tileY][player[currentPlayer].penguin[selectedPenguinNb].tileX].isTherePlayer = 0;
+                    board[player[currentPlayer].penguin[selectedPenguinNb].tileY][player[currentPlayer].penguin[selectedPenguinNb].tileX].isAlive = 0;
+
+                    player[currentPlayer].penguin[selectedPenguinNb] = virtualPenguin;
+
+                    board[virtualPenguin.tileY][virtualPenguin.tileX].isTherePlayer = 1;
+                    board[virtualPenguin.tileY][virtualPenguin.tileX].penguinColor = currentPlayer+1; // +1 parce que currentPlayer commence a 0 alors que le system de couleur commence a 1
+
 
                     break;
 
-                case KEY_BACKSPACE:
+                case 'k':
 
-                    deplacement(board, player, virtualPenguin, touch, nbPlayer, &extraMove, movementNb);
+                    board[virtualPenguin.tileY][virtualPenguin.tileX].isRed = 0;
+                    showIceFloe(board, player, nbPlayer);
+                    deplacement(board, player, &virtualPenguin, touch, nbPlayer, &extraMove, movementNb);
+                    break;
+
+                case KEY_RESIZE:
+                    showIceFloe(board, player, nbPlayer);
                     break;
             }
 
 
-        }while(touch != KEY_BACKSPACE && touch != KEY_ENTER);
+        }while(touch != 'l');
 
-
-
-
-
-
+        
         clear();
-
         player[currentPlayer].currentPenguins += (player[currentPlayer].currentPenguins + 1) % nbPenguin; // on boucle les pinguins de ce joueur
         currentPlayer = (currentPlayer + 1) % nbPlayer; // on boucle sur les joeueurs
         turn++;
