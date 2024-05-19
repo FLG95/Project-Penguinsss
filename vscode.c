@@ -1,4 +1,6 @@
+
 #include "ncurses.h"
+
 #include "locale.h"
 //#include "ncurses\curses.h"
 #include "stdlib.h"
@@ -129,7 +131,6 @@ int playerHandle(int n) {
 }
 
 
-
 Penguin createPenguin(Tile **board, int color, int num) {
 
     int randX, randY;
@@ -151,7 +152,6 @@ Penguin createPenguin(Tile **board, int color, int num) {
     //penguin.num = num;
 
     board[randY][randX].penguinColor = color;
-
 
 
     return penguin;
@@ -200,7 +200,7 @@ Player *createPlayers(Tile **board, int nbPlayer) {
         }
 
         for (int j = 0; j < nbPenguin; ++j) {
-            player[i].penguin[j] = createPenguin(board, i+1, j);
+            player[i].penguin[j] = createPenguin(board, i + 1, j);
         }
 
         player[i].currentPenguins = 0;
@@ -211,9 +211,9 @@ Player *createPlayers(Tile **board, int nbPlayer) {
 
 }
 
-char* colorHandle(int n){
-    char* color;
-    switch(n){
+char *colorHandle(int n) {
+    char *color;
+    switch (n) {
         case 1: //Black
             color = "black";
             break;
@@ -237,60 +237,59 @@ char* colorHandle(int n){
 }
 
 
-void ColorPenguins(Tile tile, Player* player, int nbPlayer, int y, int x){
+void ColorPenguins(Tile tile, Player *player, int nbPlayer, int y, int x) {
     //This function displays each player's penguins with a different background to differentiate them from each other.
     //for(int i = 0; i < nbPlayer; i++){
-        switch (( tile.penguinColor ))
-        {
-            case 1:
-                init_pair(1, COLOR_WHITE, COLOR_BLACK);
-                attron(COLOR_PAIR(1));
-                mvprintw(y + 1, x + 2, "🐧");
-                refresh();
-                attroff(COLOR_PAIR(1));
-                break;
+    switch ((tile.penguinColor)) {
+        case 1:
+            init_pair(1, COLOR_WHITE, COLOR_BLACK);
+            attron(COLOR_PAIR(1));
+            mvprintw(y + 1, x + 2, "🐧");
+            refresh();
+            attroff(COLOR_PAIR(1));
+            break;
 
-            case 2:
-                init_pair(2, COLOR_WHITE, COLOR_BLUE);
-                attron(COLOR_PAIR(2));
-                mvprintw(y + 1, x + 2, "🐧");
-                refresh();
-                attroff(COLOR_PAIR(2));
-                break;
+        case 2:
+            init_pair(2, COLOR_WHITE, COLOR_WHITE);
+            attron(COLOR_PAIR(2));
+            mvprintw(y + 1, x + 2, "🐧");
+            refresh();
+            attroff(COLOR_PAIR(2));
+            break;
 
-            case 3:
-                init_pair(3, COLOR_WHITE, COLOR_MAGENTA);
-                attron(COLOR_PAIR(3));
-                mvprintw(y + 1, x + 2, "🐧");
-                attroff(COLOR_PAIR(3));
-                break;
+        case 3:
+            init_pair(3, COLOR_WHITE, COLOR_MAGENTA);
+            attron(COLOR_PAIR(3));
+            mvprintw(y + 1, x + 2, "🐧");
+            attroff(COLOR_PAIR(3));
+            break;
 
-            case 4:
-                init_pair(4, COLOR_WHITE, COLOR_RED);
-                attron(COLOR_PAIR(4));
-                mvprintw(y + 1, x + 2, "🐧");
-                attroff(COLOR_PAIR(4));
-                break;
+        case 4:
+            init_pair(4, COLOR_WHITE, COLOR_RED);
+            attron(COLOR_PAIR(4));
+            mvprintw(y + 1, x + 2, "🐧");
+            attroff(COLOR_PAIR(4));
+            break;
 
-            case 5:
-                init_pair(5, COLOR_WHITE, COLOR_YELLOW);
-                attron(COLOR_PAIR(5));
-                mvprintw(y + 1, x + 2, "🐧");
-                attroff(COLOR_PAIR(5));
-                break;
+        case 5:
+            init_pair(5, COLOR_WHITE, COLOR_YELLOW);
+            attron(COLOR_PAIR(5));
+            mvprintw(y + 1, x + 2, "🐧");
+            attroff(COLOR_PAIR(5));
+            break;
 
-            case 6:
-                init_pair(6, COLOR_WHITE, COLOR_GREEN);
-                attron(COLOR_PAIR(6));
-                mvprintw(y + 1, x + 2, "🐧");
-                attroff(COLOR_PAIR(6));
-                break;
-        //}
+        case 6:
+            init_pair(6, COLOR_WHITE, COLOR_GREEN);
+            attron(COLOR_PAIR(6));
+            mvprintw(y + 1, x + 2, "🐧");
+            attroff(COLOR_PAIR(6));
+            break;
+            //}
     }
 }
 
 
-int showTile(Tile tile, Player* player, int nbPlayer) { // print une tile au cooordonés stockées dans la tile envoyé
+int showTile(Tile tile, Player *player, int nbPlayer) { // print une tile au cooordonés stockées dans la tile envoyé
     int x = tile.posX;
     int y = tile.posY;
     int color;
@@ -300,10 +299,9 @@ int showTile(Tile tile, Player* player, int nbPlayer) { // print une tile au coo
 
     // height =  4 ;width = 7
 
-    if(tile.isRed == 1){
+    if (tile.isRed == 1) {
         color = 10;
-    }
-    else{
+    } else {
         color = 11;
     }
 
@@ -313,33 +311,30 @@ int showTile(Tile tile, Player* player, int nbPlayer) { // print une tile au coo
 
     attron(COLOR_PAIR(color));
 
-    if(tile.isTherePlayer == 0){      // if no penguins on tile
+    if (tile.isTherePlayer == 0) {      // if no penguins on tile
         // can be replace by a switch
-        if(tile.fish == 1){
-            mvprintw(y, x+2,   "   ");
-            mvprintw(y+1, x, "   FF  "); // \U0001f41f code émoji marche pas sur mon linux
-            mvprintw(y+2, x, "       ");
-            mvprintw(y+3, x+2, "   ");
+        if (tile.fish == 1) {
+            mvprintw(y, x + 2, "   ");
+            mvprintw(y + 1, x, "   \U0001f41f  "); // \U0001f41f code émoji marche pas sur mon linux
+            mvprintw(y + 2, x, "       ");
+            mvprintw(y + 3, x + 2, "   ");
+        } else if (tile.fish == 2) {
+            mvprintw(y, x + 2, "   ");
+            mvprintw(y + 1, x, "   \U0001f41f  ");
+            mvprintw(y + 2, x, "   \U0001f41f  ");
+            mvprintw(y + 3, x + 2, "   ");
+        } else {
+            mvprintw(y, x + 2, "   ");
+            mvprintw(y + 1, x, "  \U0001f41f\U0001f41f ");
+            mvprintw(y + 2, x, "  \U0001f41f   ");
+            mvprintw(y + 3, x + 2, "   ");
         }
-        else if(tile.fish == 2){
-            mvprintw(y, x+2,   "   ");
-            mvprintw(y+1, x, "   FF  ");
-            mvprintw(y+2, x, "   FF  ");
-            mvprintw(y+3, x+2, "   ");
-        }
-        else{
-            mvprintw(y, x+2,   "   ");
-            mvprintw(y+1, x, "  FFFF ");
-            mvprintw(y+2, x, "  FF   ");
-            mvprintw(y+3, x+2, "   ");
-        }
-    }
-    else if(tile.isTherePlayer == 1){
+    } else if (tile.isTherePlayer == 1) {
 
-        mvprintw(y, x+2,   "   ");
-        mvprintw(y+1, x, "       ");
-        mvprintw(y+2, x, "       ");
-        mvprintw(y+3, x+2, "   ");
+        mvprintw(y, x + 2, "   ");
+        mvprintw(y + 1, x, "       ");
+        mvprintw(y + 2, x, "       ");
+        mvprintw(y + 3, x + 2, "   ");
 
         attroff(COLOR_PAIR(color));
         ColorPenguins(tile, player, nbPlayer, y, x); // ne réaffiche pas les pingouins quand on jouer
@@ -366,12 +361,16 @@ int showTile(Tile tile, Player* player, int nbPlayer) { // print une tile au coo
 }
 
 
-
-void showIceFloe(Tile **board, Player* player, int nbPlayer) {
+void showIceFloe(Tile **board, Player *player, int nbPlayer) {
     for (int i = 0; i < l; i++) { // on boucle sur le nb de ligne
         for (int j = 0; j < c; j++) { //on boucle sur le nb de colone par ligne
             showTile(board[i][j], player, nbPlayer); // on print la tile grace aux donnés stocké dans board
         }
+    }
+
+    mvprintw(5, 150, "Score : ");
+    for (int i = 0; i < nbPlayer; ++i) {
+        mvprintw(6 + i, 150, "%s : %d", player[i].name, player[i].score);
     }
 
     //showPlayerScore;
@@ -438,63 +437,99 @@ int tileDontExist(int y, int x) {
 
     if (x > c || x < 0 || y > l || y < 0) {
         return 1;
-    }
-    else {
+    } else {
         return 0;
     }
 }
 
 
-
-void Inputs(Tile **board, Player* player, Penguin* virtualPenguin, int touch, int nbPlayer, int *extraMove) {
+void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, int nbPlayer, int *extraMove) {
 
     int moreMove = 0;
 
-    switch (touch) {
+    switch (touch) {  // rajouter des conditions pour x = 0;
 
         case 'a': // a Checker toute les conditions de déplacement avant
 
-            if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX - 1) ||
-                board[virtualPenguin->tileY - 1][virtualPenguin->tileX - 1].isAlive == 0 ||
-                board[virtualPenguin->tileY - 1][virtualPenguin->tileX - 1].isTherePlayer == 1) { // la case n'est pas dans le tableau board ou la case est mortre ou la case est prise par un autre pingouin
+            if(virtualPenguin->tileX == 0){
 
-                moreMove+=1;
+                if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX) ||
+                    board[virtualPenguin->tileY - 1][virtualPenguin->tileX].isAlive == 0 ||
+                    board[virtualPenguin->tileY - 1][virtualPenguin->tileX].isTherePlayer == 1) { // la case n'est pas dans le tableau board ou la case est mortre ou la case est prise par un autre pingouin
+                    moreMove += 1;
+                    mvprintw(25, 100, "non");
+                } else { // le pingouin peut bouger
+
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                    virtualPenguin->tileY = virtualPenguin->tileY - 1;
+                    virtualPenguin->tileX = virtualPenguin->tileX;
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                }
+                break;
             }
-            else { // le pingouin peut bouger
-
-                board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
-
-                //délire condition pour y paire impaire
-
-                virtualPenguin->tileY =  virtualPenguin->tileY -1;
-                virtualPenguin->tileX =  virtualPenguin->tileX -1;
-
-                board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
 
 
+            if (virtualPenguin->tileY % 2 == 0) { // pour éviter un bug sur les lignes impaires
+
+                if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX - 1) ||
+                    board[virtualPenguin->tileY - 1][virtualPenguin->tileX - 1].isAlive == 0 ||
+                    board[virtualPenguin->tileY - 1][virtualPenguin->tileX - 1].isTherePlayer == 1) { // la case n'est pas dans le tableau board ou la case est mortre ou la case est prise par un autre pingouin
+                    moreMove += 1;
+                } else { // le pingouin peut bouger
+
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                    virtualPenguin->tileY = virtualPenguin->tileY - 1;
+                    virtualPenguin->tileX = virtualPenguin->tileX - 1;
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                }
+            } else { // Ligne impaire
+                if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX - 1) ||
+                    board[virtualPenguin->tileY - 1][virtualPenguin->tileX].isAlive == 0 ||
+                    board[virtualPenguin->tileY - 1][virtualPenguin->tileX].isTherePlayer == 1) { // la case n'est pas dans le tableau board ou la case est mortre ou la case est prise par un autre pingouin
+
+                    moreMove += 1;
+                } else { // le pingouin peut bouger
+
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                    virtualPenguin->tileY = virtualPenguin->tileY - 1;
+                    virtualPenguin->tileX = virtualPenguin->tileX;
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                }
 
             }
             break;
 
         case 'e': // e Checker toute les conditions de déplacement avant
-            if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX + 1) ||
-                board[virtualPenguin->tileY - 1][virtualPenguin->tileX + 1].isAlive == 0 ||
-                board[virtualPenguin->tileY - 1][virtualPenguin->tileX + 1].isTherePlayer == 1) { // la case n'est pas dans le tableau board ou la case est mortre ou la case est prise par un autre pingouin
 
-                moreMove+=1;
+            if (virtualPenguin->tileY % 2 == 0) { // pour éviter un bug sur les lignes impaires
+
+                if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX) ||
+                    board[virtualPenguin->tileY - 1][virtualPenguin->tileX].isAlive == 0 ||
+                    board[virtualPenguin->tileY - 1][virtualPenguin->tileX].isTherePlayer == 1) { // la case n'est pas dans le tableau board ou la case est mortre ou la case est prise par un autre pingouin
+                    moreMove += 1;
+                } else { // le pingouin peut bouger
+
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                    virtualPenguin->tileY = virtualPenguin->tileY - 1;
+                    virtualPenguin->tileX = virtualPenguin->tileX;
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                }
+            } else { // Ligne impaire
+                if (tileDontExist(virtualPenguin->tileY, virtualPenguin->tileX + 1) ||
+                    board[virtualPenguin->tileY - 1][virtualPenguin->tileX + 1].isAlive == 0 ||
+                    board[virtualPenguin->tileY - 1][virtualPenguin->tileX + 1].isTherePlayer == 1) { // la case n'est pas dans le tableau board ou la case est mortre ou la case est prise par un autre pingouin
+                    moreMove += 1;
+                } else { // le pingouin peut bouger
+
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                    virtualPenguin->tileY = virtualPenguin->tileY - 1;
+                    virtualPenguin->tileX = virtualPenguin->tileX + 1;
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                }
             }
-            else { // le pingouin peut bouger
+            break;
 
-                board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
 
-                //délire condition pour y paire impaire
-
-                virtualPenguin->tileY =  virtualPenguin->tileY -1;
-                virtualPenguin->tileX =  virtualPenguin->tileX +1;
-
-                board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
-
-            }
             break;
 
         case 'q':// q Checker toute les conditions de déplacement avant
@@ -502,17 +537,16 @@ void Inputs(Tile **board, Player* player, Penguin* virtualPenguin, int touch, in
                 board[virtualPenguin->tileY][virtualPenguin->tileX - 1].isAlive == 0 ||
                 board[virtualPenguin->tileY][virtualPenguin->tileX - 1].isTherePlayer == 1) { // la case n'est pas dans le tableau board ou la case est mortre ou la case est prise par un autre pingouin
 
-                moreMove+=1;
-            }
-            else { // le pingouin peut bouger
+                moreMove += 1;
+            } else { // le pingouin peut bouger
 
                 board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
 
                 //délire condition pour y paire impaire
 
 
-                virtualPenguin->tileY =  virtualPenguin->tileY;
-                virtualPenguin->tileX =  virtualPenguin->tileX -1;
+                virtualPenguin->tileY = virtualPenguin->tileY;
+                virtualPenguin->tileX = virtualPenguin->tileX - 1;
 
                 board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
 
@@ -524,16 +558,15 @@ void Inputs(Tile **board, Player* player, Penguin* virtualPenguin, int touch, in
                 board[virtualPenguin->tileY][virtualPenguin->tileX + 1].isAlive == 0 ||
                 board[virtualPenguin->tileY][virtualPenguin->tileX + 1].isTherePlayer == 1) { // la case n'est pas dans le tableau board ou la case est mortre ou la case est prise par un autre pingouin
 
-                moreMove+=1;
-            }
-            else { // le pingouin peut bouger
+                moreMove += 1;
+            } else { // le pingouin peut bouger
 
                 board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
 
                 //délire condition pour y paire impaire
 
-                virtualPenguin->tileY =  virtualPenguin->tileY;
-                virtualPenguin->tileX =  virtualPenguin->tileX +1;
+                virtualPenguin->tileY = virtualPenguin->tileY;
+                virtualPenguin->tileX = virtualPenguin->tileX + 1;
 
                 board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
 
@@ -542,43 +575,77 @@ void Inputs(Tile **board, Player* player, Penguin* virtualPenguin, int touch, in
 
 
         case 'w': // w Checker toute les conditions de déplacement avant
-            if (tileDontExist(virtualPenguin->tileY + 1, virtualPenguin->tileX - 1) ||
-                board[virtualPenguin->tileY + 1][virtualPenguin->tileX - 1].isAlive == 0 ||
-                board[virtualPenguin->tileY + 1][virtualPenguin->tileX - 1].isTherePlayer == 1) { // la case n'est pas dans le tableau board ou la case est mortre ou la case est prise par un autre pingouin
 
-                moreMove+=1;
+            if(virtualPenguin->tileX == 0){
+
+                if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX) ||
+                    board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isAlive == 0 ||
+                    board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isTherePlayer == 1) { // la case n'est pas dans le tableau board ou la case est mortre ou la case est prise par un autre pingouin
+                    moreMove += 1;
+                } else { // le pingouin peut bouger
+
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                    virtualPenguin->tileY = virtualPenguin->tileY + 1;
+                    virtualPenguin->tileX = virtualPenguin->tileX;
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                }
+                break;
             }
-            else { // le pingouin peut bouger
 
-                board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
 
-                //délire condition pour y paire impaire
+            if (virtualPenguin->tileY % 2 == 0) { // pour éviter un bug sur les lignes impaires
 
-                virtualPenguin->tileY =  virtualPenguin->tileY + 1;
-                virtualPenguin->tileX =  virtualPenguin->tileX - 1;
+                if (tileDontExist(virtualPenguin->tileY + 1, virtualPenguin->tileX - 1) ||
+                    board[virtualPenguin->tileY + 1][virtualPenguin->tileX - 1].isAlive == 0 ||
+                    board[virtualPenguin->tileY + 1][virtualPenguin->tileX - 1].isTherePlayer == 1) { // la case n'est pas dans le tableau board ou la case est mortre ou la case est prise par un autre pingouin
+                    moreMove += 1;
+                } else { // le pingouin peut bouger
 
-                board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                    virtualPenguin->tileY = virtualPenguin->tileY + 1;
+                    virtualPenguin->tileX = virtualPenguin->tileX - 1;
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                }
+            } else { // Ligne impaire
+                if (tileDontExist(virtualPenguin->tileY + 1, virtualPenguin->tileX) ||
+                    board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isAlive == 0 ||
+                    board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isTherePlayer == 1) { // la case n'est pas dans le tableau board ou la case est mortre ou la case est prise par un autre pingouin
+                    moreMove += 1;
+                } else { // le pingouin peut bouger
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                    virtualPenguin->tileY = virtualPenguin->tileY + 1;
+                    virtualPenguin->tileX = virtualPenguin->tileX;
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                }
 
             }
             break;
 
         case 'x': // x Checker toute les conditions de déplacement avant
-            if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX + 1) ||
-                board[virtualPenguin->tileY - 1][virtualPenguin->tileX + 1].isAlive == 0 ||
-                board[virtualPenguin->tileY - 1][virtualPenguin->tileX + 1].isTherePlayer == 1) { // la case n'est pas dans le tableau board ou la case est mortre ou la case est prise par un autre pingouin
+            if (virtualPenguin->tileY % 2 == 0) { // pour éviter un bug sur les lignes impaires
 
-                moreMove+=1;
-            }
-            else { // le pingouin peut bouger
+                if (tileDontExist(virtualPenguin->tileY + 1, virtualPenguin->tileX) ||
+                    board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isAlive == 0 ||
+                    board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isTherePlayer == 1) { // la case n'est pas dans le tableau board ou la case est mortre ou la case est prise par un autre pingouin
+                    moreMove += 1;
+                } else { // le pingouin peut bouger
 
-                board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
-
-                //délire condition pour y paire impaire
-
-                virtualPenguin->tileY =  virtualPenguin->tileY +1;
-                virtualPenguin->tileX =  virtualPenguin->tileX +1;
-
-                board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                    virtualPenguin->tileY = virtualPenguin->tileY + 1;
+                    virtualPenguin->tileX = virtualPenguin->tileX;
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                }
+            } else { // Ligne impaire
+                if (tileDontExist(virtualPenguin->tileY + 1, virtualPenguin->tileX + 1) ||
+                    board[virtualPenguin->tileY + 1][virtualPenguin->tileX + 1].isAlive == 0 ||
+                    board[virtualPenguin->tileY + 1][virtualPenguin->tileX + 1].isTherePlayer == 1) { // la case n'est pas dans le tableau board ou la case est mortre ou la case est prise par un autre pingouin
+                    moreMove += 1;
+                } else { // le pingouin peut bouger
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                    virtualPenguin->tileY = virtualPenguin->tileY + 1;
+                    virtualPenguin->tileX = virtualPenguin->tileX + 1;
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                }
 
             }
             break;
@@ -599,37 +666,40 @@ void Inputs(Tile **board, Player* player, Penguin* virtualPenguin, int touch, in
     }
 
 
-    //player[currentPlayer].penguin[selectedPenguinNb] = virtualPenguin;
+//player[currentPlayer].penguin[selectedPenguinNb] = virtualPenguin;
 
 
-    *extraMove = moreMove;
+    *
+            extraMove = moreMove;
 
-    showIceFloe(board, player, nbPlayer);
-    mvprintw(21, 100, "Inputs: %d, %d", virtualPenguin->tileY,virtualPenguin->tileX);
-
+    showIceFloe(board, player, nbPlayer
+    );
 }
 
 
-void deplacement(Tile** board, Player* player, Penguin *virtualPenguin, int touch, int nbPlayer, int* extraMove, int movementNb){
+void deplacement(Tile **board, Player *player, Penguin *virtualPenguin, int touch, int nbPlayer, int *extraMove,
+                 int movementNb) {
 
     mvprintw(15, 100, "Now move your penguin if you cant move just try an other movement");
 
-
     for (int i = 0; i < movementNb;) {
-        if(i == 0){
+        if (i == 0) {
             board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
         }
 
         showIceFloe(board, player, nbPlayer);
 
-        mvprintw(16, 100, "movement %d", i+1);
+        mvprintw(16, 100, "movement %d", i + 1);
 
         do {
             touch = getch();
             Inputs(board, player, virtualPenguin, touch, nbPlayer, extraMove);
+            mvprintw(15, 100, "Now move your penguin if you cant move just try an other movement");
+            mvprintw(16, 100, "movement %d", i + 1);
 
 
-        } while (touch != 'a' && touch != 'e' && touch != 'q' && touch != 'd' && touch != 'w' && touch != 'x' && touch != KEY_ENTER); // On attend que le joueur appuie sur une bonne touche
+        } while (touch != 'a' && touch != 'e' && touch != 'q' && touch != 'd' && touch != 'w' && touch != 'x' &&
+                 touch != KEY_ENTER); // On attend que le joueur appuie sur une bonne touche
         i -= *extraMove;
         i++;
     }
@@ -637,13 +707,11 @@ void deplacement(Tile** board, Player* player, Penguin *virtualPenguin, int touc
     mvprintw(16, 100, "                                                ");
     mvprintw(15, 100, "Press L to confirm your deplacement or press k to remake it");
     board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
-    mvprintw(22, 100, "deplacement: %d, %d", virtualPenguin->tileY,virtualPenguin->tileX);
-
 }
 
 
-void Score(Player* player, Tile* tile){
-    player->score += tile->fish; //une ligne de code dans une fonction ?? c'est inutile
+void Score(Player *player, Tile *tile) {
+    player->score += tile->fish; //une ligne de code dans une fonction ?? c'est inutile -- un peu oui
 }
 
 
@@ -687,7 +755,7 @@ void Game(Player *player, Tile **board, int nbPlayer) {
         mvprintw(0, 50, " tour : %d", turn);
         mvprintw(5, 100, "%s", player[currentPlayer].name); // debug only
 
-        switch(currentPlayer){
+        switch (currentPlayer) {
             case 0: //Black
                 mvprintw(6, 100, "You play the black penguins");
                 break;
@@ -709,16 +777,16 @@ void Game(Player *player, Tile **board, int nbPlayer) {
         }
 
         for (int i = 0; i < nbPenguin; ++i) {
-            mvprintw(7+i, 100, "penguins: %d  in y: %d, x: %d", i+1, player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+            mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d", i + 1, player[currentPlayer].penguin[i].tileY,
+                     player[currentPlayer].penguin[i].tileX);
         }
 
         mvprintw(11, 100, "Choose Your Penguin");
 
 
-        do{
+        do {
             touch = getch();
-
-            switch(touch){
+            switch (touch) {
                 case 'r': //a
                     selectedPenguinNb = 0;
                     break;
@@ -734,12 +802,43 @@ void Game(Player *player, Tile **board, int nbPlayer) {
 
                 case KEY_RESIZE:
                     showIceFloe(board, player, nbPlayer);
+                    mvprintw(0, 50, " tour : %d", turn);
+                    mvprintw(5, 100, "%s", player[currentPlayer].name); // debug only
+
+                    switch (currentPlayer) {
+                        case 0: //Black
+                            mvprintw(6, 100, "You play the black penguins");
+                            break;
+                        case 1: // Blue
+                            mvprintw(6, 100, "You play the blue penguins");
+                            break;
+                        case 2: // Magenta
+                            mvprintw(6, 100, "You play the magenta penguins");
+                            break;
+                        case 3: // Red
+                            mvprintw(6, 100, "You play the red penguins");
+                            break;
+                        case 4: // Yellow
+                            mvprintw(6, 100, "You play the yellow penguins");
+                            break;
+                        case 5: // Green
+                            mvprintw(6, 100, "You play the green penguins");
+                            break;
+                    }
+
+                    for (int i = 0; i < nbPenguin; ++i) {
+                        mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d", i + 1,
+                                 player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+                    }
+
+                    mvprintw(11, 100, "Choose Your Penguin");
                     break;
             }
+        } while (touch != 'r' && touch != 't' && touch != 'y' && touch != 'u' || selectedPenguinNb > nbPenguin);
 
-        }while(touch != 'r' && touch != 't' && touch != 'y' && touch != 'u');
 
-        mvprintw(12, 100, "You chose the %d penguin", selectedPenguinNb+1);
+        mvprintw(12, 100, "You chose the %d penguin", selectedPenguinNb + 1);
+
 
         Penguin virtualPenguin = player[currentPlayer].penguin[selectedPenguinNb];
         board[virtualPenguin.tileY][virtualPenguin.tileX].isRed = 1;
@@ -747,9 +846,9 @@ void Game(Player *player, Tile **board, int nbPlayer) {
 
         mvprintw(13, 100, "Enter the number of movement you want to do. Between 1 and 6");
 
-        do{
+        do {
             touch = getch();
-            switch(touch){
+            switch (touch) {
                 case 'f':
                     movementNb = 1;
                     break;
@@ -777,53 +876,119 @@ void Game(Player *player, Tile **board, int nbPlayer) {
 
                 case KEY_RESIZE:
                     showIceFloe(board, player, nbPlayer);
+                    mvprintw(0, 50, " tour : %d", turn);
+                    mvprintw(5, 100, "%s", player[currentPlayer].name); // debug only
+                    switch (currentPlayer) {
+                        case 0: //Black
+                            mvprintw(6, 100, "You play the black penguins");
+                            break;
+                        case 1: // Blue
+                            mvprintw(6, 100, "You play the blue penguins");
+                            break;
+                        case 2: // Magenta
+                            mvprintw(6, 100, "You play the magenta penguins");
+                            break;
+                        case 3: // Red
+                            mvprintw(6, 100, "You play the red penguins");
+                            break;
+                        case 4: // Yellow
+                            mvprintw(6, 100, "You play the yellow penguins");
+                            break;
+                        case 5: // Green
+                            mvprintw(6, 100, "You play the green penguins");
+                            break;
+                    }
+                    for (int i = 0; i < nbPenguin; ++i) {
+                        mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d", i + 1,
+                                 player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+                    }
+                    mvprintw(11, 100, "Choose Your Penguin");
+                    mvprintw(13, 100, "Enter the number of movement you want to do. Between 1 and 6");
+
                     break;
             }
 
-        }while(touch != 'f' && touch != 'g' && touch != 'h' && touch != 'j' && touch != 'k' && touch != 'l');// condition pour boucler sur les déplacements
+        } while (touch != 'f' && touch != 'g' && touch != 'h' && touch != 'j' && touch != 'k' &&
+                 touch != 'l');// condition pour boucler sur les déplacements
 
 
         mvprintw(14, 100, "You want to do %d movement", movementNb);
-
         mvprintw(15, 100, "Press K");
 
 
-
-
-        do{
+        do {
             touch = getch();
-            switch(touch){
+            switch (touch) {
                 case 'l':
 
                     board[player[currentPlayer].penguin[selectedPenguinNb].tileY][player[currentPlayer].penguin[selectedPenguinNb].tileX].isTherePlayer = 0;
                     board[player[currentPlayer].penguin[selectedPenguinNb].tileY][player[currentPlayer].penguin[selectedPenguinNb].tileX].isAlive = 0;
 
                     player[currentPlayer].penguin[selectedPenguinNb] = virtualPenguin;
+                    Score(&player[currentPlayer], &board[virtualPenguin.tileY][virtualPenguin.tileX]);
+                    mvprintw(16, 100, "Score : %d", player[currentPlayer].score);
+
 
                     board[virtualPenguin.tileY][virtualPenguin.tileX].isTherePlayer = 1;
-                    board[virtualPenguin.tileY][virtualPenguin.tileX].penguinColor = currentPlayer+1; // +1 parce que currentPlayer commence a 0 alors que le system de couleur commence a 1
-
+                    board[virtualPenguin.tileY][virtualPenguin.tileX].penguinColor = currentPlayer +
+                                                                                     1; // +1 parce que currentPlayer commence a 0 alors que le system de couleur commence a 1
 
                     break;
 
                 case 'k':
 
                     board[virtualPenguin.tileY][virtualPenguin.tileX].isRed = 0;
+                    virtualPenguin = player[currentPlayer].penguin[selectedPenguinNb];
+
                     showIceFloe(board, player, nbPlayer);
                     deplacement(board, player, &virtualPenguin, touch, nbPlayer, &extraMove, movementNb);
                     break;
 
                 case KEY_RESIZE:
+
                     showIceFloe(board, player, nbPlayer);
+                    mvprintw(0, 50, " tour : %d", turn);
+                    mvprintw(5, 100, "%s", player[currentPlayer].name); // debug only
+                    switch (currentPlayer) {
+                        case 0: //Black
+                            mvprintw(6, 100, "You play the black penguins");
+                            break;
+                        case 1: // Blue
+                            mvprintw(6, 100, "You play the blue penguins");
+                            break;
+                        case 2: // Magenta
+                            mvprintw(6, 100, "You play the magenta penguins");
+                            break;
+                        case 3: // Red
+                            mvprintw(6, 100, "You play the red penguins");
+                            break;
+                        case 4: // Yellow
+                            mvprintw(6, 100, "You play the yellow penguins");
+                            break;
+                        case 5: // Green
+                            mvprintw(6, 100, "You play the green penguins");
+                            break;
+                    }
+                    for (int i = 0; i < nbPenguin; ++i) {
+                        mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d", i + 1,
+                                 player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+                    }
+                    mvprintw(11, 100, "Choose Your Penguin");
+                    mvprintw(14, 100, "You want to do %d movement", movementNb);
+                    mvprintw(13, 100, "Enter the number of movement you want to do. Between 1 and 6");
+                    mvprintw(15, 100, "Press K");
+                    mvprintw(16, 100, "                                                ");
+                    mvprintw(15, 100, "Press L to confirm your deplacement or press k to remake it");
                     break;
             }
 
 
-        }while(touch != 'l');
+        } while (touch != 'l');
 
-        
+
         clear();
-        player[currentPlayer].currentPenguins += (player[currentPlayer].currentPenguins + 1) % nbPenguin; // on boucle les pinguins de ce joueur
+        player[currentPlayer].currentPenguins +=
+                (player[currentPlayer].currentPenguins + 1) % nbPenguin; // on boucle les pinguins de ce joueur
         currentPlayer = (currentPlayer + 1) % nbPlayer; // on boucle sur les joeueurs
         turn++;
     }
