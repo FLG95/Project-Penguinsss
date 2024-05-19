@@ -38,6 +38,7 @@ typedef struct {
     int num;
     int currentPenguins;
     Penguin *penguin;
+    int score;
 
 
 } Player;
@@ -203,6 +204,7 @@ Player *createPlayers(Tile **board, int nbPlayer) {
         }
 
         player[i].currentPenguins = 0;
+        player[i].score = 0;
     }
 
     return player;
@@ -393,7 +395,7 @@ void InitCurse() {
 
 }
 
-void drawExit() { // On garde ?
+void drawExit() { // On garde ? elle sert a quoi ????
     init_pair(10, COLOR_RED, COLOR_BLACK);
     attron(COLOR_PAIR(10));
     printw("Press echap to exit\n \n");
@@ -637,6 +639,11 @@ void deplacement(Tile** board, Player* player, Penguin *virtualPenguin, int touc
     board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
     mvprintw(22, 100, "deplacement: %d, %d", virtualPenguin->tileY,virtualPenguin->tileX);
 
+}
+
+
+void Score(Player* player, Tile* tile){
+    player->score += tile->fish; //une ligne de code dans une fonction ?? c'est inutile
 }
 
 
