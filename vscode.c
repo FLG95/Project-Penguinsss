@@ -176,7 +176,7 @@ Player *createTabPlayers(Tile **board, int nbPlayer) {
     while (nbPlayer < 2 || nbPlayer > 6) {
         scanf("%d", &nbPlayer);
     }
-    tabPlayers = malloc(nbPlayer * sizeof(*tabPlayers));            // Tab of nbPlayer players
+    tabPlayers = malloc(nbPlayer * sizeof(Player));            // Tab of nbPlayer players
     if (!tabPlayers) {
         exit(1);
     }
@@ -185,7 +185,8 @@ Player *createTabPlayers(Tile **board, int nbPlayer) {
 
     // Going through this tab and ask for the name of each player
     for (int i = 0; i < nbPlayer; ++i) {
-        printf("Enter the name of the player %d:\n", i + 1);
+        mvprintw(5+i, 2, "Enter the name of the player %d:\n", i + 1);
+        refresh();
         scanf("%s", name);
         length = strlen(name);
 
@@ -194,31 +195,25 @@ Player *createTabPlayers(Tile **board, int nbPlayer) {
         if (!tabPlayers[i].name) {
             exit(1);
         }
-        
-        // Attribution
-        tabPlayers[i].name = name;
-        tabPlayers[i].num = i;
 
-        
-        tabPlayers[i].penguin = malloc(nbPenguin * sizeof(Penguin));
+
+        tabPlayers[i].penguin = malloc(PenguinsPerPlayer(nbPlayer) * sizeof (Penguin));
         if (!tabPlayers[i].penguin) {
-
-        strcpy( player[i].name, name);
-
-
-        player[i].num = i;
-
-
-        if (!player[i].penguin) {
-        player[i].penguin = malloc(nbPenguin * sizeof(Penguin));
+            tabPlayers[i].penguin = malloc(nbPenguin * sizeof(Penguin));
             exit(1);
         }
+        
+        // Attribution
+        tabPlayers[i].num = i;
+        strcpy(tabPlayers[i].name, name);
+
+
 
         for (int j = 0; j < nbPenguin; ++j) {
             tabPlayers[i].penguin[j] = createPenguin(board, i + 1, j);
         }
 
-        tabPlayers[i].currentPenguins = 0;              // By default, 
+        tabPlayers[i].currentPenguins = 0;              // By default, we initialize the currentPenguins at 0 to avoid some bug
         tabPlayers[i].score = 0;                        // By default, each player have 0 points
     }
 
@@ -715,19 +710,14 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
     }
 
 
-//player[currentPlayer].penguin[selectedPenguinNb] = virtualPenguin;
-
-
-    *
-            extraMove = moreMove;
+    *extraMove = moreMove;
 
     showIceFloe(board, player, nbPlayer
     );
 }
 
 
-void deplacement(Tile **board, Player *player, Penguin *virtualPenguin, int touch, int nbPlayer, int *extraMove,
-                 int movementNb) {
+void deplacement(Tile **board, Player *player, Penguin *virtualPenguin, int touch, int nbPlayer, int *extraMove, int movementNb) {
 
     mvprintw(15, 100, "Now move your penguin if you cant move just try an other movement");
 
@@ -735,11 +725,8 @@ void deplacement(Tile **board, Player *player, Penguin *virtualPenguin, int touc
         if (i == 0) {
             board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
         }
-
         showIceFloe(board, player, nbPlayer);
-
         mvprintw(16, 100, "movement %d", i + 1);
-
         do {
             touch = getch();
             Inputs(board, player, virtualPenguin, touch, nbPlayer, extraMove);
@@ -821,23 +808,24 @@ int isAllPlayerBlocked(Tile** board, Player* player, int nbPlayer){         // r
 }
 
 
-void Game(Player *player, Tile **board, int nbPlayer) {                 // the main game function
+void Game(Tile **board) {                 // the main game function
     int touch;
     int turn = 0;
     int currentPlayer = 0;
-    int nbPenguin = PenguinsPerPlayer(nbPlayer);
+    int nbPlayer;
     int selectedPenguinNb;
     int movementNb = 0;
     int extraMove = 0;
     int impossibleSelection;
+    int nbPenguin;
     int disableL;
     int passK = 0;
     Player *player;
 
     HomePage();                             // shows the home page
-    touch = getch();                        // Get input from player
 
     do {
+        touch = getch();
         switch (touch) {
             case 'u':                       // Start a game
                 break;
@@ -846,27 +834,29 @@ void Game(Player *player, Tile **board, int nbPlayer) {                 // the m
                 exit(1);
                 break;
 
-            case KEY_RESIZE:                // If the window is resized by user, resize the window
+            case KEY_RESIZE:                // If the window is resized by user, reprint the main menu
                 HomePage();
                 break;
         }
-        touch = getch();
-    } while ((touch != 'u'));               // While the user hasn't started a game
+    } while (touch != 'u');               // While the user hasn't started a game
+
+    clear();
+    mvprintw(4, 2, "How many players? (between 2 and 6) press enter after you press the number");
+    refresh();
+    scanf("%d", &nbPlayer);
+
+    player = createTabPlayers(board, nbPlayer);
+
+    nbPenguin = PenguinsPerPlayer(nbPlayer);
 
 
-    mvprintw(10, 2, "How many players? (between 2 and 6) press enter after you press the number");
-    scanf("%d", &nbPlayer); // faire un sytem comme pour les nb de déplacements
-    mvprintw(11, 2, "press Your number then enter");
-
-    player = createPlayers(board, nbPlayer);
-
-    // utiliser des modulo pour cycler sur les joueurs puis sur les penguins du joueur
     // PRINT LOOP :
-    while (!isAllPlayerBlocked(board, player, nbPlayer)) {          // stop condition : see game rules
+    while (!isAllPlayerBlocked(board, player, nbPlayer)) {          // stop conditions : see game rules
 
 
         // demander a l'utilisateur de press Enter pour commenceer son tour
         clear();
+        refresh();
         showIceFloe(board, player, nbPlayer);
 
         mvprintw(0, 50, " tour : %d", turn);
@@ -1119,6 +1109,8 @@ void Game(Player *player, Tile **board, int nbPlayer) {                 // the m
     }
 
     clear();
+    refresh();
+    // boucle sur tout les joeur on gadre le meiluer socre de chaque 1v1 et on affiche le gagnant
     mvprintw(15, 100, " You win");
     // Afficher le gagnant le score de chaque joueur et proposé de rematch quitteez revenir au menue ect...
 }
@@ -1133,13 +1125,9 @@ int main() {
     srand(time(NULL));                      // necessary for the rand() function to work proprely
 
 
+    InitCurse();                            // initialising curses
+
     board = createBoard();
-
-
-    players = createTabPlayers(board, nbPlayer);
-
-
-    InitCurse();                            // initialising the window
 
     Game(board); // a mettre dans une boucle pour pouvoir rejouer blablabla
 
