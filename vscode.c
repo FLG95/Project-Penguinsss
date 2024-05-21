@@ -7,6 +7,8 @@
 #include "string.h"
 #include "time.h"
 
+// The code is highly commented. However, some functions,consts and 
+// variable name are self explanatory, so they will not be commented.
 
 const int l = 9; // y
 const int c = 9; // x
@@ -57,7 +59,7 @@ typedef struct {
 } Tile;
 
 
-Tile creatTile(int y, int x) {
+Tile createTile(int y, int x) {
 
     Tile Tile;
 
@@ -82,7 +84,7 @@ Tile **createBoard() {
     int y = startTilesTabY; // origine en y de la première tile
 
     board = malloc(c * sizeof(Tile *));
-    if (!board) {
+    if (!board) {                           // if board == NULL || NB : this notation will often be used
         exit(2);
     }
 
@@ -95,9 +97,9 @@ Tile **createBoard() {
         for (int j = 0; j < c; ++j) { // x colone
 
             if (i % 2 == 0) {// ligne paire
-                board[i][j] = creatTile(y + i * tileHeigth - 1, x + j * tileWidth);
+                board[i][j] = createTile(y + i * tileHeigth - 1, x + j * tileWidth);
             } else { // ligne impaire
-                board[i][j] = creatTile(y + i * tileHeigth - 1, x + 4 + j * tileWidth);
+                board[i][j] = createTile(y + i * tileHeigth - 1, x + 4 + j * tileWidth);
             }
         }
         y -= 4;
@@ -107,7 +109,7 @@ Tile **createBoard() {
 }
 
 
-int playerHandle(int n) {
+int PenguinsPerPlayer(int n) {
     int nbPenguins = 0;
     switch (n) {
         case 2: // 2 joueurs = 4 pinguins par joueur
@@ -158,7 +160,7 @@ Penguin createPenguin(Tile **board, int color, int num) {
 }
 
 
-Player *createPlayers(Tile **board, int nbPlayer) {
+Player *createTabPlayers(Tile **board, int nbPlayer) {
     int b = 0, nbPenguin = 0; // nb de pinguin par joueur
     unsigned long length;
     char name[100];
@@ -178,7 +180,7 @@ Player *createPlayers(Tile **board, int nbPlayer) {
         exit(1);
     }
 
-    nbPenguin = playerHandle(nbPlayer);
+    nbPenguin = PenguinsPerPlayer(nbPlayer);
 
     for (int i = 0; i < nbPlayer; ++i) {
         printf("Enter the name of the player %d:\n", i + 1);
@@ -211,7 +213,7 @@ Player *createPlayers(Tile **board, int nbPlayer) {
 
 }
 
-int colorHandle(int currentPlayer) {
+int colorPerPlayer(int currentPlayer) {
     switch (currentPlayer) {
         case 0: //Black
             mvprintw(6, 100, "You play the black penguins");
@@ -357,7 +359,7 @@ int showTile(Tile tile, Player *player, int nbPlayer) { // print une tile au coo
 }
 
 
-void showIceFloe(Tile **board, Player *player, int nbPlayer) {
+void showIceFloe(Tile **board, Player *player, int nbPlayer) {              // shows the ice floe and score
     for (int i = 0; i < l; i++) { // on boucle sur le nb de ligne
         for (int j = 0; j < c; j++) { //on boucle sur le nb de colone par ligne
             showTile(board[i][j], player, nbPlayer); // on print la tile grace aux donnés stocké dans board
@@ -399,7 +401,7 @@ void drawExit() { // On garde ? elle sert a quoi ????
     refresh();
 }
 
-void HomePage() {
+void HomePage(){                    // This is the home page which is displayed when the game is launched
 
     int title_length = strlen("CY FISH");
     int title_width = (getmaxx(stdscr) - title_length) / 2;
@@ -421,7 +423,7 @@ void HomePage() {
 }
 
 
-bool canMove(Tile **board, Penguin Penguin) { // savoir si le pingouin peut bouger
+bool canMove(Tile **board, Penguin Penguin) {       // can the penguin move ? 
 
 
     // Checker si les cases autour du Pingouin sont morte ou prise par un autre Pingouin si c le cas return false sinon return true
@@ -429,7 +431,7 @@ bool canMove(Tile **board, Penguin Penguin) { // savoir si le pingouin peut boug
 }
 
 
-int tileDontExist(int y, int x) {
+int tileDontExist(int y, int x) {       // if don't exist, return 0. Else, return 1
 
     if (x > c || x < 0 || y > l || y < 0) {
         return 1;
@@ -440,6 +442,23 @@ int tileDontExist(int y, int x) {
 
 
 void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, int nbPlayer, int *extraMove) {
+    /*
+    This function handle movements in a player's turn
+    All verifications are done before moving a player
+
+    
+    Keybind :
+    in AZERTY (cocorico)
+    "a" = top corner left
+    "z" = up
+    "e" = top corner right
+    "q" = left
+    "d" = right
+    "w" = bottom corner left
+    "x" = down
+    "c" = bottom corner right
+    */
+
 
     int moreMove = 0;
 
@@ -749,7 +768,7 @@ int isPenguinMoveable(Tile** board, Penguin penguin){
 int isAllPlayerBlocked(Tile** board, Player* player, int nbPlayer){
     int blockedCount = 0;
     for (int i = 0; i < nbPlayer; ++i) {
-        for (int j = 0; j < playerHandle(nbPlayer); ++j) {
+        for (int j = 0; j < PenguinsPerPlayer(nbPlayer); ++j) {
             if(isPenguinMoveable(board, player[i].penguin[j])){
                 player[i].penguin[j].isMoveable = 1;
             }
@@ -759,7 +778,7 @@ int isAllPlayerBlocked(Tile** board, Player* player, int nbPlayer){
             }
         }
     }
-    if( blockedCount == nbPlayer * playerHandle(nbPlayer)){
+    if( blockedCount == nbPlayer * PenguinsPerPlayer(nbPlayer)){
         return 1;
     }
     else{
@@ -772,7 +791,7 @@ void Game(Player *player, Tile **board, int nbPlayer) {
     int touch;
     int turn = 0;
     int currentPlayer = 0;
-    int nbPenguin = playerHandle(nbPlayer);
+    int nbPenguin = PenguinsPerPlayer(nbPlayer);
     int selectedPenguinNb;
     int movementNb = 0;
     int extraMove = 0;
@@ -810,7 +829,7 @@ void Game(Player *player, Tile **board, int nbPlayer) {
         mvprintw(0, 50, " tour : %d", turn);
         mvprintw(5, 100, "%s", player[currentPlayer].name); // debug only
 
-        colorHandle(currentPlayer);
+        colorPerPlayer(currentPlayer);
 
 
         for (int i = 0; i < nbPenguin; ++i) {
@@ -871,7 +890,7 @@ void Game(Player *player, Tile **board, int nbPlayer) {
                     mvprintw(0, 50, " tour : %d", turn);
                     mvprintw(5, 100, "%s", player[currentPlayer].name); // debug only
 
-                    colorHandle(currentPlayer);
+                    colorPerPlayer(currentPlayer);
 
 
                     for (int i = 0; i < nbPenguin; ++i) {
@@ -932,7 +951,7 @@ void Game(Player *player, Tile **board, int nbPlayer) {
                     showIceFloe(board, player, nbPlayer);
                     mvprintw(0, 50, " tour : %d", turn);
                     mvprintw(5, 100, "%s", player[currentPlayer].name); // debug only
-                    colorHandle(currentPlayer);
+                    colorPerPlayer(currentPlayer);
 
                     for (int i = 0; i < nbPenguin; ++i) {
                         if(player[currentPlayer].penguin[i].isMoveable){
@@ -996,7 +1015,7 @@ void Game(Player *player, Tile **board, int nbPlayer) {
                     showIceFloe(board, player, nbPlayer);
                     mvprintw(0, 50, " tour : %d", turn);
                     mvprintw(5, 100, "%s", player[currentPlayer].name); // debug only
-                    colorHandle(currentPlayer);
+                    colorPerPlayer(currentPlayer);
 
                     for (int i = 0; i < nbPenguin; ++i) {
                         if(player[currentPlayer].penguin[i].isMoveable){
@@ -1048,7 +1067,7 @@ int main() {
     printf("How many players? (between 2 and 6)\n");
     scanf("%d", &nbPlayer);
 
-    players = createPlayers(board, nbPlayer);
+    players = createTabPlayers(board, nbPlayer);
 
 
     InitCurse();
