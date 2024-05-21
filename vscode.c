@@ -31,7 +31,6 @@ typedef struct {
     int num;
     int isMoveable;
 
-
 } Penguin;
 
 
@@ -167,15 +166,10 @@ Player *createTabPlayers(Tile **board, int nbPlayer) {
     Player *player;
 
     while (nbPlayer < 2 || nbPlayer > 6) {
-        printf("between 2 and 6 please\n");
         scanf("%d", &nbPlayer);
-        if (b == 10) {
-            printf("Too much try miss");
-            exit(2);
-        }
-        b++;
     }
-    player = malloc(nbPlayer * sizeof(*player));
+
+    player = malloc(nbPlayer * sizeof(Player));
     if (!player) {
         exit(1);
     }
@@ -192,7 +186,10 @@ Player *createTabPlayers(Tile **board, int nbPlayer) {
             exit(1);
         }
 
-        player[i].name = name;
+
+        strcpy( player[i].name, name);
+
+
         player[i].num = i;
 
 
@@ -787,7 +784,8 @@ int isAllPlayerBlocked(Tile** board, Player* player, int nbPlayer){
 }
 
 
-void Game(Player *player, Tile **board, int nbPlayer) {
+void Game(Tile **board) {
+    int nbPlayer;
     int touch;
     int turn = 0;
     int currentPlayer = 0;
@@ -797,10 +795,12 @@ void Game(Player *player, Tile **board, int nbPlayer) {
     int extraMove = 0;
     int impossibleSelection;
     int disableL;
+    int passK = 0;
+    Player *player;
+
 
     HomePage();
     touch = getch();
-
     do {
         switch (touch) {
             case 'u': // lancer le jeu
@@ -817,6 +817,12 @@ void Game(Player *player, Tile **board, int nbPlayer) {
         touch = getch();
     } while ((touch != 'u'));
 
+
+    mvprintw(10, 2, "How many players? (between 2 and 6) press enter after you press the number");
+    scanf("%d", &nbPlayer); // faire un sytem comme pour les nb de déplacements
+    mvprintw(11, 2, "press Your number then enter");
+
+    player = createPlayers(board, nbPlayer);
 
     // utiliser des modulo pour cycler sur les joueurs puis sur les penguins du joueur
     while (!isAllPlayerBlocked(board, player, nbPlayer)) { //condition d'arrêt
@@ -839,12 +845,10 @@ void Game(Player *player, Tile **board, int nbPlayer) {
             }
             else{
                 mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d NOT MOVEABLE", i + 1, player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
-
             }
         }
 
         mvprintw(11, 100, "Choose Your Penguin");
-
 
         do {
             touch = getch();
@@ -905,6 +909,11 @@ void Game(Player *player, Tile **board, int nbPlayer) {
                     }
 
                     mvprintw(11, 100, "Choose Your Penguin");
+                    break;
+
+                case 27: // échap =  quitter le jeu
+                    clear();
+                    exit(1);
                     break;
             }
         } while (touch != 'r' && touch != 't' && touch != 'y' && touch != 'u' || selectedPenguinNb > nbPenguin || impossibleSelection);
@@ -968,6 +977,11 @@ void Game(Player *player, Tile **board, int nbPlayer) {
                     mvprintw(13, 100, "Enter the number of movement you want to do. Between 1 and 6");
 
                     break;
+
+                case 27: // échap =  quitter le jeu
+                    clear();
+                    exit(1);
+                    break;
             }
 
         } while (touch != 'f' && touch != 'g' && touch != 'h' && touch != 'j' && touch != 'k' &&
@@ -978,8 +992,13 @@ void Game(Player *player, Tile **board, int nbPlayer) {
         mvprintw(15, 100, "Press K");
         disableL = 1;
 
+        touch = 'k';
+        passK = 1;
+
         do {
-            touch = getch();
+            if(passK != 1){
+                touch = getch();
+            }
             switch (touch) {
                 case 'l':
 
@@ -1035,7 +1054,13 @@ void Game(Player *player, Tile **board, int nbPlayer) {
                     mvprintw(16, 100, "                                                ");
                     mvprintw(15, 100, "Press L to confirm your deplacement or press k to remake it           ");
                     break;
+
+                case 27: // échap =  quitter le jeu
+                    clear();
+                    exit(1);
+                    break;
             }
+            passK = 0;
 
         } while (touch != 'l' || disableL == 1);
 
@@ -1064,17 +1089,12 @@ int main() {
 
     board = createBoard();
 
-    printf("How many players? (between 2 and 6)\n");
-    scanf("%d", &nbPlayer);
 
     players = createTabPlayers(board, nbPlayer);
 
-
     InitCurse();
 
-
-    Game(players, board, nbPlayer); // a mettre dans une boucle pour pouvoir rejouer blablabla
-
+    Game(board); // a mettre dans une boucle pour pouvoir rejouer blablabla
 
     //showScore(players);
 
