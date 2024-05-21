@@ -454,7 +454,7 @@ int tileDontExist(int y, int x) {       // if don't exist, return 0. Else, retur
 }
 
 
-void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, int nbPlayer, int *extraMove) {
+void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, int nbPlayer, int movementNb, int* retry) {
     /*
     This function handle movements in a player's turn
     All verifications are done before moving a player
@@ -471,236 +471,234 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
     */
 
 
+    int n = 0;
+    int isBlocked = 0;
     int moreMove = 0;
+    int initialPosX = virtualPenguin->tileX;
+    int initialPosY = virtualPenguin->tileY;
+
 
     switch (touch) {  // rajouter des conditions pour x = 0;
         // in this switch, we use a "virtual penguin" to check if movements wanted by user are possible
 
         case 'a': // a Checker toute les conditions de déplacement avant
 
-            if(virtualPenguin->tileX == 0){
+            while(n < movementNb && !isBlocked){
+                if(virtualPenguin->tileX == 0){
 
-                // This part of code is recurrent in this function, for comments we will use (COM1) to refer to the following comment :
-                // If the tile is either not on the board, dead or taken by another penguin :
-                if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX) ||
-                    board[virtualPenguin->tileY - 1][virtualPenguin->tileX].isAlive == 0 ||
-                    board[virtualPenguin->tileY - 1][virtualPenguin->tileX].isTherePlayer == 1) {
-                    moreMove += 1;
-                    mvprintw(25, 100, "non");
+                    // This part of code is recurrent in this function, for comments we will use (COM1) to refer to the following comment :
+                    // If the tile is either not on the board, dead or taken by another penguin :
+                    if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX) ||
+                        board[virtualPenguin->tileY - 1][virtualPenguin->tileX].isAlive == 0 ||
+                        board[virtualPenguin->tileY - 1][virtualPenguin->tileX].isTherePlayer == 1) {
+                        isBlocked = 1;
+                    }
+                    else {                            // else, meaning the penguin can move (COM2)
+                        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                        virtualPenguin->tileY = virtualPenguin->tileY - 1;
+                        virtualPenguin->tileX = virtualPenguin->tileX;
+                        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                    }
                 }
-                else {                                                            // else, meaning the penguin can move (COM2)
 
-                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
-                    virtualPenguin->tileY = virtualPenguin->tileY - 1;
-                    virtualPenguin->tileX = virtualPenguin->tileX;
-                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                if(virtualPenguin->tileX == 7){ // cas pour éviter le segmentation fault
+                    
                 }
-                break;
+
+                if (virtualPenguin->tileY % 2 == 0) {    //"even" line
+
+                    if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX - 1) ||
+                        board[virtualPenguin->tileY - 1][virtualPenguin->tileX - 1].isAlive == 0 ||
+                        board[virtualPenguin->tileY - 1][virtualPenguin->tileX - 1].isTherePlayer == 1) { // (COM1)
+                        isBlocked = 1;
+                    }
+                    else { // (COM2)
+
+                        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                        virtualPenguin->tileY = virtualPenguin->tileY - 1;
+                        virtualPenguin->tileX = virtualPenguin->tileX - 1;
+                        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                    }
+                }
+                else { //       "odd" line
+                    if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX - 1) ||
+                        board[virtualPenguin->tileY - 1][virtualPenguin->tileX].isAlive == 0 ||
+                        board[virtualPenguin->tileY - 1][virtualPenguin->tileX].isTherePlayer == 1) { // (COM1)
+                        isBlocked = 1;
+                    }
+                    else { // (COM2)
+
+                        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                        virtualPenguin->tileY = virtualPenguin->tileY - 1;
+                        virtualPenguin->tileX = virtualPenguin->tileX;
+                        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                    }
+
+                }
+                n++;
             }
 
-
-            if (virtualPenguin->tileY % 2 == 0) { // pour éviter un bug sur les lignes impaires     "even" line
-
-                if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX - 1) ||
-                    board[virtualPenguin->tileY - 1][virtualPenguin->tileX - 1].isAlive == 0 ||
-                    board[virtualPenguin->tileY - 1][virtualPenguin->tileX - 1].isTherePlayer == 1) { // (COM1)
-                    moreMove += 1;
-                }
-                else { // (COM2)
-
-                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
-                    virtualPenguin->tileY = virtualPenguin->tileY - 1;
-                    virtualPenguin->tileX = virtualPenguin->tileX - 1;
-                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
-                }
-            }
-            else { // Ligne impaire         "odd" line
-                if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX - 1) ||
-                    board[virtualPenguin->tileY - 1][virtualPenguin->tileX].isAlive == 0 ||
-                    board[virtualPenguin->tileY - 1][virtualPenguin->tileX].isTherePlayer == 1) { // (COM1)
-
-                    moreMove += 1;
-                }
-                else { // (COM2)
-
-                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
-                    virtualPenguin->tileY = virtualPenguin->tileY - 1;
-                    virtualPenguin->tileX = virtualPenguin->tileX;
-                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
-                }
-
-            }
             break;
 
         case 'e': // e Checker toute les conditions de déplacement avant
 
-            if (virtualPenguin->tileY % 2 == 0) { // pour éviter un bug sur les lignes impaires
+            while(n < movementNb && !isBlocked){
 
-                if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX) ||
-                    board[virtualPenguin->tileY - 1][virtualPenguin->tileX].isAlive == 0 ||
-                    board[virtualPenguin->tileY - 1][virtualPenguin->tileX].isTherePlayer == 1) { // (COM1)
-                    moreMove += 1;
-                }
-                else { // (COM2)
+                if (virtualPenguin->tileY % 2 == 0) { // pour éviter un bug sur les lignes impaires
 
-                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
-                    virtualPenguin->tileY = virtualPenguin->tileY - 1;
-                    virtualPenguin->tileX = virtualPenguin->tileX;
-                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
-                }
-            }
-            else { // Ligne impaire
-                if (tileDontExist(virtualPenguin->tileY, virtualPenguin->tileX + 1) ||
-                    board[virtualPenguin->tileY - 1][virtualPenguin->tileX + 1].isAlive == 0 ||
-                    board[virtualPenguin->tileY - 1][virtualPenguin->tileX + 1].isTherePlayer == 1) { // (COM1)
-                    moreMove += 1;
-                }
-                else { // (COM2)
+                    if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX) ||
+                        board[virtualPenguin->tileY - 1][virtualPenguin->tileX].isAlive == 0 ||
+                        board[virtualPenguin->tileY - 1][virtualPenguin->tileX].isTherePlayer == 1) { // (COM1)
+                        isBlocked = 1;
+                    } else { // (COM2)
 
-                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
-                    virtualPenguin->tileY = virtualPenguin->tileY - 1;
-                    virtualPenguin->tileX = virtualPenguin->tileX + 1;
-                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                        virtualPenguin->tileY = virtualPenguin->tileY - 1;
+                        virtualPenguin->tileX = virtualPenguin->tileX;
+                        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                    }
+                } else { // Ligne impaire
+                    if (tileDontExist(virtualPenguin->tileY, virtualPenguin->tileX + 1) ||
+                        board[virtualPenguin->tileY - 1][virtualPenguin->tileX + 1].isAlive == 0 ||
+                        board[virtualPenguin->tileY - 1][virtualPenguin->tileX + 1].isTherePlayer == 1) { // (COM1)
+                        isBlocked = 1;
+                    } else { // (COM2)
+
+                        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                        virtualPenguin->tileY = virtualPenguin->tileY - 1;
+                        virtualPenguin->tileX = virtualPenguin->tileX + 1;
+                        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                    }
                 }
+                n++;
             }
             break;
 
-
-            break;
 
         case 'q':// q Checker toute les conditions de déplacement avant
-            if (tileDontExist(virtualPenguin->tileY, virtualPenguin->tileX - 1) ||
-                board[virtualPenguin->tileY][virtualPenguin->tileX - 1].isAlive == 0 ||
-                board[virtualPenguin->tileY][virtualPenguin->tileX - 1].isTherePlayer == 1) { // (COM1)
+            while(n < movementNb && !isBlocked){
 
-                moreMove += 1;
-            }
-            else { // (COM2)
+                if (tileDontExist(virtualPenguin->tileY, virtualPenguin->tileX - 1) ||
+                    board[virtualPenguin->tileY][virtualPenguin->tileX - 1].isAlive == 0 ||
+                    board[virtualPenguin->tileY][virtualPenguin->tileX - 1].isTherePlayer == 1) { // (COM1)
+                    isBlocked = 1;
+                } else { // (COM2)
 
-                board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
-
-                //délire condition pour y paire impaire
-
-
-                virtualPenguin->tileY = virtualPenguin->tileY;
-                virtualPenguin->tileX = virtualPenguin->tileX - 1;
-
-                board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
-
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                    virtualPenguin->tileY = virtualPenguin->tileY;
+                    virtualPenguin->tileX = virtualPenguin->tileX - 1;
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                }
+                n++;
             }
             break;
 
         case 'd': // d Checker toute les conditions de déplacement avant
-            if (tileDontExist(virtualPenguin->tileY, virtualPenguin->tileX + 1) ||
-                board[virtualPenguin->tileY][virtualPenguin->tileX + 1].isAlive == 0 ||
-                board[virtualPenguin->tileY][virtualPenguin->tileX + 1].isTherePlayer == 1) { // (COM1)
+            while(n < movementNb && !isBlocked){
 
-                moreMove += 1;
-            }
-            else { // (COM2)
+                if (tileDontExist(virtualPenguin->tileY, virtualPenguin->tileX + 1) ||
+                    board[virtualPenguin->tileY][virtualPenguin->tileX + 1].isAlive == 0 ||
+                    board[virtualPenguin->tileY][virtualPenguin->tileX + 1].isTherePlayer == 1) { // (COM1)
 
-                board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                    isBlocked = 1;
+                } else { // (COM2)
 
-                //délire condition pour y paire impaire
-
-                virtualPenguin->tileY = virtualPenguin->tileY;
-                virtualPenguin->tileX = virtualPenguin->tileX + 1;
-
-                board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
-
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                    virtualPenguin->tileY = virtualPenguin->tileY;
+                    virtualPenguin->tileX = virtualPenguin->tileX + 1;
+                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                }
+                n++;
             }
             break;
 
 
         case 'w': // w Checker toute les conditions de déplacement avant
+            while(n < movementNb && !isBlocked){
 
-            if(virtualPenguin->tileX == 0){
+                if (virtualPenguin->tileX == 0) {
 
-                if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX) ||
-                    board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isAlive == 0 ||
-                    board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isTherePlayer == 1) { // (COM1)
-                    moreMove += 1;
-                }
-                else { // (COM2)
+                    if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX) ||
+                        board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isAlive == 0 ||
+                        board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isTherePlayer == 1) { // (COM1)
+                        isBlocked = 1;
+                    } else { // (COM2)
 
-                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
-                    virtualPenguin->tileY = virtualPenguin->tileY + 1;
-                    virtualPenguin->tileX = virtualPenguin->tileX;
-                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
-                }
-                break;
-            }
-
-
-            if (virtualPenguin->tileY % 2 == 0) { // pour éviter un bug sur les lignes impaires
-
-                if (tileDontExist(virtualPenguin->tileY + 1, virtualPenguin->tileX - 1) ||
-                    board[virtualPenguin->tileY + 1][virtualPenguin->tileX - 1].isAlive == 0 ||
-                    board[virtualPenguin->tileY + 1][virtualPenguin->tileX - 1].isTherePlayer == 1) { // (COM1)
-                    moreMove += 1;
-                }
-                else { // (COM2)
-
-                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
-                    virtualPenguin->tileY = virtualPenguin->tileY + 1;
-                    virtualPenguin->tileX = virtualPenguin->tileX - 1;
-                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
-                }
-            } else { // Ligne impaire
-                if (tileDontExist(virtualPenguin->tileY + 1, virtualPenguin->tileX) ||
-                    board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isAlive == 0 ||
-                    board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isTherePlayer == 1) { // (COM1)
-                    moreMove += 1;
-                }
-                else { // (COM2)
-                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
-                    virtualPenguin->tileY = virtualPenguin->tileY + 1;
-                    virtualPenguin->tileX = virtualPenguin->tileX;
-                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                        virtualPenguin->tileY = virtualPenguin->tileY + 1;
+                        virtualPenguin->tileX = virtualPenguin->tileX;
+                        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                    }
                 }
 
-            }
-            break;
 
-        case 'x': // x Checker toute les conditions de déplacement avant
-            if (virtualPenguin->tileY % 2 == 0) { // pour éviter un bug sur les lignes impaires
 
-                if (tileDontExist(virtualPenguin->tileY + 1, virtualPenguin->tileX) ||
-                    board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isAlive == 0 ||
-                    board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isTherePlayer == 1) { // (COM1)
-                    moreMove += 1;
-                }
-                else { // (COM2)
 
-                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
-                    virtualPenguin->tileY = virtualPenguin->tileY + 1;
-                    virtualPenguin->tileX = virtualPenguin->tileX;
-                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
-                }
-            }
-            else { // Ligne impaire
-                if (tileDontExist(virtualPenguin->tileY + 1, virtualPenguin->tileX + 1) ||
-                    board[virtualPenguin->tileY + 1][virtualPenguin->tileX + 1].isAlive == 0 ||
-                    board[virtualPenguin->tileY + 1][virtualPenguin->tileX + 1].isTherePlayer == 1) { // (COM1)
-                    moreMove += 1;
-                }
-                else { // (COM2)
-                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
-                    virtualPenguin->tileY = virtualPenguin->tileY + 1;
-                    virtualPenguin->tileX = virtualPenguin->tileX + 1;
-                    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
-                }
+                if (virtualPenguin->tileY % 2 == 0) { // pour éviter un bug sur les lignes impaires
 
+                    if (tileDontExist(virtualPenguin->tileY + 1, virtualPenguin->tileX - 1) ||
+                        board[virtualPenguin->tileY + 1][virtualPenguin->tileX - 1].isAlive == 0 ||
+                        board[virtualPenguin->tileY + 1][virtualPenguin->tileX - 1].isTherePlayer == 1) { // (COM1)
+                        isBlocked = 1;
+                    } else { // (COM2)
+
+                        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                        virtualPenguin->tileY = virtualPenguin->tileY + 1;
+                        virtualPenguin->tileX = virtualPenguin->tileX - 1;
+                        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                    }
+                } else { // Ligne impaire
+                    if (tileDontExist(virtualPenguin->tileY + 1, virtualPenguin->tileX) ||
+                        board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isAlive == 0 ||
+                        board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isTherePlayer == 1) { // (COM1)
+                       isBlocked = 1;
+                    } else { // (COM2)
+                        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                        virtualPenguin->tileY = virtualPenguin->tileY + 1;
+                        virtualPenguin->tileX = virtualPenguin->tileX;
+                        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                    }
+                }
+                n++;
             }
             break;
 
+        case 'c': // x Checker toute les conditions de déplacement avant
+            while(n < movementNb && !isBlocked){
 
-        case 27:                            // 27 = echap : go back to the menu
+                if (virtualPenguin->tileY % 2 == 0) { // pour éviter un bug sur les lignes impaires
+
+                    if (tileDontExist(virtualPenguin->tileY + 1, virtualPenguin->tileX) ||
+                        board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isAlive == 0 ||
+                        board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isTherePlayer == 1) { // (COM1)
+                        isBlocked = 1;
+                    } else { // (COM2)
+
+                        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                        virtualPenguin->tileY = virtualPenguin->tileY + 1;
+                        virtualPenguin->tileX = virtualPenguin->tileX;
+                        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                    }
+                } else { // Ligne impaire
+                    if (tileDontExist(virtualPenguin->tileY + 1, virtualPenguin->tileX + 1) ||
+                        board[virtualPenguin->tileY + 1][virtualPenguin->tileX + 1].isAlive == 0 ||
+                        board[virtualPenguin->tileY + 1][virtualPenguin->tileX + 1].isTherePlayer == 1) { // (COM1)
+                        isBlocked = 1;
+                    } else { // (COM2)
+                        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+                        virtualPenguin->tileY = virtualPenguin->tileY + 1;
+                        virtualPenguin->tileX = virtualPenguin->tileX + 1;
+                        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                    }
+                }
+                n++;
+            }
+            break;
+
+
+        case 27:                    // 27 = escape : go back to the menu
             clear();
             exit(7);
-            break;
-
-        case KEY_ENTER: // Si ne peut/veut pas bouger
             break;
 
 
@@ -709,48 +707,75 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
             break;
     }
 
-
-    *extraMove = moreMove;
-
-    showIceFloe(board, player, nbPlayer
-    );
+    showIceFloe(board, player, nbPlayer);
+    if(isBlocked == 1){
+        *retry = 1;
+        mvprintw(15, 100, "This move isn't valid please choose and other move");
+        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+        virtualPenguin->tileY = initialPosY;
+        virtualPenguin->tileX = initialPosX;
+        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+    }
 }
 
 
-void deplacement(Tile **board, Player *player, Penguin *virtualPenguin, int touch, int nbPlayer, int *extraMove, int movementNb) {
+void deplacement(Tile **board, Player *player, Penguin *virtualPenguin, int touch, int nbPlayer) {
 
-    mvprintw(15, 100, "Now move your penguin if you cant move just try an other movement");
 
-    for (int i = 0; i < movementNb;) {
-        if (i == 0) {
-            board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+    mvprintw(15, 100, "                                                                                   ");
+
+    int movementNb;
+    int retry = 0;
+
+    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+    showIceFloe(board, player, nbPlayer);
+
+    do {
+        if(retry == 1){
+            mvprintw(16, 100, "Please press k ");
+            do{
+                touch = getch();
+            }while(touch != 'k');
+            mvprintw(15, 100, "                                                             ");
+            mvprintw(16, 100, "                                                 ");
+
+            board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
+
         }
-        showIceFloe(board, player, nbPlayer);
-        mvprintw(16, 100, "movement %d", i + 1);
-        do {
-            touch = getch();
-            Inputs(board, player, virtualPenguin, touch, nbPlayer, extraMove);
-            mvprintw(15, 100, "Now move your penguin if you cant move just try an other movement");
-            mvprintw(16, 100, "movement %d", i + 1);
+
+        do{
+            movementNb = 0;
+            mvprintw(13, 100, "Enter the number of movement you want to do ( between 1 and 6 ), then press enter.");
+            refresh();
+            scanf("%d", &movementNb);
+
+        }while( movementNb < 1 || movementNb > 6);
 
 
-        } while (touch != 'a' && touch != 'e' && touch != 'q' && touch != 'd' && touch != 'w' && touch != 'x' &&
-                 touch != KEY_ENTER); // While the user is pressing keys other than those expected
-        i -= *extraMove;
-        i++;                // i++ dans une boucle for ???
-    }
+        retry = 0;
 
-    mvprintw(16, 100, "                                                ");
-    mvprintw(15, 100, "Press L to confirm your deplacement or press k to remake it           ");
+        mvprintw(14, 100, "You will move of  %d tile(s)", movementNb);
+        mvprintw(15, 100, "Now move your penguin if you cant move just try an other movement");
+        refresh();
+
+        touch = getch();
+        Inputs(board, player, virtualPenguin, touch, nbPlayer, movementNb, &retry);
+
+        mvprintw(13, 100, "                                                                                      ");
+        mvprintw(14, 100, "                                                                                      ");
+
+    } while (touch != 'a' && touch != 'e' && touch != 'q' && touch != 'd' && touch != 'w' && touch != 'c' || retry == 1); // While the user is pressing keys other than those expected
+
+
+    mvprintw(15, 100, "Press L to confirm your deplacement or press k to remake it            ");
+    refresh();
     board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
 }
 
 
-void Score(Player *player, Tile *tile) {        // Add fishes collected by the player to his points 
+void Score(Player *player, Tile *tile) {        // Add fishes collected by the player to his points
     player->score += tile->fish; //une ligne de code dans une fonction ?? c'est inutile -- un peu oui
 }
-
-
 
 int simple(Tile** board, Penguin penguin, int y, int x) { // pour avoir un code plus lisible séparer j'ai séparer en plusieurs fonction les conditions
     if (tileDontExist(penguin.tileY + y, penguin.tileX + x) ||
@@ -814,8 +839,6 @@ void Game(Tile **board) {                 // the main game function
     int currentPlayer = 0;
     int nbPlayer;
     int selectedPenguinNb;
-    int movementNb = 0;
-    int extraMove = 0;
     int impossibleSelection;
     int nbPenguin;
     int disableL;
@@ -856,7 +879,6 @@ void Game(Tile **board) {                 // the main game function
 
         // demander a l'utilisateur de press Enter pour commenceer son tour
         clear();
-        refresh();
         showIceFloe(board, player, nbPlayer);
 
         mvprintw(0, 50, " tour : %d", turn);
@@ -947,13 +969,13 @@ void Game(Tile **board) {                 // the main game function
 
 
         mvprintw(12, 100, "You chose the %d penguin", selectedPenguinNb + 1);
+        refresh();
 
 
         Penguin virtualPenguin = player[currentPlayer].penguin[selectedPenguinNb];
         board[virtualPenguin.tileY][virtualPenguin.tileX].isRed = 1;
-        showIceFloe(board, player, nbPlayer);
+        showIceFloe(board, player, nbPlayer); // Refresh the board to show the red selection tile
 
-        mvprintw(13, 100, "Enter the number of movement you want to do. Between 1 and 6");
         /*
         Keybinds :
         /!\ in AZERTY /!\ (cocorico)
@@ -965,69 +987,8 @@ void Game(Tile **board) {                 // the main game function
         "l" = distance = 6
         */
 
-        do {
-            touch = getch();
-            switch (touch) {
-                case 'f':
-                    movementNb = 1;
-                    break;
 
-                case 'g':
-                    movementNb = 2;
-                    break;
-
-                case 'h':
-                    movementNb = 3;
-                    break;
-
-                case 'j':
-                    movementNb = 4;
-                    break;
-
-                case 'k':
-                    movementNb = 5;
-                    break;
-
-                case 'l':
-                    movementNb = 6;
-                    break;
-
-                case KEY_RESIZE:
-                    showIceFloe(board, player, nbPlayer);
-                    mvprintw(0, 50, " tour : %d", turn);
-                    mvprintw(5, 100, "%s", player[currentPlayer].name); // debug only
-                    colorPerPlayer(currentPlayer);
-
-                    for (int i = 0; i < nbPenguin; ++i) {
-                        if(player[currentPlayer].penguin[i].isMoveable){
-                            mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d", i + 1,
-                                     player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
-                        }
-                        else{
-                            mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d NOT MOVEABLE", i + 1, player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
-
-                        }
-                    }
-
-                    mvprintw(11, 100, "Choose Your Penguin");
-                    mvprintw(13, 100, "Enter the number of movement you want to do. Between 1 and 6");
-
-                    break;
-
-                case 27: // échap =  quitter le jeu
-                    clear();
-                    exit(1);
-                    break;
-            }
-
-        } while (touch != 'f' && touch != 'g' && touch != 'h' && touch != 'j' && touch != 'k' &&
-                 touch != 'l'); // if the user tries to input another key than what is requested
-
-
-        mvprintw(14, 100, "You want to do %d movement", movementNb);
-        mvprintw(15, 100, "Press K");
         disableL = 1;
-
         touch = 'k';
         passK = 1;
 
@@ -1035,6 +996,7 @@ void Game(Tile **board) {                 // the main game function
             if(passK != 1){
                 touch = getch();
             }
+
             switch (touch) {
                 case 'l':
 
@@ -1049,7 +1011,6 @@ void Game(Tile **board) {                 // the main game function
                     Score(&player[currentPlayer], &board[virtualPenguin.tileY][virtualPenguin.tileX]);  // Add fishes collected by the player to his points 
                     mvprintw(16, 100, "Score : %d", player[currentPlayer].score);
 
-
                     board[virtualPenguin.tileY][virtualPenguin.tileX].isTherePlayer = 1;
                     board[virtualPenguin.tileY][virtualPenguin.tileX].penguinColor = currentPlayer + 1; // +1 parce que currentPlayer commence a 0 alors que le system de couleur commence a 1
 
@@ -1061,7 +1022,7 @@ void Game(Tile **board) {                 // the main game function
                     virtualPenguin = player[currentPlayer].penguin[selectedPenguinNb];
 
                     showIceFloe(board, player, nbPlayer);
-                    deplacement(board, player, &virtualPenguin, touch, nbPlayer, &extraMove, movementNb);
+                    deplacement(board, player, &virtualPenguin, touch, nbPlayer);
                     disableL = 0;
                     break;
 
@@ -1084,7 +1045,6 @@ void Game(Tile **board) {                 // the main game function
                     }
 
                     mvprintw(11, 100, "Choose Your Penguin");
-                    mvprintw(14, 100, "You want to do %d movement", movementNb);
                     mvprintw(13, 100, "Enter the number of movement you want to do. Between 1 and 6");
                     mvprintw(15, 100, "Press K");
                     mvprintw(16, 100, "                                                ");
@@ -1102,11 +1062,11 @@ void Game(Tile **board) {                 // the main game function
 
 
         clear();
-        player[currentPlayer].currentPenguins +=
-                (player[currentPlayer].currentPenguins + 1) % nbPenguin; // on boucle les pinguins de ce joueur
+        player[currentPlayer].currentPenguins += (player[currentPlayer].currentPenguins + 1) % nbPenguin; // on boucle les pinguins de ce joueur
         currentPlayer = (currentPlayer + 1) % nbPlayer; // on boucle sur les joeueurs
         turn++;
     }
+
 
     clear();
     refresh();
