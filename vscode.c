@@ -1,6 +1,5 @@
 
 #include "ncurses.h"
-
 #include "locale.h"
 //#include "ncurses\curses.h"
 #include "stdlib.h"
@@ -13,8 +12,7 @@ const int l = 9; // y
 const int c = 9; // x
 const int tileHeigth = 8;
 const int tileWidth = 8;
-const int penguin_width = 2;
-const int penguin_height = 1;
+
 
 
 const int startTilesTabX = 5; // coordoné X de la première Tile en haut a gauche du tableau
@@ -29,6 +27,7 @@ typedef struct {
     int tileX;
     int tileY;
     int num;
+    int isMoveable;
 
 
 } Penguin;
@@ -152,6 +151,7 @@ Penguin createPenguin(Tile **board, int color, int num) {
     //penguin.num = num;
 
     board[randY][randX].penguinColor = color;
+    penguin.isMoveable = 1;
 
 
     return penguin;
@@ -211,35 +211,31 @@ Player *createPlayers(Tile **board, int nbPlayer) {
 
 }
 
-char *colorHandle(int n) {
-    char *color;
-    switch (n) {
-        case 1: //Black
-            color = "black";
+int colorHandle(int currentPlayer) {
+    switch (currentPlayer) {
+        case 0: //Black
+            mvprintw(6, 100, "You play the black penguins");
             break;
-        case 2: // Blue
-            color = "blue";
+        case 1: // Blue
+            mvprintw(6, 100, "You play the blue penguins");
             break;
-        case 3: // Magenta
-            color = "magenta";
+        case 2: // Magenta
+            mvprintw(6, 100, "You play the magenta penguins");
             break;
-        case 4: // Red
-            color = "red";
+        case 3: // Red
+            mvprintw(6, 100, "You play the red penguins");
             break;
-        case 5: // Yellow
-            color = "yellow";
+        case 4: // Yellow
+            mvprintw(6, 100, "You play the yellow penguins");
             break;
-        case 6: // Green
-            color = "green";
+        case 5: // Green
+            mvprintw(6, 100, "You play the green penguins");
             break;
     }
-    return color;
 }
-
 
 void ColorPenguins(Tile tile, Player *player, int nbPlayer, int y, int x) {
     //This function displays each player's penguins with a different background to differentiate them from each other.
-    //for(int i = 0; i < nbPlayer; i++){
     switch ((tile.penguinColor)) {
         case 1:
             init_pair(1, COLOR_WHITE, COLOR_BLACK);
@@ -705,13 +701,70 @@ void deplacement(Tile **board, Player *player, Penguin *virtualPenguin, int touc
     }
 
     mvprintw(16, 100, "                                                ");
-    mvprintw(15, 100, "Press L to confirm your deplacement or press k to remake it");
+    mvprintw(15, 100, "Press L to confirm your deplacement or press k to remake it           ");
     board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
 }
 
 
 void Score(Player *player, Tile *tile) {
     player->score += tile->fish; //une ligne de code dans une fonction ?? c'est inutile -- un peu oui
+}
+
+
+
+int simple(Tile** board, Penguin penguin, int y, int x) { // pour avoir un code plus lisible séparer j'ai séparer en plusieurs fonction les conditions
+    if (tileDontExist(penguin.tileY + y, penguin.tileX + x) ||
+        board[penguin.tileY + y][penguin.tileX + x].isAlive == 0 ||
+        board[penguin.tileY + y][penguin.tileX + x].isTherePlayer == 1) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+int isPenguinMoveable(Tile** board, Penguin penguin){
+
+    if (penguin.tileY % 2 == 0) { // condition sur les lignes paires
+
+        if (simple(board, penguin, -1, 0) && simple(board, penguin, -1, +1) && simple(board, penguin, 0, -1) &&
+            simple(board, penguin, 0, +1) && simple(board, penguin, +1, 0) && simple(board, penguin, -1, +1)) { // si pas bougeable
+            return 0;
+        }
+        else{
+            return 1;
+        };
+
+    } else { // Lignes impaires
+        if (simple(board, penguin, -1, -1) && simple(board, penguin, -1, 0) && simple(board, penguin, 0, -1) &&
+            simple(board, penguin, 0, +1) && simple(board, penguin, +1, -1) && simple(board, penguin, -1, 0)) { // si pas bougeable
+            return 0;
+        }
+        else{
+            return 1;
+        };
+    }
+}
+
+
+int isAllPlayerBlocked(Tile** board, Player* player, int nbPlayer){
+    int blockedCount = 0;
+    for (int i = 0; i < nbPlayer; ++i) {
+        for (int j = 0; j < playerHandle(nbPlayer); ++j) {
+            if(isPenguinMoveable(board, player[i].penguin[j])){
+                player[i].penguin[j].isMoveable = 1;
+            }
+            else{
+                player[i].penguin[j].isMoveable = 0;
+                blockedCount++;
+            }
+        }
+    }
+    if( blockedCount == nbPlayer * playerHandle(nbPlayer)){
+        return 1;
+    }
+    else{
+        return 0;
+    }
 }
 
 
@@ -723,7 +776,8 @@ void Game(Player *player, Tile **board, int nbPlayer) {
     int selectedPenguinNb;
     int movementNb = 0;
     int extraMove = 0;
-
+    int impossibleSelection;
+    int disableL;
 
     HomePage();
     touch = getch();
@@ -742,11 +796,12 @@ void Game(Player *player, Tile **board, int nbPlayer) {
                 break;
         }
         touch = getch();
-    } while ((touch != 'u' && touch != 27));
+    } while ((touch != 'u'));
 
 
     // utiliser des modulo pour cycler sur les joueurs puis sur les penguins du joueur
-    while (TRUE) { //condition d'arrêt
+    while (!isAllPlayerBlocked(board, player, nbPlayer)) { //condition d'arrêt
+
 
         // demander a l'utilisateur de press Enter pour commenceer son tour
         clear();
@@ -755,30 +810,18 @@ void Game(Player *player, Tile **board, int nbPlayer) {
         mvprintw(0, 50, " tour : %d", turn);
         mvprintw(5, 100, "%s", player[currentPlayer].name); // debug only
 
-        switch (currentPlayer) {
-            case 0: //Black
-                mvprintw(6, 100, "You play the black penguins");
-                break;
-            case 1: // Blue
-                mvprintw(6, 100, "You play the blue penguins");
-                break;
-            case 2: // Magenta
-                mvprintw(6, 100, "You play the magenta penguins");
-                break;
-            case 3: // Red
-                mvprintw(6, 100, "You play the red penguins");
-                break;
-            case 4: // Yellow
-                mvprintw(6, 100, "You play the yellow penguins");
-                break;
-            case 5: // Green
-                mvprintw(6, 100, "You play the green penguins");
-                break;
-        }
+        colorHandle(currentPlayer);
+
 
         for (int i = 0; i < nbPenguin; ++i) {
-            mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d", i + 1, player[currentPlayer].penguin[i].tileY,
-                     player[currentPlayer].penguin[i].tileX);
+            if(player[currentPlayer].penguin[i].isMoveable){
+                mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d", i + 1,
+                         player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+            }
+            else{
+                mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d NOT MOVEABLE", i + 1, player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+
+            }
         }
 
         mvprintw(11, 100, "Choose Your Penguin");
@@ -788,53 +831,64 @@ void Game(Player *player, Tile **board, int nbPlayer) {
             touch = getch();
             switch (touch) {
                 case 'r': //a
-                    selectedPenguinNb = 0;
+
+                    if(player[currentPlayer].penguin[0].isMoveable == 1){
+                        selectedPenguinNb = 0;
+                        impossibleSelection = 0;
+                    }
+                    else{
+                        impossibleSelection = 1;
+                    }
+
                     break;
                 case 't': //z
-                    selectedPenguinNb = 1;
-                    break;
+                    if(player[currentPlayer].penguin[1].isMoveable == 1){
+                        selectedPenguinNb = 1;
+                        impossibleSelection = 0;
+                    }
+                    else{
+                        impossibleSelection = 1;
+                    }
                 case 'y': //e
-                    selectedPenguinNb = 2;
-                    break;
+                    if(player[currentPlayer].penguin[2].isMoveable == 1){
+                        selectedPenguinNb = 2;
+                        impossibleSelection = 0;
+                    }
+                    else{
+                        impossibleSelection = 1;
+                    }
                 case 'u': //r
-                    selectedPenguinNb = 3;
-                    break;
+                    if(player[currentPlayer].penguin[3].isMoveable == 1){
+                        selectedPenguinNb = 3;
+                        impossibleSelection = 0;
+                    }
+                    else{
+                        impossibleSelection = 1;
+                    }
 
                 case KEY_RESIZE:
                     showIceFloe(board, player, nbPlayer);
                     mvprintw(0, 50, " tour : %d", turn);
                     mvprintw(5, 100, "%s", player[currentPlayer].name); // debug only
 
-                    switch (currentPlayer) {
-                        case 0: //Black
-                            mvprintw(6, 100, "You play the black penguins");
-                            break;
-                        case 1: // Blue
-                            mvprintw(6, 100, "You play the blue penguins");
-                            break;
-                        case 2: // Magenta
-                            mvprintw(6, 100, "You play the magenta penguins");
-                            break;
-                        case 3: // Red
-                            mvprintw(6, 100, "You play the red penguins");
-                            break;
-                        case 4: // Yellow
-                            mvprintw(6, 100, "You play the yellow penguins");
-                            break;
-                        case 5: // Green
-                            mvprintw(6, 100, "You play the green penguins");
-                            break;
-                    }
+                    colorHandle(currentPlayer);
+
 
                     for (int i = 0; i < nbPenguin; ++i) {
-                        mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d", i + 1,
-                                 player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+                        if(player[currentPlayer].penguin[i].isMoveable){
+                            mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d", i + 1,
+                                     player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+                        }
+                        else{
+                            mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d NOT MOVEABLE", i + 1, player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+
+                        }
                     }
 
                     mvprintw(11, 100, "Choose Your Penguin");
                     break;
             }
-        } while (touch != 'r' && touch != 't' && touch != 'y' && touch != 'u' || selectedPenguinNb > nbPenguin);
+        } while (touch != 'r' && touch != 't' && touch != 'y' && touch != 'u' || selectedPenguinNb > nbPenguin || impossibleSelection);
 
 
         mvprintw(12, 100, "You chose the %d penguin", selectedPenguinNb + 1);
@@ -878,30 +932,19 @@ void Game(Player *player, Tile **board, int nbPlayer) {
                     showIceFloe(board, player, nbPlayer);
                     mvprintw(0, 50, " tour : %d", turn);
                     mvprintw(5, 100, "%s", player[currentPlayer].name); // debug only
-                    switch (currentPlayer) {
-                        case 0: //Black
-                            mvprintw(6, 100, "You play the black penguins");
-                            break;
-                        case 1: // Blue
-                            mvprintw(6, 100, "You play the blue penguins");
-                            break;
-                        case 2: // Magenta
-                            mvprintw(6, 100, "You play the magenta penguins");
-                            break;
-                        case 3: // Red
-                            mvprintw(6, 100, "You play the red penguins");
-                            break;
-                        case 4: // Yellow
-                            mvprintw(6, 100, "You play the yellow penguins");
-                            break;
-                        case 5: // Green
-                            mvprintw(6, 100, "You play the green penguins");
-                            break;
-                    }
+                    colorHandle(currentPlayer);
+
                     for (int i = 0; i < nbPenguin; ++i) {
-                        mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d", i + 1,
-                                 player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+                        if(player[currentPlayer].penguin[i].isMoveable){
+                            mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d", i + 1,
+                                     player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+                        }
+                        else{
+                            mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d NOT MOVEABLE", i + 1, player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+
+                        }
                     }
+
                     mvprintw(11, 100, "Choose Your Penguin");
                     mvprintw(13, 100, "Enter the number of movement you want to do. Between 1 and 6");
 
@@ -914,12 +957,16 @@ void Game(Player *player, Tile **board, int nbPlayer) {
 
         mvprintw(14, 100, "You want to do %d movement", movementNb);
         mvprintw(15, 100, "Press K");
-
+        disableL = 1;
 
         do {
             touch = getch();
             switch (touch) {
                 case 'l':
+
+                    if(disableL == 1){
+                        break;
+                    }
 
                     board[player[currentPlayer].penguin[selectedPenguinNb].tileY][player[currentPlayer].penguin[selectedPenguinNb].tileX].isTherePlayer = 0;
                     board[player[currentPlayer].penguin[selectedPenguinNb].tileY][player[currentPlayer].penguin[selectedPenguinNb].tileX].isAlive = 0;
@@ -930,8 +977,7 @@ void Game(Player *player, Tile **board, int nbPlayer) {
 
 
                     board[virtualPenguin.tileY][virtualPenguin.tileX].isTherePlayer = 1;
-                    board[virtualPenguin.tileY][virtualPenguin.tileX].penguinColor = currentPlayer +
-                                                                                     1; // +1 parce que currentPlayer commence a 0 alors que le system de couleur commence a 1
+                    board[virtualPenguin.tileY][virtualPenguin.tileX].penguinColor = currentPlayer + 1; // +1 parce que currentPlayer commence a 0 alors que le system de couleur commence a 1
 
                     break;
 
@@ -942,6 +988,7 @@ void Game(Player *player, Tile **board, int nbPlayer) {
 
                     showIceFloe(board, player, nbPlayer);
                     deplacement(board, player, &virtualPenguin, touch, nbPlayer, &extraMove, movementNb);
+                    disableL = 0;
                     break;
 
                 case KEY_RESIZE:
@@ -949,41 +996,29 @@ void Game(Player *player, Tile **board, int nbPlayer) {
                     showIceFloe(board, player, nbPlayer);
                     mvprintw(0, 50, " tour : %d", turn);
                     mvprintw(5, 100, "%s", player[currentPlayer].name); // debug only
-                    switch (currentPlayer) {
-                        case 0: //Black
-                            mvprintw(6, 100, "You play the black penguins");
-                            break;
-                        case 1: // Blue
-                            mvprintw(6, 100, "You play the blue penguins");
-                            break;
-                        case 2: // Magenta
-                            mvprintw(6, 100, "You play the magenta penguins");
-                            break;
-                        case 3: // Red
-                            mvprintw(6, 100, "You play the red penguins");
-                            break;
-                        case 4: // Yellow
-                            mvprintw(6, 100, "You play the yellow penguins");
-                            break;
-                        case 5: // Green
-                            mvprintw(6, 100, "You play the green penguins");
-                            break;
-                    }
+                    colorHandle(currentPlayer);
+
                     for (int i = 0; i < nbPenguin; ++i) {
-                        mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d", i + 1,
-                                 player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+                        if(player[currentPlayer].penguin[i].isMoveable){
+                            mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d", i + 1,
+                                     player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+                        }
+                        else{
+                            mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d NOT MOVEABLE", i + 1, player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+
+                        }
                     }
+
                     mvprintw(11, 100, "Choose Your Penguin");
                     mvprintw(14, 100, "You want to do %d movement", movementNb);
                     mvprintw(13, 100, "Enter the number of movement you want to do. Between 1 and 6");
                     mvprintw(15, 100, "Press K");
                     mvprintw(16, 100, "                                                ");
-                    mvprintw(15, 100, "Press L to confirm your deplacement or press k to remake it");
+                    mvprintw(15, 100, "Press L to confirm your deplacement or press k to remake it           ");
                     break;
             }
 
-
-        } while (touch != 'l');
+        } while (touch != 'l' || disableL == 1);
 
 
         clear();
@@ -992,6 +1027,10 @@ void Game(Player *player, Tile **board, int nbPlayer) {
         currentPlayer = (currentPlayer + 1) % nbPlayer; // on boucle sur les joeueurs
         turn++;
     }
+
+    clear();
+    mvprintw(15, 100, " You win");
+    // Afficher le gagnant le score de chaque joueur et proposé de rematch quitteez revenir au menue ect...
 }
 
 
@@ -1014,16 +1053,17 @@ int main() {
 
     InitCurse();
 
-    Game(players, board, nbPlayer);
+
+    Game(players, board, nbPlayer); // a mettre dans une boucle pour pouvoir rejouer blablabla
 
 
-    //checkfish = checkFish(board, players);
     //showScore(players);
 
     endwin();
 
     free(players);
     free(board);
+
     return 0;
 
 }
