@@ -1086,6 +1086,46 @@ void Game(Tile **board, int* rematch) {                 // the main game functio
 }
 
 
+void Winners(Player *player, int SIZE){
+    int j = 0;
+    int indwinner;
+    int nbwinner = 0;
+    Player win = player[0];
+
+    Player* winners = malloc(SIZE * sizeof(Player));
+    if(winners == NULL){
+        exit(-1);
+    }
+
+    for(int i = 1; i < SIZE; i++){ //on cherche le score le + élevé
+        if(win.score < player[i].score){
+            win = player[i];
+            indwinner = i; //on recupere l'indice du joueur au meilleur score pour pas le repeter dans le tableau des gagnants
+        }
+    }
+    winners[j] = win; //on met le joueur dans le tableau des gagnants
+    j++;
+    nbwinner += 1; 
+    
+    for(int i = 1; i < SIZE; i++){ // on verifie qu'il y a un seul gagnant et si il y en a plusieurs on les ajoutes au tableau de gagnant
+        if(win.score == player[i].score && i != indwinner){
+            winners[j] = player[i];
+            nbwinner++;
+        }
+    }
+
+    if(nbwinner == 1){    //on affiche le nom du ou des gagnants en cas d'égalité
+        mvprintw(10, 110, "La gagnant est %c", winners[0].name); 
+    }
+    else{
+        mvprintw(10, 110, "Les gagnant est sont:"); 
+        for(int i = 0; i < nbwinner; i++){
+            mvprintw(10, 110, "%c\n", winners[i].name);
+        }
+    }
+}
+
+
 int main() {
     int nbPlayer;
     int rematch = 0;
