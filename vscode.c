@@ -426,17 +426,10 @@ void HomePage(){                    // This is the home page which is displayed 
 }
 
 
-bool canMove(Tile **board, Penguin Penguin) {       // can the penguin move ? 
-
-
-    // Checker si les cases autour du Pingouin sont morte ou prise par un autre Pingouin si c le cas return false sinon return true
-
-}
-
 
 int tileDontExist(int y, int x) {       // if don't exist, return 0. Else, return 1
 
-    if (x > c || x < 0 || y > l || y < 0) {
+    if (x > c-1 || x < 0 || y > l-1 || y < 0) {
         return 1;
     } else {
         return 0;
@@ -600,7 +593,8 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
 
         case 'w': // w Checker toute les conditions de déplacement avant
             while(n < movementNb && !isBlocked){
-                if(virtualPenguin->tileY == 7){
+
+                if(virtualPenguin->tileY == 8 && movementNb > 0){
                     isBlocked = 1;
                 }
                 else{
@@ -652,7 +646,7 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
         case 'c': // x Checker toute les conditions de déplacement avant
             while(n < movementNb && !isBlocked){
 
-                if(virtualPenguin->tileY == 7 && movementNb > 0){
+                if(virtualPenguin->tileY == 8 && movementNb > 0){
                     isBlocked = 1;
                 } else{
 
@@ -712,7 +706,7 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
             }
             mvprintw(13, 100, "Enter the number of movement you want to do ( between 1 and 6 ), then press enter.");
             mvprintw(14, 100, "You will move of  %d tile(s)", movementNb);
-            mvprintw(15, 100, "Now move your penguin if you cant move just try an other movement");
+            mvprintw(15, 100, "Now move your penguin ");
 
             break;
     }
@@ -720,7 +714,7 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
     showIceFloe(board, player, nbPlayer);
     if(isBlocked == 1){
         *retry = 1;
-        mvprintw(15, 100, "This move isn't valid please choose and other move");
+        mvprintw(15, 100, "This move isn't valid please choose an other move");
         board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
         virtualPenguin->tileY = initialPosY;
         virtualPenguin->tileX = initialPosX;
@@ -738,10 +732,11 @@ void deplacement(Tile **board, Player *player, Penguin *virtualPenguin, int touc
     int movementNb;
     int retry = 0;
 
-    board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
-    showIceFloe(board, player, nbPlayer);
 
     do {
+        board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+        showIceFloe(board, player, nbPlayer);
+
         if(retry == 1){
             mvprintw(16, 100, "Please press k ");
             do{
@@ -768,7 +763,7 @@ void deplacement(Tile **board, Player *player, Penguin *virtualPenguin, int touc
         retry = 0;
 
         mvprintw(14, 100, "You will move of  %d tile(s)", movementNb);
-        mvprintw(15, 100, "Now move your penguin if you cant move just try an other movement");
+        mvprintw(15, 100, "Now move your penguin");
         refresh();
 
         touch = getch();
@@ -862,6 +857,8 @@ void Game(Tile **board, int* rematch) {                 // the main game functio
     int nbPenguin;
     int disableL;
     int passK = 0;
+
+
     Player *player;
 
     HomePage();                             // shows the home page
