@@ -1,4 +1,4 @@
-
+#
 #include "ncurses.h"
 #include "locale.h"
 //#include "ncurses\curses.h"
@@ -402,14 +402,6 @@ void InitCurse() {                  // curses initialization for our window
 
 }
 
-void drawExit() { // On garde ? elle sert a quoi ????
-    init_pair(10, COLOR_RED, COLOR_BLACK);
-    attron(COLOR_PAIR(10));
-    printw("Press echap to exit\n \n");
-    refresh();
-    attroff(COLOR_PAIR(10));
-    refresh();
-}
 
 void HomePage(){                    // This is the home page which is displayed when the game is launched
 
@@ -467,13 +459,11 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
     "c" = bottom corner right
     */
 
-
     int n = 0;
     int isBlocked = 0;
     int moreMove = 0;
     int initialPosX = virtualPenguin->tileX;
     int initialPosY = virtualPenguin->tileY;
-
 
     switch (touch) {  // rajouter des conditions pour x = 0;
         // in this switch, we use a "virtual penguin" to check if movements wanted by user are possible
