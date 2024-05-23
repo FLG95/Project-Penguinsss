@@ -1,4 +1,4 @@
-#
+
 #include "ncurses.h"
 #include "locale.h"
 //#include "ncurses\curses.h"
@@ -14,7 +14,6 @@ const int l = 9; // y
 const int c = 9; // x
 const int tileHeigth = 8;
 const int tileWidth = 8;
-
 
 
 const int startTilesTabX = 5;       // In the window, X coordinate of the first tile at the top left of the game board
@@ -417,10 +416,11 @@ void HomePage(){                    // This is the home page which is displayed 
     attroff(COLOR_PAIR((11)));
     attron(COLOR_PAIR(12));
 
-    mvprintw(3, 2, "START THE GAME");
-    mvprintw(4, 2, "EXIT");
+    mvprintw(3, 2, "P. START THE GAME");
+    mvprintw(4, 2, "Escape. EXIT");
 
     attroff(COLOR_PAIR(12));
+    refresh();
 }
 
 
@@ -775,7 +775,7 @@ void deplacement(Tile **board, Player *player, Penguin *virtualPenguin, int touc
 
 
 void Score(Player *player, Tile *tile) {        // Add fishes collected by the player to his points
-    player->score += tile->fish; //une ligne de code dans une fonction ?? c'est inutile -- un peu oui
+    player->score += tile->fish;
 }
 
 int simple(Tile** board, Penguin penguin, int y, int x) { // pour avoir un code plus lisible séparer j'ai séparer en plusieurs fonction les conditions
@@ -787,6 +787,7 @@ int simple(Tile** board, Penguin penguin, int y, int x) { // pour avoir un code 
         return 0;
     }
 }
+
 
 int isPenguinMoveable(Tile** board, Penguin penguin){
 
@@ -824,11 +825,9 @@ int isAllPlayerBlocked(Tile** board, Player* player, int nbPlayer){         // r
                 player[i].penguin[j].isMoveable = 0;
                 blockedCount++;
             }
-
             if ((blockedCount % 4) == PenguinsPerPlayer(nbPlayer)){ // +1 to avoid /0 opération
                 player[i].canPlay = 0;
             }
-
         }
     }
     if( blockedCount == nbPlayer * PenguinsPerPlayer(nbPlayer)){ // if the numbers of penguins blocked == the sum of every penguins of each player
@@ -840,6 +839,45 @@ int isAllPlayerBlocked(Tile** board, Player* player, int nbPlayer){         // r
 }
 
 
+void Winners(Player *player, int SIZE){
+    int j = 0;
+    int indwinner;
+    int nbwinner = 0;
+    Player win = player[0];
+
+    Player* winners = malloc(SIZE * sizeof(Player));
+    if(winners == NULL){
+        exit(-1);
+    }
+
+    for(int i = 1; i < SIZE; i++){ //on cherche le score le + élevé
+        if(win.score < player[i].score){
+            win = player[i];
+            indwinner = i; //on recupere l'indice du joueur au meilleur score pour pas le repeter dans le tableau des gagnants
+        }
+    }
+    winners[j] = win; //on met le joueur dans le tableau des gagnants
+    j++;
+    nbwinner += 1;
+
+    for(int i = 1; i < SIZE; i++){ // on verifie qu'il y a un seul gagnant et si il y en a plusieurs on les ajoutes au tableau de gagnant
+        if(win.score == player[i].score && i != indwinner){
+            winners[j] = player[i];
+            nbwinner++;
+        }
+    }
+
+    if(nbwinner == 1){    //on affiche le nom du ou des gagnants en cas d'égalité
+        mvprintw(10, 110, "La gagnant est %c", winners[0].name);
+    }
+    else{
+        mvprintw(10, 110, "Les gagnant est sont:");
+        for(int i = 0; i < nbwinner; i++){
+            mvprintw(10, 110, "%c\n", winners[i].name);
+        }
+    }
+}
+
 void Game(Tile **board, int* rematch) {                 // the main game function
     int touch;
     int turn = 0;
@@ -850,19 +888,17 @@ void Game(Tile **board, int* rematch) {                 // the main game functio
     int nbPenguin;
     int disableL;
     int passK = 0;
-
-
+    int returnMenu = 0;
     Player *player;
 
     HomePage();                             // shows the home page
-
     do {
         touch = getch();
         switch (touch) {
-            case 'u':                       // Start a game
+            case 'p':                       // Start a game
                 break;
             case 27:                        // échap =  quit the game
-                 clear();
+            clear();
                 exit(1);
                 break;
 
@@ -870,7 +906,7 @@ void Game(Tile **board, int* rematch) {                 // the main game functio
                 HomePage();
                 break;
         }
-    } while (touch != 'u');               // While the user hasn't started a game
+    } while (touch != 'p');               // While the user hasn't started a game
 
     clear();
     mvprintw(4, 2, "How many players? (between 2 and 6) press enter after you press the number");
@@ -878,14 +914,12 @@ void Game(Tile **board, int* rematch) {                 // the main game functio
     scanw("%d", &nbPlayer);
 
     player = createTabPlayers(board, nbPlayer);
-
     nbPenguin = PenguinsPerPlayer(nbPlayer);
 
-
     // PRINT LOOP :
-    while (!isAllPlayerBlocked(board, player, nbPlayer)) {          // stop conditions : see game rules
+    while (!isAllPlayerBlocked(board, player, nbPlayer) && !returnMenu) {          // stop conditions : see game rules
 
-        if(player[currentPlayer].canPlay){                         // If a player cant play his turn will be skip
+        if(player[currentPlayer].canPlay){                    // If a player cant play his turn will be skip
             // demander a l'utilisateur de press Enter pour commenceer son tour
             clear();
             showIceFloe(board, player, nbPlayer);
@@ -965,11 +999,10 @@ void Game(Tile **board, int* rematch) {                 // the main game functio
                         break;
 
                     case 27: // échap =  quitter le jeu
-                        clear();
-                        exit(1);
+                        returnMenu = 1;
                         break;
                 }
-            } while (touch != 'a' && touch != 'z' && touch != 'e' && touch != 'r' || selectedPenguinNb > nbPenguin || impossibleSelection);
+            } while ((touch != 'a' && touch != 'z' && touch != 'e' && touch != 'r' || selectedPenguinNb > nbPenguin || impossibleSelection) && !returnMenu);
 
 
             mvprintw(12, 100, "You chose the %d penguin", selectedPenguinNb + 1);
@@ -992,73 +1025,78 @@ void Game(Tile **board, int* rematch) {                 // the main game functio
             */
 
 
+
             disableL = 1;
-            touch = 'k';
-            passK = 1;
+            if(!returnMenu){
+                touch = 'k';
+                passK = 1;
+            }
 
-            do {
-                if(passK != 1){
-                    touch = getch();
-                }
 
-                switch (touch) {
-                    case 'l':
+            if(!returnMenu){
+                do {
+                    if(passK != 1){
+                        touch = getch();
+                    }
 
-                        if(disableL == 1){
+                    switch (touch) {
+                        case 'l':
+
+                            if(disableL == 1){
+                                break;
+                            }
+
+                            board[player[currentPlayer].penguin[selectedPenguinNb].tileY][player[currentPlayer].penguin[selectedPenguinNb].tileX].isTherePlayer = 0;
+                            board[player[currentPlayer].penguin[selectedPenguinNb].tileY][player[currentPlayer].penguin[selectedPenguinNb].tileX].isAlive = 0;
+
+                            player[currentPlayer].penguin[selectedPenguinNb] = virtualPenguin;
+                            Score(&player[currentPlayer], &board[virtualPenguin.tileY][virtualPenguin.tileX]);  // Add fishes collected by the player to his points
+
+                            board[virtualPenguin.tileY][virtualPenguin.tileX].isTherePlayer = 1;
+                            board[virtualPenguin.tileY][virtualPenguin.tileX].penguinColor = currentPlayer + 1; // +1 parce que currentPlayer commence a 0 alors que le system de couleur commence a 1
+
                             break;
-                        }
 
-                        board[player[currentPlayer].penguin[selectedPenguinNb].tileY][player[currentPlayer].penguin[selectedPenguinNb].tileX].isTherePlayer = 0;
-                        board[player[currentPlayer].penguin[selectedPenguinNb].tileY][player[currentPlayer].penguin[selectedPenguinNb].tileX].isAlive = 0;
+                        case 'k':
 
-                        player[currentPlayer].penguin[selectedPenguinNb] = virtualPenguin;
-                        Score(&player[currentPlayer], &board[virtualPenguin.tileY][virtualPenguin.tileX]);  // Add fishes collected by the player to his points
+                            board[virtualPenguin.tileY][virtualPenguin.tileX].isRed = 0;
+                            virtualPenguin = player[currentPlayer].penguin[selectedPenguinNb];
+                            showIceFloe(board, player, nbPlayer);
+                            deplacement(board, player, &virtualPenguin, touch, nbPlayer, currentPlayer, turn);
+                            disableL = 0;
+                            break;
 
-                        board[virtualPenguin.tileY][virtualPenguin.tileX].isTherePlayer = 1;
-                        board[virtualPenguin.tileY][virtualPenguin.tileX].penguinColor = currentPlayer + 1; // +1 parce que currentPlayer commence a 0 alors que le system de couleur commence a 1
+                        case KEY_RESIZE:
 
-                        break;
-
-                    case 'k':
-
-                        board[virtualPenguin.tileY][virtualPenguin.tileX].isRed = 0;
-                        virtualPenguin = player[currentPlayer].penguin[selectedPenguinNb];
-
-                        showIceFloe(board, player, nbPlayer);
-                        deplacement(board, player, &virtualPenguin, touch, nbPlayer, currentPlayer, turn);
-                        disableL = 0;
-                        break;
-
-                    case KEY_RESIZE:
-
-                        showIceFloe(board, player, nbPlayer);
-                        mvprintw(0, 50, " tour : %d", turn);
-                        mvprintw(5, 100, "%s", player[currentPlayer].name); // debug only
-                        colorPerPlayer(currentPlayer);
-                        for (int i = 0; i < nbPenguin; ++i) {
-                            if(player[currentPlayer].penguin[i].isMoveable){
-                                mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d", i + 1,
-                                         player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+                            showIceFloe(board, player, nbPlayer);
+                            mvprintw(0, 50, " tour : %d", turn);
+                            mvprintw(5, 100, "%s", player[currentPlayer].name); // debug only
+                            colorPerPlayer(currentPlayer);
+                            for (int i = 0; i < nbPenguin; ++i) {
+                                if(player[currentPlayer].penguin[i].isMoveable){
+                                    mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d", i + 1,
+                                             player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+                                }
+                                else{
+                                    mvprintw(7 + i, 100, "penguin %d :   in y: %d, x: %d NOT MOVEABLE", i + 1, player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+                                }
                             }
-                            else{
-                                mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d NOT MOVEABLE", i + 1, player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
-                            }
-                        }
-                        mvprintw(11, 100, "Choose Your Penguin");
-                        mvprintw(13, 100, "Enter the number of movement you want to do. Between 1 and 6");
-                        mvprintw(15, 100, "Press L to confirm your deplacement or press k to remake it           ");
-                        mvprintw(16, 100, "                                                ");
-                        break;
+                            mvprintw(11, 100, "Choose Your Penguin");
+                            mvprintw(13, 100, "Enter the number of movement you want to do. Between 1 and 6");
+                            mvprintw(15, 100, "Press L to confirm your deplacement or press k to remake it           ");
+                            mvprintw(16, 100, "                                                ");
+                            break;
 
-                    case 27: // échap =  quitter le jeu
-                        clear();
-                        exit(1);
-                        break;
-                }
-                passK = 0;
+                        case 27: // échap =  quitter le jeu
+                            returnMenu = 1;
+                            break;
+                    }
+                    passK = 0;
 
-            } while (touch != 'l' || disableL == 1);
-        }
+                } while ((touch != 'l' || disableL == 1) && !returnMenu);
+            }
+            }
+
 
 
         clear();
@@ -1070,53 +1108,20 @@ void Game(Tile **board, int* rematch) {                 // the main game functio
 
     clear();
     refresh();
-    // boucle sur tout les joeur on gadre le meiluer socre de chaque 1v1 et on affiche le gagnant
-    mvprintw(15, 100, " You win");
-    mvprintw(16, 100, "Press 1 if you want to Rematch or press 2 if you want to leave the game, then press Enter");
+
+    if(!returnMenu){
+        Winners(player, nbPlayer-1);
+    }
+
+    mvprintw(10, 2, "Press 1 if you want to Rematch or press 2 if you want to leave the game, then press Enter");
+    refresh();
     scanw("%d", &(*rematch));
+
 
     // Afficher le gagnant le score de chaque joueur et proposé de rematch quitteez revenir au menue ect...
 }
 
 
-void Winners(Player *player, int SIZE){
-    int j = 0;
-    int indwinner;
-    int nbwinner = 0;
-    Player win = player[0];
-
-    Player* winners = malloc(SIZE * sizeof(Player));
-    if(winners == NULL){
-        exit(-1);
-    }
-
-    for(int i = 1; i < SIZE; i++){ //on cherche le score le + élevé
-        if(win.score < player[i].score){
-            win = player[i];
-            indwinner = i; //on recupere l'indice du joueur au meilleur score pour pas le repeter dans le tableau des gagnants
-        }
-    }
-    winners[j] = win; //on met le joueur dans le tableau des gagnants
-    j++;
-    nbwinner += 1; 
-    
-    for(int i = 1; i < SIZE; i++){ // on verifie qu'il y a un seul gagnant et si il y en a plusieurs on les ajoutes au tableau de gagnant
-        if(win.score == player[i].score && i != indwinner){
-            winners[j] = player[i];
-            nbwinner++;
-        }
-    }
-
-    if(nbwinner == 1){    //on affiche le nom du ou des gagnants en cas d'égalité
-        mvprintw(10, 110, "La gagnant est %c", winners[0].name); 
-    }
-    else{
-        mvprintw(10, 110, "Les gagnant est sont:"); 
-        for(int i = 0; i < nbwinner; i++){
-            mvprintw(10, 110, "%c\n", winners[i].name);
-        }
-    }
-}
 
 
 int main() {
@@ -1132,6 +1137,8 @@ int main() {
     InitCurse();                            // initialising curses
 
     do{
+        clear();
+        refresh();
         board = createBoard();
         Game(board, &rematch);
     } while (rematch);
