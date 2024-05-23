@@ -38,7 +38,7 @@ typedef struct {
 
     char *name;
     int num;                        // Player number
-    int currentPenguins;
+    int currentPenguins;            // penguin played by player
     Penguin *penguin;               // tab of penguins
     int score;
     int canPlay;
@@ -65,7 +65,7 @@ Tile createTile(int y, int x) {
 
     Tile.isAlive = 1;                       // By default, when the board is generated, all tiles are "alive" (ie not melted)
 
-    Tile.fish = (rand() % 3) + 1;           // Fishes are generated randomly between 1 and 3
+    Tile.fish = (rand() % 3) + 1;           // Fishes are generated randomly between 1 and 3 (see game rules)
 
     Tile.isTherePlayer = 0;
 
@@ -80,11 +80,11 @@ Tile createTile(int y, int x) {
 
 Tile **createBoard() {
     Tile **board;
-    int x = startTilesTabX; // origine en x de la premère tile
-    int y = startTilesTabY; // origine en y de la première tile
+    int x = startTilesTabX;                 // x origin of the first tile in the board
+    int y = startTilesTabY;                 // y origin of the first tile in the board
 
     board = malloc(c * sizeof(Tile *));     // tab of tab of Tiles
-    if (!board) {                           // if board == NULL || NB : this notation will often be used
+    if (!board) {                           // If board == NULL || NB : this notation will often be used
         exit(2);
     }
 
@@ -104,7 +104,7 @@ Tile **createBoard() {
             // We are doing this because we have to generate a hexagonal board
             // So one line in two have to be shifted slightly to the right
         }
-        y -= 4;                             // ?
+        y -= 4;                             // Reduce distance between tiles
 
     }
     return board;
@@ -135,10 +135,8 @@ int PenguinsPerPlayer(int n) {
 
 
 Penguin createPenguin(Tile **board, int color) {
-
     int randX, randY;
     Penguin penguin;
-
 
     // Penguins are spawning randomly on the game board  
     randX = rand() % 9;
@@ -150,18 +148,16 @@ Penguin createPenguin(Tile **board, int color) {
         randY = rand() % 9;
     }
 
-
-
-// At this point, we found a Tile where there is no penguin that has already been generated, so we tell to board that there is a player on this tile
+    // At this point, we found a Tile where there is no penguin that has already been generated, so we tell the board that there is now a player on this tile
     board[randY][randX].isTherePlayer = 1;
 
-// penguins coords = coords we generated
+    // Penguins coords = coords we generated
     penguin.tileX = randX;
     penguin.tileY = randY;
 
-    penguin.color = color;                  // We give a color to this penguin
+    penguin.color = color;                          // We give a color to this penguin
     board[randY][randX].penguinColor = color;       // At this random Tile without penguin, we assign the color of the penguin
-    penguin.isMoveable = 1;                 // By default, at the beginning of the game, a penguin is moveable
+    penguin.isMoveable = 1;                         // By default, at the beginning of the game, a penguin is moveable
 
 
     return penguin;
@@ -169,54 +165,55 @@ Penguin createPenguin(Tile **board, int color) {
 
 
 Player *createTabPlayers(Tile **board, int nbPlayer) {
-int nbPenguin = 0;               // nbPenguin = numbers of penguins per player
-int try = 0;                    // Numbers of tries at the question "how many players"
-unsigned long length;
-char name[100];
-Player *tabPlayers;                 // tab of players
+    int nbPenguin = 0;               // nbPenguin = numbers of penguins per player
+    int try = 0;                    // Numbers of tries at the question "how many players"
+    unsigned long length;           // len of player name
+    char name[100];
+    Player *tabPlayers;                 // tab of players
 
-while (nbPlayer < 2 || nbPlayer > 6) {
-    scanw("%d", &nbPlayer);
-}
-tabPlayers = malloc(nbPlayer * sizeof(Player));            // Tab of nbPlayer players
-if (!tabPlayers) {
-    exit(1);
-}
-
-nbPenguin = PenguinsPerPlayer(nbPlayer);
-
-// Going through this tab and ask for the name of each player
-for (int i = 0; i < nbPlayer; ++i) {
-    mvprintw(5+i, 2, "Enter the name of the player %d:\n", i + 1);
-    refresh();
-    scanw("%s", name);
-    length = strlen(name);
-
-    // we use dynamic allocation for the player's name
-    tabPlayers[i].name = malloc(length * sizeof(char));
-    if (!tabPlayers[i].name) {
+    while (nbPlayer < 2 || nbPlayer > 6) {
+        scanw("%d", &nbPlayer);                                 // scanw is part of the ncurses library : <=> scanf but in the game window
+    }
+    tabPlayers = malloc(nbPlayer * sizeof(Player));            // Tab of nbPlayer players
+    if (!tabPlayers) {
         exit(1);
     }
 
+    nbPenguin = PenguinsPerPlayer(nbPlayer);
 
-    tabPlayers[i].penguin = malloc(PenguinsPerPlayer(nbPlayer) * sizeof (Penguin));
-    if (!tabPlayers[i].penguin) {
-        tabPlayers[i].penguin = malloc(nbPenguin * sizeof(Penguin));
-        exit(1);
+    // Going through this tab and ask for the name of each player
+    for (int i = 0; i < nbPlayer; ++i) {
+        mvprintw(5+i, 2, "Enter the name of the player %d:\n", i + 1);
+        refresh();
+        scanw("%s", name);
+        length = strlen(name);
+
+        // we use dynamic allocation for the player's name
+        tabPlayers[i].name = malloc(length * sizeof(char));
+        if (!tabPlayers[i].name) {
+            exit(1);
+        }
+
+        tabPlayers[i].penguin = malloc(PenguinsPerPlayer(nbPlayer) * sizeof (Penguin));
+        if (!tabPlayers[i].penguin) {
+            tabPlayers[i].penguin = malloc(nbPenguin * sizeof(Penguin));
+            exit(1);
+        }
+
+        // Attribution of the player's number and name
+        tabPlayers[i].num = i;
+        strcpy(tabPlayers[i].name, name);
+
+        // Creating all penguins for each player
+        for (int j = 0; j < nbPenguin; ++j) {
+            tabPlayers[i].penguin[j] = createPenguin(board, i + 1);
+        }
+        tabPlayers[i].currentPenguins = 0;              // By default, we initialize at 0 to avoid some bug
+        tabPlayers[i].score = 0;                        // By default, each player have 0 points
+        tabPlayers[i].canPlay = 1;                      // By default, each player can play
     }
 
-    // Attribution
-    tabPlayers[i].num = i;
-    strcpy(tabPlayers[i].name, name);
-
-    for (int j = 0; j < nbPenguin; ++j) {
-        tabPlayers[i].penguin[j] = createPenguin(board, i + 1);
-    }
-    tabPlayers[i].currentPenguins = 0;              // By default, we initialize the currentPenguins at 0 to avoid some bug
-    tabPlayers[i].score = 0;                        // By default, each player have 0 points
-    tabPlayers[i].canPlay = 1;                      // By default, each player can play
-}
-return tabPlayers;
+    return tabPlayers;
 }
 
 int colorPerPlayer(int currentPlayer) {     // At the beginning of the game, we give a penguin color to every player
@@ -244,123 +241,125 @@ switch (currentPlayer) {
 }
 
 void ColorPenguins(Tile tile, Player *player, int nbPlayer, int y, int x) {
-// This function displays each player's penguins with a different background to differentiate them from each other.
-switch ((tile.penguinColor)) {
-    // each colour corresponds to the colour of a player's penguins
-    // init_pair, attron, mvprintw, refresh an attroff are part of the ncurses library
-    case 1:
-        init_pair(1, COLOR_WHITE, COLOR_BLACK);           // we initialise the window background with those colors
-        attron(COLOR_PAIR(1));                          // we start using those colors
-        mvprintw(y + 1, x + 2, "🐧");                   // we print the penguin
-        refresh();                                      // we update the window, because otherwise we can't see the difference
-        attroff(COLOR_PAIR(1));                         // we stop using those colors
-        break;
+    // This function displays each player's penguins with a different background to differentiate them from each other.
+    switch ((tile.penguinColor)) {
+        // each colour corresponds to the colour of a player's penguins
+        // init_pair, attron, mvprintw, refresh an attroff are part of the ncurses library
+        case 1:
+            init_pair(1, COLOR_WHITE, COLOR_BLACK);           // we initialise the window background with those colors
+            attron(COLOR_PAIR(1));                          // we start using those colors
+            mvprintw(y + 1, x + 2, "🐧");                   // we print the penguin
+            refresh();                                      // we update the window, because otherwise we can't see the difference
+            attroff(COLOR_PAIR(1));                         // we stop using those colors
+            break;
 
-    case 2:
-        init_pair(2, COLOR_WHITE, COLOR_BLUE);
-        attron(COLOR_PAIR(2));
-        mvprintw(y + 1, x + 2, "🐧");
-        refresh();
-        attroff(COLOR_PAIR(2));
-        break;
+        case 2:
+            init_pair(2, COLOR_WHITE, COLOR_BLUE);
+            attron(COLOR_PAIR(2));
+            mvprintw(y + 1, x + 2, "🐧");
+            refresh();
+            attroff(COLOR_PAIR(2));
+            break;
 
-    case 3:
-        init_pair(3, COLOR_WHITE, COLOR_MAGENTA);
-        attron(COLOR_PAIR(3));
-        mvprintw(y + 1, x + 2, "🐧");
-        attroff(COLOR_PAIR(3));
-        break;
+        case 3:
+            init_pair(3, COLOR_WHITE, COLOR_MAGENTA);
+            attron(COLOR_PAIR(3));
+            mvprintw(y + 1, x + 2, "🐧");
+            attroff(COLOR_PAIR(3));
+            break;
 
-    case 4:
-        init_pair(4, COLOR_WHITE, COLOR_RED);
-        attron(COLOR_PAIR(4));
-        mvprintw(y + 1, x + 2, "🐧");
-        attroff(COLOR_PAIR(4));
-        break;
+        case 4:
+            init_pair(4, COLOR_WHITE, COLOR_RED);
+            attron(COLOR_PAIR(4));
+            mvprintw(y + 1, x + 2, "🐧");
+            attroff(COLOR_PAIR(4));
+            break;
 
-    case 5:
-        init_pair(5, COLOR_WHITE, COLOR_YELLOW);
-        attron(COLOR_PAIR(5));
-        mvprintw(y + 1, x + 2, "🐧");
-        attroff(COLOR_PAIR(5));
-        break;
+        case 5:
+            init_pair(5, COLOR_WHITE, COLOR_YELLOW);
+            attron(COLOR_PAIR(5));
+            mvprintw(y + 1, x + 2, "🐧");
+            attroff(COLOR_PAIR(5));
+            break;
 
-    case 6:
-        init_pair(6, COLOR_WHITE, COLOR_GREEN);
-        attron(COLOR_PAIR(6));
-        mvprintw(y + 1, x + 2, "🐧");
-        attroff(COLOR_PAIR(6));
-        break;
-}
+        case 6:
+            init_pair(6, COLOR_WHITE, COLOR_GREEN);
+            attron(COLOR_PAIR(6));
+            mvprintw(y + 1, x + 2, "🐧");
+            attroff(COLOR_PAIR(6));
+            break;
+    }
 }
 
 
 int showTile(Tile tile, Player *player, int nbPlayer) {     // print a "tile" with the coordinates stored in the "Tile" parameter
-int x = tile.posX;
-int y = tile.posY;
-int color;
-if (tile.isAlive == 0) {            // if tile not alive, then don't go further : no tile draw
-    return 0;
-}
+    int x = tile.posX;
+    int y = tile.posY;
+    int color;
+    if (tile.isAlive == 0) {            // if tile not alive, then don't go further : no tile draw
+        return 0;
+    }
 
-// height =  4 ; width = 7
+    // height =  4 ; width = 7
 
-if (tile.isRed == 1) {
-    color = 10;
-} else {
-    color = 11;
-}
+    if (tile.isRed == 1) {
+        color = 10;
+    } else {
+        color = 11;
+    }
 
-init_pair(10, COLOR_WHITE, COLOR_RED);
-init_pair(11, COLOR_WHITE, COLOR_CYAN);
+    init_pair(10, COLOR_WHITE, COLOR_RED);
+    init_pair(11, COLOR_WHITE, COLOR_CYAN);
 
 
-attron(COLOR_PAIR(color));
+    attron(COLOR_PAIR(color));
 
-if (tile.isTherePlayer == 0) {      // if no penguins on tile
-    // can be replaced by a switch
-    // "\U0001f41f" = fish emoji
-    if (tile.fish == 1) {
+    if (tile.isTherePlayer == 0) {      // if no penguins on tile
+        // can be replaced by a switch
+        // "\U0001f41f" = fish emoji
+        if (tile.fish == 1) {
+            mvprintw(y, x + 2, "   ");
+            mvprintw(y + 1, x, "   \U0001f41f  "); // \U0001f41f code émoji marche pas sur mon linux
+            mvprintw(y + 2, x, "       ");
+            mvprintw(y + 3, x + 2, "   ");
+        }
+        else if (tile.fish == 2) {
+            mvprintw(y, x + 2, "   ");
+            mvprintw(y + 1, x, "   \U0001f41f  ");
+            mvprintw(y + 2, x, "   \U0001f41f  ");
+            mvprintw(y + 3, x + 2, "   ");
+        }
+        else {
+            mvprintw(y, x + 2, "   ");
+            mvprintw(y + 1, x, "  \U0001f41f\U0001f41f ");
+            mvprintw(y + 2, x, "  \U0001f41f   ");
+            mvprintw(y + 3, x + 2, "   ");
+        }
+    }
+    else if (tile.isTherePlayer == 1) {
         mvprintw(y, x + 2, "   ");
-        mvprintw(y + 1, x, "   \U0001f41f  "); // \U0001f41f code émoji marche pas sur mon linux
+        mvprintw(y + 1, x, "       ");
         mvprintw(y + 2, x, "       ");
         mvprintw(y + 3, x + 2, "   ");
-    } else if (tile.fish == 2) {
-        mvprintw(y, x + 2, "   ");
-        mvprintw(y + 1, x, "   \U0001f41f  ");
-        mvprintw(y + 2, x, "   \U0001f41f  ");
-        mvprintw(y + 3, x + 2, "   ");
-    } else {
-        mvprintw(y, x + 2, "   ");
-        mvprintw(y + 1, x, "  \U0001f41f\U0001f41f ");
-        mvprintw(y + 2, x, "  \U0001f41f   ");
-        mvprintw(y + 3, x + 2, "   ");
-    }
-} else if (tile.isTherePlayer == 1) {
 
+        attroff(COLOR_PAIR(color));
+        ColorPenguins(tile, player, nbPlayer, y, x); // ne réaffiche pas les pingouins quand on jouer
+        //mvprintw(y + 1, x + 2, "🐧");
+
+        // ou colorPinguins
+    }
+
+
+    attroff(COLOR_PAIR(color));
+
+    // ici si la tile est dead la fonction va return direct (cf L 218) donc jsp si c'est mieux d'afficher une croix
+    // "vide" genre noire grace aux espaces
+    /*
     mvprintw(y, x + 2, "   ");
     mvprintw(y + 1, x, "       ");
     mvprintw(y + 2, x, "       ");
     mvprintw(y + 3, x + 2, "   ");
-
-    attroff(COLOR_PAIR(color));
-    ColorPenguins(tile, player, nbPlayer, y, x); // ne réaffiche pas les pingouins quand on jouer
-    //mvprintw(y + 1, x + 2, "🐧");
-
-    // ou colorPinguins
-}
-
-
-attroff(COLOR_PAIR(color));
-
-// ici si la tile est dead la fonction va return direct (cf L 218) donc jsp si c'est mieux d'afficher une croix
-// "vide" genre noire grace aux espaces
-/*
-mvprintw(y, x + 2, "   ");
-mvprintw(y + 1, x, "       ");
-mvprintw(y + 2, x, "       ");
-mvprintw(y + 3, x + 2, "   ");
- */
+    */
 
     //mvprintw(y, x, "X"); Debug to show Anchor of the Tile
 
@@ -386,7 +385,7 @@ void showIceFloe(Tile **board, Player *player, int nbPlayer) {              // s
     refresh();
 }
 
-// 
+
 void InitCurse() {                  // curses initialization for our window
     // all the functions are part of the curses library
     setlocale(LC_ALL, "");          // check if the shell is in "UTF-8"
@@ -399,8 +398,7 @@ void InitCurse() {                  // curses initialization for our window
     noecho();                       // avoid the user input to be displayed at the screen
 
     curs_set(0);                    // deactivate the mouse cursor
-    refresh();
-
+    refresh();                      // refresh the window so all we did here is saved
 }
 
 
@@ -453,20 +451,19 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
     "c" = bottom corner right
     */
 
-    int n = 0;
-    int isBlocked = 0;
-    int moreMove = 0;
-    int initialPosX = virtualPenguin->tileX;
-    int initialPosY = virtualPenguin->tileY;
+    int n = 0;                                          // n is a variable for moving to iceberg to iceberg
+    int isBlocked = 0;                                  // Can the penguin move ? (If the next tile is either not on the board, dead or taken by another penguin) 
+    int initialPosX = virtualPenguin->tileX;            // Save the original x position of the virtual penguin
+    int initialPosY = virtualPenguin->tileY;            // Save the original y position of the virtual penguin
 
     switch (touch) {  // rajouter des conditions pour x = 0;
-        // in this switch, we use a "virtual penguin" to check if movements wanted by user are possible
+        // in this switch, we use a "virtual penguin" to check if movements wanted by user are possible, and move the "true penguin" if possible
 
-        case 'a': // a Checker toute les conditions de déplacement avant
+        case 'a': // Before moving, we check if movement is possible (COM3)
 
+            // While n < move value inputed by user (n will increment at each loop and we'll check if the user can actually make the move or not)
             while(n < movementNb && !isBlocked){
                 if(virtualPenguin->tileX == 0){
-
                     // This part of code is recurrent in this function, for comments we will use (COM1) to refer to the following comment :
                     // If the tile is either not on the board, dead or taken by another penguin :
                     if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX) ||
@@ -484,14 +481,12 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
 
 
                 if (virtualPenguin->tileY % 2 == 0) {    //"even" line
-
                     if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX - 1) ||
                         board[virtualPenguin->tileY - 1][virtualPenguin->tileX - 1].isAlive == 0 ||
                         board[virtualPenguin->tileY - 1][virtualPenguin->tileX - 1].isTherePlayer == 1) { // (COM1)
                         isBlocked = 1;
                     }
                     else { // (COM2)
-
                         board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
                         virtualPenguin->tileY = virtualPenguin->tileY - 1;
                         virtualPenguin->tileX = virtualPenguin->tileX - 1;
@@ -505,7 +500,6 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
                         isBlocked = 1;
                     }
                     else { // (COM2)
-
                         board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
                         virtualPenguin->tileY = virtualPenguin->tileY - 1;
                         virtualPenguin->tileX = virtualPenguin->tileX;
@@ -518,11 +512,11 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
 
             break;
 
-        case 'e': // e Checker toute les conditions de déplacement avant
+        case 'e': // (COM3)
 
             while(n < movementNb && !isBlocked){
 
-                if (virtualPenguin->tileY % 2 == 0) { // pour éviter un bug sur les lignes impaires
+                if (virtualPenguin->tileY % 2 == 0) {       // handeling even lines
 
                     if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX) ||
                         board[virtualPenguin->tileY - 1][virtualPenguin->tileX].isAlive == 0 ||
@@ -535,13 +529,14 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
                         virtualPenguin->tileX = virtualPenguin->tileX;
                         board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
                     }
-                } else { // Ligne impaire
+                }
+                else {                                 // odd lines 
                     if (tileDontExist(virtualPenguin->tileY, virtualPenguin->tileX + 1) ||
                         board[virtualPenguin->tileY - 1][virtualPenguin->tileX + 1].isAlive == 0 ||
                         board[virtualPenguin->tileY - 1][virtualPenguin->tileX + 1].isTherePlayer == 1) { // (COM1)
                         isBlocked = 1;
-                    } else { // (COM2)
-
+                    }
+                    else { // (COM2)
                         board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
                         virtualPenguin->tileY = virtualPenguin->tileY - 1;
                         virtualPenguin->tileX = virtualPenguin->tileX + 1;
@@ -553,15 +548,15 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
             break;
 
 
-        case 'q':// q Checker toute les conditions de déplacement avant
+        case 'q':   // (COM3)
             while(n < movementNb && !isBlocked){
 
                 if (tileDontExist(virtualPenguin->tileY, virtualPenguin->tileX - 1) ||
                     board[virtualPenguin->tileY][virtualPenguin->tileX - 1].isAlive == 0 ||
                     board[virtualPenguin->tileY][virtualPenguin->tileX - 1].isTherePlayer == 1) { // (COM1)
                     isBlocked = 1;
-                } else { // (COM2)
-
+                }
+                else { // (COM2)
                     board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
                     virtualPenguin->tileY = virtualPenguin->tileY;
                     virtualPenguin->tileX = virtualPenguin->tileX - 1;
@@ -571,7 +566,7 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
             }
             break;
 
-        case 'd': // d Checker toute les conditions de déplacement avant
+        case 'd':   // (COM3)
             while(n < movementNb && !isBlocked){
 
                 if (tileDontExist(virtualPenguin->tileY, virtualPenguin->tileX + 1) ||
@@ -579,8 +574,8 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
                     board[virtualPenguin->tileY][virtualPenguin->tileX + 1].isTherePlayer == 1) { // (COM1)
 
                     isBlocked = 1;
-                } else { // (COM2)
-
+                }
+                else { // (COM2)
                     board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
                     virtualPenguin->tileY = virtualPenguin->tileY;
                     virtualPenguin->tileX = virtualPenguin->tileX + 1;
@@ -591,7 +586,7 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
             break;
 
 
-        case 'w': // w Checker toute les conditions de déplacement avant
+        case 'w':   // (COM3)
             while(n < movementNb && !isBlocked){
 
                 if(virtualPenguin->tileY == 8 && movementNb > 0){
@@ -599,13 +594,12 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
                 }
                 else{
                     if (virtualPenguin->tileX == 0) {
-
                         if (tileDontExist(virtualPenguin->tileY - 1, virtualPenguin->tileX) ||
                             board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isAlive == 0 ||
                             board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isTherePlayer == 1) { // (COM1)
                             isBlocked = 1;
-                        } else { // (COM2)
-
+                        }
+                        else { // (COM2)
                             board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
                             virtualPenguin->tileY = virtualPenguin->tileY + 1;
                             virtualPenguin->tileX = virtualPenguin->tileX;
@@ -613,25 +607,27 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
                         }
                     }
 
-                    if (virtualPenguin->tileY % 2 == 0) { // pour éviter un bug sur les lignes impaires
+                    if (virtualPenguin->tileY % 2 == 0) { // handeling even lines
 
                         if (tileDontExist(virtualPenguin->tileY + 1, virtualPenguin->tileX - 1) ||
                             board[virtualPenguin->tileY + 1][virtualPenguin->tileX - 1].isAlive == 0 ||
                             board[virtualPenguin->tileY + 1][virtualPenguin->tileX - 1].isTherePlayer == 1) { // (COM1)
                             isBlocked = 1;
-                        } else { // (COM2)
-
+                        }
+                        else { // (COM2)
                             board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
                             virtualPenguin->tileY = virtualPenguin->tileY + 1;
                             virtualPenguin->tileX = virtualPenguin->tileX - 1;
                             board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
                         }
-                    } else { // Ligne impaire
+                    }
+                    else {                              // odd line
                         if (tileDontExist(virtualPenguin->tileY + 1, virtualPenguin->tileX) ||
                             board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isAlive == 0 ||
                             board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isTherePlayer == 1) { // (COM1)
                             isBlocked = 1;
-                        } else { // (COM2)
+                        }
+                        else { // (COM2)
                             board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
                             virtualPenguin->tileY = virtualPenguin->tileY + 1;
                             virtualPenguin->tileX = virtualPenguin->tileX;
@@ -643,32 +639,33 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
             }
             break;
 
-        case 'c': // x Checker toute les conditions de déplacement avant
+        case 'c':   // (COM3)
             while(n < movementNb && !isBlocked){
 
                 if(virtualPenguin->tileY == 8 && movementNb > 0){
                     isBlocked = 1;
-                } else{
-
-                    if (virtualPenguin->tileY % 2 == 0) { // pour éviter un bug sur les lignes impaires
-
+                }
+                else{
+                    if (virtualPenguin->tileY % 2 == 0) { // handeling even lines
                         if (tileDontExist(virtualPenguin->tileY + 1, virtualPenguin->tileX) ||
                             board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isAlive == 0 ||
                             board[virtualPenguin->tileY + 1][virtualPenguin->tileX].isTherePlayer == 1) { // (COM1)
                             isBlocked = 1;
-                        } else { // (COM2)
-
+                        }
+                        else { // (COM2)
                             board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
                             virtualPenguin->tileY = virtualPenguin->tileY + 1;
-                           virtualPenguin->tileX = virtualPenguin->tileX;
-                         board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
+                            virtualPenguin->tileX = virtualPenguin->tileX;
+                            board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
                         }
-                    } else { // Ligne impaire
+                    }
+                    else { // Ligne impaire
                         if (tileDontExist(virtualPenguin->tileY + 1, virtualPenguin->tileX + 1) ||
                             board[virtualPenguin->tileY + 1][virtualPenguin->tileX + 1].isAlive == 0 ||
                             board[virtualPenguin->tileY + 1][virtualPenguin->tileX + 1].isTherePlayer == 1) { // (COM1)
                             isBlocked = 1;
-                        } else { // (COM2)
+                        }
+                        else { // (COM2)
                             board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
                             virtualPenguin->tileY = virtualPenguin->tileY + 1;
                             virtualPenguin->tileX = virtualPenguin->tileX + 1;
@@ -680,16 +677,12 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
             }
             break;
 
-
         case 27:                    // 27 = escape : go back to the menu
             clear();
             exit(7);
             break;
 
-
         case KEY_RESIZE:                         // if the user resize the window, we update the window
-
-
             showIceFloe(board, player, nbPlayer);
             mvprintw(0, 50, " tour : %d", turn);
             mvprintw(5, 100, "%s", player[currentPlayer].name); // debug only
@@ -712,8 +705,8 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
     }
 
     showIceFloe(board, player, nbPlayer);
-    if(isBlocked == 1){
-        *retry = 1;
+    if(isBlocked == 1){                         // if the penguin is blocked (ie the movement wanted by user is impossible)
+        *retry = 1;                             // the user will have to choose another movement
         mvprintw(15, 100, "This move isn't valid please choose an other move");
         board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
         virtualPenguin->tileY = initialPosY;
@@ -726,19 +719,19 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
 
 void deplacement(Tile **board, Player *player, Penguin *virtualPenguin, int touc, int nbPlayer, int currentPlayer, int turn) {
 
-    int touch;
+    int touch;              // Input from user
     mvprintw(15, 100, "                                                                                   ");
 
     int movementNb;
-    int retry = 0;
+    int retry = 0;           // Did the user messed up input (pressed the wrong key)
 
 
     do {
         board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
         showIceFloe(board, player, nbPlayer);
 
-        if(retry == 1){
-            mvprintw(16, 100, "Please press k ");
+        if(retry == 1){                             // If the movement requested by user is impossible
+            mvprintw(16, 100, "Please press k ");   // We tell the user to press k to retry another movement
             do{
                 touch = getch();
             }while(touch != 'k');
