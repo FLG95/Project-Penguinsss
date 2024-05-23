@@ -1,4 +1,3 @@
-#
 #include "ncurses.h"
 #include "locale.h"
 //#include "ncurses\curses.h"
@@ -299,7 +298,15 @@ int showTile(Tile tile, Player *player, int nbPlayer) {     // print a "tile" wi
 int x = tile.posX;
 int y = tile.posY;
 int color;
-if (tile.isAlive == 0) {            // if tile not alive, then don't go further : no tile draw
+if (tile.isAlive == 0) { 
+    init_pair(27, COLOR_WHITE, COLOR_CYAN);
+    attron(COLOR_PAIR(27));
+    mvprintw(y, x + 2, "   ");
+    mvprintw(y + 1, x, "       ");
+    mvprintw(y + 2, x, "       ");
+    mvprintw(y + 3, x + 2, "   ");
+
+    attroff(COLOR_PAIR(27));           // if tile not alive, then don't go further : no tile draw
     return 0;
 }
 
@@ -312,7 +319,7 @@ if (tile.isRed == 1) {
 }
 
 init_pair(10, COLOR_WHITE, COLOR_RED);
-init_pair(11, COLOR_WHITE, COLOR_CYAN);
+init_pair(11, COLOR_WHITE, COLOR_WHITE);
 
 
 attron(COLOR_PAIR(color));
@@ -369,6 +376,7 @@ mvprintw(y + 3, x + 2, "   ");
 
 
 void showIceFloe(Tile **board, Player *player, int nbPlayer) {              // shows the ice floe and score
+    
     for (int i = 0; i < l; i++) { // on boucle sur le nb de ligne
         for (int j = 0; j < c; j++) { //on boucle sur le nb de colone par ligne
             showTile(board[i][j], player, nbPlayer); // on print la tile grace aux donnés stocké dans board
@@ -406,7 +414,7 @@ void InitCurse() {                  // curses initialization for our window
 
 void HomePage(){                    // This is the home page which is displayed when the game is launched
 
-    int title_length = strlen("CY FISH");
+    int title_length = strlen("      CCCCCCCCCCCCCYYYYYYY       YYYYYYY     FFFFFFFFFFFFFFFFFFFFFFIIIIIIIIII   SSSSSSSSSSSSSSS HHHHHHHHH     HHHHHHHHH");
     int title_width = (getmaxx(stdscr) - title_length) / 2;
 
 
@@ -414,13 +422,49 @@ void HomePage(){                    // This is the home page which is displayed 
     init_pair(12, COLOR_WHITE, COLOR_BLACK);
 
     attron(COLOR_PAIR(11));
-    mvprintw(1, title_width, "CY FISH"); //affiche a la ligne 1 et colonne title length (pour le centrer)
+    mvprintw(1, title_width, "       CCCCCCCCCCCCCYYYYYYY       YYYYYYY     FFFFFFFFFFFFFFFFFFFFFFIIIIIIIIII   SSSSSSSSSSSSSSS HHHHHHHHH     HHHHHHHHH"); //affiche a la ligne 1 et colonne title length (pour le centrer)
+    mvprintw(2, title_width, "     CCC::::::::::::CY:::::Y       Y:::::Y     F::::::::::::::::::::FI::::::::I SS:::::::::::::::SH:::::::H     H:::::::H");
+    mvprintw(3, title_width, "   CC:::::::::::::::CY:::::Y       Y:::::Y     F::::::::::::::::::::FI::::::::IS:::::SSSSSS::::::SH:::::::H     H:::::::H");
+    mvprintw(4, title_width, "  C:::::CCCCCCCC::::CY::::::Y     Y::::::Y     FF::::::FFFFFFFFF::::FII::::::IIS:::::S     SSSSSSSHH::::::H     H::::::HH");
+    mvprintw(5, title_width, " C:::::C       CCCCCCYYY:::::Y   Y:::::YYY       F:::::F       FFFFFF  I::::I  S:::::S              H:::::H     H:::::H");
+    mvprintw(6, title_width, "C:::::C                 Y:::::Y Y:::::Y          F:::::F               I::::I  S:::::S              H:::::H     H:::::H");
+    mvprintw(7, title_width, "C:::::C                  Y:::::Y:::::Y           F::::::FFFFFFFFFF     I::::I   S::::SSSS           H::::::HHHHH::::::H");
+    mvprintw(8, title_width, "C:::::C                   Y:::::::::Y            F:::::::::::::::F     I::::I    SS::::::SSSSS      H:::::::::::::::::H");
+    mvprintw(9, title_width, "C:::::C                    Y:::::::Y             F:::::::::::::::F     I::::I      SSS::::::::SS    H:::::::::::::::::H");
+    mvprintw(10, title_width, "C:::::C                     Y:::::Y              F::::::FFFFFFFFFF     I::::I         SSSSSS::::S   H::::::HHHHH::::::H");
+    mvprintw(11, title_width, "C:::::C                     Y:::::Y              F:::::F               I::::I              S:::::S  H:::::H     H:::::H");
+    mvprintw(12, title_width, " C:::::C       CCCCCC       Y:::::Y              F:::::F               I::::I              S:::::S  H:::::H     H:::::H");
+    mvprintw(13, title_width, "  C:::::CCCCCCCC::::C       Y:::::Y            FF:::::::FF           II::::::IISSSSSSS     S:::::SHH::::::H     H::::::HH");
+    mvprintw(14, title_width, "   CC:::::::::::::::C    YYYY:::::YYYY         F::::::::FF           I::::::::IS::::::SSSSSS:::::SH:::::::H     H:::::::H");
+    mvprintw(15, title_width, "     CCC::::::::::::C    Y:::::::::::Y         F::::::::FF           I::::::::IS:::::::::::::::SS H:::::::H     H:::::::H");
+    mvprintw(16, title_width, "        CCCCCCCCCCCCC    YYYYYYYYYYYYY         FFFFFFFFFFF           IIIIIIIIII SSSSSSSSSSSSSSS   HHHHHHHHH     HHHHHHHHH");
 
     attroff(COLOR_PAIR((11)));
     attron(COLOR_PAIR(12));
 
-    mvprintw(3, 2, "START THE GAME");
-    mvprintw(4, 2, "EXIT");
+    int start_length = strlen(" _ __     ___| |_ __ _ _ __| |_  | |_| |__   ___    __ _  __ _ _ __ ___   ___");
+    int start_width = (getmaxx(stdscr) - start_length) / 2;
+
+    mvprintw(20, start_width, "              _             _     _   _");
+    mvprintw(21, start_width, "             | |           | |   | | | |");
+    mvprintw(22, start_width, " _ __     ___| |_ __ _ _ __| |_  | |_| |__   ___    __ _  __ _ _ __ ___   ___");
+    mvprintw(23, start_width, "| '_ \\   / __| __/ _` | '__| __| | __| '_ \\ / _ \\  / _` |/ _` | '_ ` _ \\ / _ \\");
+    mvprintw(24, start_width, "| |_) |   \\__\\ || (_| | |  | |_  | |_| | | |  __/ | (_| | (_| | | | | | |  __/");
+    mvprintw(25, start_width, "| .__(_) |___/\\__\\__,_|_|   \\__|  \\__|_| |_|\\___|  \\__, |\\__,_|_| |_| |_|\\___|");
+    mvprintw(26, start_width, "| |                                                 __/ |");
+    mvprintw(27, start_width, "|_|                                                |___/");
+
+    int exit_length = strlen("|  __/ __|/ __/ _` | '_ \\/ _ \\  |  __\\\\/ / | __|");
+    int exit_width = (getmaxx(stdscr) - exit_length) / 2;
+
+    mvprintw(30, exit_width, " _____                           _____     _ _");
+    mvprintw(31, exit_width, "|  ___|                         |  ___|   (_) |");
+    mvprintw(32, exit_width, "| |__ ___  ___ __ _ _ __  ___   | |____  ___| |_");
+    mvprintw(33, exit_width, "|  __/ __|/ __/ _` | '_ \\/ _ \\  |  __\\\\/ / | __|");
+    mvprintw(34, exit_width, "| |__\\__\\ (_| (_| | |_) |  __/_ | |___>  <| | |_");
+    mvprintw(35, exit_width, "\\____/___/\\___\\__,_| .__/\\___(_)\\____/_/\\_\\_|\\__|");
+    mvprintw(36, exit_width, "                   | |");
+    mvprintw(37, exit_width, "                   |_|");
 
     attroff(COLOR_PAIR(12));
 }
@@ -897,7 +941,7 @@ void Game(Tile **board, int* rematch) {                 // the main game functio
             clear();
             showIceFloe(board, player, nbPlayer);
 
-            mvprintw(0, 50, " tour : %d", turn);
+            mvprintw(2, 36, " tour : %d", turn);
             mvprintw(5, 100, "%s", player[currentPlayer].name); // debug only
 
             colorPerPlayer(currentPlayer);
