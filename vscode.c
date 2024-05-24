@@ -292,16 +292,19 @@ void ColorPenguins(Tile tile, Player *player, int nbPlayer, int y, int x) {
 
 
 int showTile(Tile tile, Player *player, int nbPlayer) {     // print a "tile" with the coordinates stored in the "Tile" parameter
-int x = tile.posX;
-int y = tile.posY;
-int color;
-if (tile.isAlive == 0) { 
-    init_pair(27, COLOR_WHITE, COLOR_CYAN);
-    attron(COLOR_PAIR(27));
-    mvprintw(y, x + 2, "   ");
-    mvprintw(y + 1, x, "       ");
-    mvprintw(y + 2, x, "       ");
-    mvprintw(y + 3, x + 2, "   ");
+    int x = tile.posX;
+    int y = tile.posY;
+    int color;
+    if (tile.isAlive == 0) {            // if tile not alive, then don't go further : no tile draw
+       init_pair(27, COLOR_WHITE, COLOR_BLUE);
+        attron(COLOR_PAIR(27));
+        mvprintw(y, x + 2, "   ");
+        mvprintw(y + 1, x, "       ");
+        mvprintw(y + 2, x, "       ");
+        mvprintw(y + 3, x + 2, "   ");
+        attroff(COLOR_PAIR(27));
+        return 0;
+    }
 
     attroff(COLOR_PAIR(27));           // if tile not alive, then don't go further : no tile draw
     return 0;
@@ -375,7 +378,16 @@ init_pair(11, COLOR_WHITE, COLOR_WHITE);
 
 
 void showIceFloe(Tile **board, Player *player, int nbPlayer) {              // shows the ice floe and score
-    
+
+    /*
+    init_pair(20, COLOR_WHITE, COLOR_BLUE);
+    attron(COLOR_PAIR(20));
+    for (int i = 0; i < 38; ++i) {
+        mvprintw( 3+i, 4, "                                                                             ");
+    }
+    attroff(COLOR_PAIR(20));
+    */
+
     for (int i = 0; i < l; i++) { // on boucle sur le nb de ligne
         for (int j = 0; j < c; j++) { //on boucle sur le nb de colone par ligne
             showTile(board[i][j], player, nbPlayer); // on print la tile grace aux donnés stocké dans board
@@ -913,12 +925,12 @@ void Winners(Player *player, int SIZE){
     }
 
     if(nbwinner == 1){    //on affiche le nom du ou des gagnants en cas d'égalité
-        mvprintw(10, 110, "La gagnant est %c", winners[0].name);
+        mvprintw(10, 110, "La gagnant est %s", winners[0].name);
     }
     else{
         mvprintw(10, 110, "Les gagnant est sont:");
         for(int i = 0; i < nbwinner; i++){
-            mvprintw(10, 110, "%c\n", winners[i].name);
+            mvprintw(10, 110, "%s\n", winners[i].name);
         }
     }
 }
@@ -1162,8 +1174,6 @@ void Game(Tile **board, int* rematch) {                 // the main game functio
     refresh();
     scanw("%d", &(*rematch));
 
-
-    // Afficher le gagnant le score de chaque joueur et proposé de rematch quitteez revenir au menue ect...
 }
 
 
@@ -1186,7 +1196,7 @@ int main() {
         refresh();
         board = createBoard();
         Game(board, &rematch);
-    } while (rematch);
+    } while (rematch == 1);
 
 
     //showScore(players);
