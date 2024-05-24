@@ -734,9 +734,7 @@ void movePreview(Tile **board, Player *player, Penguin *virtualPenguin, int touc
 
         case KEY_RESIZE:                         // If the user resize the window, we update the window
             showIceFloe(board, player, nbPlayer);
-            mvprintw(0, 50, " tour : %d", turn);
-            mvprintw(5, 100, "%s", player[currentPlayer].name); // Debug only
-            colorPerPlayer(currentPlayer);
+            mvprintw(2, 35, " tour : %d", turn);
 
             for (int i = 0; i < PenguinsPerPlayer(nbPlayer); ++i) {
                 if(player[currentPlayer].penguin[i].isMoveable){
@@ -1030,8 +1028,7 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
 
                     case KEY_RESIZE:
                         showIceFloe(board, player, nbPlayer);
-                        mvprintw(0, 50, " Turn : %d", turn);
-                        mvprintw(5, 100, "%s", player[currentPlayer].name); // Debug only
+                        mvprintw(2, 36, " tour : %d", turn);
                         for (int i = 0; i < nbPenguin; ++i) {
                             if(player[currentPlayer].penguin[i].isMoveable){
                                 mvprintw(7 + i, 100, "Penguin %d : in y: %d, x: %d", i + 1,
@@ -1117,9 +1114,7 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
                         case KEY_RESIZE:
 
                             showIceFloe(board, player, nbPlayer);
-                            mvprintw(0, 50, " Turn : %d", turn);
-                            mvprintw(5, 100, "%s", player[currentPlayer].name); // debug only
-                            colorPerPlayer(currentPlayer);
+                            mvprintw(2, 36, " tour : %d", turn);
                             for (int i = 0; i < nbPenguin; ++i) {
                                 if(player[currentPlayer].penguin[i].isMoveable){
                                     mvprintw(7 + i, 100, "Penguin %d : in y: %d, x: %d", i + 1,
