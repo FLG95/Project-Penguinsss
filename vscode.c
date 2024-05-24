@@ -921,7 +921,7 @@ void Winners(Player *player, int SIZE){
     else{
         mvprintw(10, 110, "The winners are : ");
         for(int i = 0; i < nbwinner; i++){
-            mvprintw(10, 110, "%c\n", winners[i].name);
+            mvprintw(10, 110, "%s\n", winners[i].name);
         }
     }
 }
@@ -1165,8 +1165,6 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
     refresh();
     scanw("%d", &(*rematch));
 
-
-    // Afficher le gagnant le score de chaque joueur et proposé de rematch quitteez revenir au menue ect...
 }
 
 
@@ -1189,7 +1187,7 @@ int main() {
         refresh();
         board = createBoard();
         Game(board, &rematch);
-    } while (rematch);
+    } while (rematch == 1);
 
 
     //showScore(players);
