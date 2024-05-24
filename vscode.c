@@ -735,11 +735,11 @@ void Inputs(Tile **board, Player *player, Penguin *virtualPenguin, int touch, in
 
             for (int i = 0; i < PenguinsPerPlayer(nbPlayer); ++i) {
                 if(player[currentPlayer].penguin[i].isMoveable){
-                    mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d", i + 1,
+                    mvprintw(7 + i, 100, "penguins %d : in y: %d, x: %d", i + 1,
                              player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
                 }
                 else{
-                    mvprintw(7 + i, 100, "penguins: %d  in y: %d, x: %d NOT MOVEABLE", i + 1, player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
+                    mvprintw(7 + i, 100, "penguins %d : in y: %d, x: %d NOT MOVEABLE", i + 1, player[currentPlayer].penguin[i].tileY, player[currentPlayer].penguin[i].tileX);
                 }
             }
             mvprintw(13, 100, "Enter the number of movement you want to do ( between 1 and 6 ), then press enter.");
@@ -813,7 +813,7 @@ void deplacement(Tile **board, Player *player, Penguin *virtualPenguin, int touc
     } while (touch != 'a' && touch != 'e' && touch != 'q' && touch != 'd' && touch != 'w' && touch != 'c' || retry == 1); // While the user is pressing keys other than those expected
 
 
-    mvprintw(15, 100, "Press L to confirm your deplacement or press k to remake it            ");
+    mvprintw(15, 100, "Press l to confirm your deplacement or press k to remake it            ");
     refresh();
     board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
 }
@@ -989,7 +989,7 @@ void Game(Tile **board, int* rematch) {                 // the main game functio
             do {
                 touch = getch();
                 switch (touch) {
-                    case 'a': //a
+                    case 1: //a
 
                         if(player[currentPlayer].penguin[0].isMoveable == 1){
                             selectedPenguinNb = 0;
@@ -1000,7 +1000,7 @@ void Game(Tile **board, int* rematch) {                 // the main game functio
                         }
 
                         break;
-                    case 'z': //z
+                    case 2: //z
                         if(player[currentPlayer].penguin[1].isMoveable == 1){
                             selectedPenguinNb = 1;
                             impossibleSelection = 0;
@@ -1008,7 +1008,7 @@ void Game(Tile **board, int* rematch) {                 // the main game functio
                         else{
                             impossibleSelection = 1;
                         }
-                    case 'e': //e
+                    case 3: //e
                         if(player[currentPlayer].penguin[2].isMoveable == 1){
                             selectedPenguinNb = 2;
                             impossibleSelection = 0;
@@ -1016,7 +1016,7 @@ void Game(Tile **board, int* rematch) {                 // the main game functio
                         else{
                             impossibleSelection = 1;
                         }
-                    case 'r': //r
+                    case 4: //r
                         if(player[currentPlayer].penguin[3].isMoveable == 1){
                             selectedPenguinNb = 3;
                             impossibleSelection = 0;
