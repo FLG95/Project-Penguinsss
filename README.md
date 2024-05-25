@@ -45,7 +45,7 @@ git clone https://github.com/FLG95/Project-Pinguinsss.git
 
 4. Launch the game :
 ```
-.\exe
+.\NFS_Penguins
 ```
 4. Enjoy ! 🐧
 
