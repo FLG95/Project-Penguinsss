@@ -190,10 +190,12 @@ Player *createTabPlayers(Tile **board, int nbPlayer) {
 
     // Going through this tab and ask for the name of each player
     for (int i = 0; i < nbPlayer; ++i) {
-        mvprintw(5+i, 2, "Enter the name of the player %d :\n", i + 1); // Print this message in the window
-        refresh();                                                      // We update the window, because otherwise we can't see the difference
-        scanw("%s", name);
-        length = strlen(name);
+        do{
+            mvprintw(5+i, 2, "Enter the name of the player %d :\n", i + 1); // Print this message in the window
+            refresh();                                                      // We update the window, because otherwise we can't see the difference
+            scanw("%s", name);
+            length = strlen(name);
+        }while(length != 0);
 
         // We use dynamic allocation for the player's name
         tabPlayers[i].name = malloc(length * sizeof(char));
@@ -984,9 +986,11 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
     } while (touch != 'p');               // While the user hasn't started a game
 
     clear();
-    mvprintw(4, 2, "How many players? (between 2 and 6) press enter after you press the number");
-    refresh();
-    scanw("%d", &nbPlayer);
+    do{
+        mvprintw(4, 2, "How many players? (between 2 and 6) press enter after you press the number");
+        refresh();
+        scanw("%d", &nbPlayer);
+    }while(nbPlayer<2 || nbPlayer>6);
 
     player = createTabPlayers(board, nbPlayer);
     nbPenguin = PenguinsPerPlayer(nbPlayer);
@@ -1175,9 +1179,11 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
         Winners(player, nbPlayer-1);
     }
 
-    mvprintw(10, 2, "Press 1 if you want to Rematch or press 2 if you want to leave the game, then press Enter");
-    refresh();
-    scanw("%d", &(*rematch));
+    do{
+        mvprintw(10, 2, "Press 1 if you want to Rematch or press 2 if you want to leave the game, then press Enter");
+        refresh();
+        scanw("%d", &(*rematch));
+    }while(*rematch !=1 || *rematch !=2);
 
 }
 
