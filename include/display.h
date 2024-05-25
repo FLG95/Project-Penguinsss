@@ -2,26 +2,17 @@
 #ifndef PROJECT_PINGUINSSS_DISPLAY_H
 #define PROJECT_PINGUINSSS_DISPLAY_H
 
-#include "ncurses.h"
 #include "create.h"
 
 
 
-typedef struct {
-    int x;
-    int y;
-} PinguinCoords;
 
-void printEmoji(int x, int y);
-void showTiles(int x, int y);
-void showBoard(Tile** board, WINDOW *window, int l, int c);
-void showIceFloe(int x, int y);
-void destroyTiles(Tile tiles);
-
-void makeWindow();
-void Inputs();
-
-
+void colorPerPlayer(int currentPlayer);     // At the beginning of the game, we give a penguin color to every player
+void ColorPenguins(Tile tile, Player *player, int nbPlayer, int y, int x);
+int showTile(Tile tile, Player *player, int nbPlayer);     // Print a "tile" with the coordinates stored in the "Tile" parameter
+void showIceFloe(Tile **board, Player *player, int nbPlayer);              // Shows the ice floe and score
+void InitCurse();                  // curses initialization for our window
+void HomePage();                    // This is the home page which is displayed when the game is launched
 
 
 #endif //PROJECT_PINGUINSSS_DISPLAY_H
