@@ -137,6 +137,10 @@ Penguin createPenguin(Tile **board, int color) {
     int randX, randY;
     Penguin penguin;
 
+    if(!board){
+        exit(1);
+    }
+
     // Penguins are spawning randomly on the game board  
     randX = rand() % 9;
     randY = rand() % 9;
@@ -170,6 +174,10 @@ Player *createTabPlayers(Tile **board, int nbPlayer) {
     char name[100];
     Player *tabPlayers;                 // tab of players
 
+    if(!board){
+        exit(1);
+    }
+
     while (nbPlayer < 2 || nbPlayer > 6) {
         scanw("%d", &nbPlayer);                                 // scanw is part of the ncurses library : <=> scanf but in the game window
     }
@@ -182,8 +190,8 @@ Player *createTabPlayers(Tile **board, int nbPlayer) {
 
     // Going through this tab and ask for the name of each player
     for (int i = 0; i < nbPlayer; ++i) {
-        mvprintw(5+i, 2, "Enter the name of the player %d :\n", i + 1);
-        refresh();
+        mvprintw(5+i, 2, "Enter the name of the player %d :\n", i + 1); // Print this message in the window
+        refresh();                                                      // We update the window, because otherwise we can't see the difference
         scanw("%s", name);
         length = strlen(name);
 
@@ -216,44 +224,48 @@ Player *createTabPlayers(Tile **board, int nbPlayer) {
 }
 
 int colorPerPlayer(int currentPlayer) {     // At the beginning of the game, we give a penguin color to every player
-switch (currentPlayer) {
-    // mvprintw is part of the ncurses library
-    case 0: //Black
-        mvprintw(6, 100, "You play the black penguins");        // Print at the (y=6;x=100) coords the message
-        break;
-    case 1: // Blue
-        mvprintw(6, 100, "You play the blue penguins");
-        break;
-    case 2: // Magenta
-        mvprintw(6, 100, "You play the magenta penguins");
-        break;
-    case 3: // Red
-        mvprintw(6, 100, "You play the red penguins");
-        break;
-    case 4: // Yellow
-        mvprintw(6, 100, "You play the yellow penguins");
-        break;
-    case 5: // Green
-        mvprintw(6, 100, "You play the green penguins");
-        break;
-}
+    switch (currentPlayer) {
+        // mvprintw is part of the ncurses library
+        case 0: //Black
+            mvprintw(6, 100, "You play the black penguins");        // Print at the (y=6;x=100) coords the message
+            break;
+        case 1: // Blue
+            mvprintw(6, 100, "You play the blue penguins");
+            break;
+        case 2: // Magenta
+            mvprintw(6, 100, "You play the magenta penguins");
+            break;
+        case 3: // Red
+            mvprintw(6, 100, "You play the red penguins");
+            break;
+        case 4: // Yellow
+            mvprintw(6, 100, "You play the yellow penguins");
+            break;
+        case 5: // Green
+            mvprintw(6, 100, "You play the green penguins");
+            break;
+    }
 }
 
 void ColorPenguins(Tile tile, Player *player, int nbPlayer, int y, int x) {
     // This function displays each player's penguins with a different background to differentiate them from each other.
+    if(!player){
+        exit(1);
+    }
     switch ((tile.penguinColor)) {
-        // Each colour corresponds to the colour of a player's penguins
+        // Each color corresponds to the colour of a player's penguins
         // init_pair, attron, mvprintw, refresh an attroff are part of the ncurses library
+        // Case 1 is the only case commented because the code here is redundant
         case 1:
-            init_pair(1, COLOR_WHITE, COLOR_BLACK);           // We initialise the window background with those colors and attribute them the number 1
-            attron(COLOR_PAIR(1));                          // We start using those colors
+            init_pair(1, COLOR_WHITE, COLOR_BLACK);         // We initialise the window background with those colors and attribute them the number 1
+            attron(COLOR_PAIR(1));                          // We start using the color 1
             mvprintw(y + 1, x + 2, "🐧");                   // We print the penguin
             refresh();                                      // We update the window, because otherwise we can't see the difference
-            attroff(COLOR_PAIR(1));                         // We stop using those colors
+            attroff(COLOR_PAIR(1));                         // We stop using the color 1
             break;
 
         case 2:
-            init_pair(2, COLOR_WHITE, COLOR_BLUE);        // We initialise the window background with those colors and attribute them the number 2
+            init_pair(2, COLOR_WHITE, COLOR_BLUE);
             attron(COLOR_PAIR(2));
             mvprintw(y + 1, x + 2, "🐧");
             refresh();
@@ -261,28 +273,28 @@ void ColorPenguins(Tile tile, Player *player, int nbPlayer, int y, int x) {
             break;
 
         case 3:
-            init_pair(3, COLOR_WHITE, COLOR_MAGENTA);      // We initialise the window background with those colors and attribute them the number 3
+            init_pair(3, COLOR_WHITE, COLOR_MAGENTA);
             attron(COLOR_PAIR(3));
             mvprintw(y + 1, x + 2, "🐧");
             attroff(COLOR_PAIR(3));
             break;
 
         case 4:
-            init_pair(4, COLOR_WHITE, COLOR_RED);       // We initialise the window background with those colors and attribute them the number 4
+            init_pair(4, COLOR_WHITE, COLOR_RED);
             attron(COLOR_PAIR(4));
             mvprintw(y + 1, x + 2, "🐧");
             attroff(COLOR_PAIR(4));
             break;
 
         case 5:
-            init_pair(5, COLOR_WHITE, COLOR_YELLOW);      // We initialise the window background with those colors and attribute them the number 5
+            init_pair(5, COLOR_WHITE, COLOR_YELLOW);
             attron(COLOR_PAIR(5));
             mvprintw(y + 1, x + 2, "🐧");
             attroff(COLOR_PAIR(5));
             break;
 
         case 6:
-            init_pair(6, COLOR_WHITE, COLOR_GREEN);    // We initialise the window background with those colors and attribute them the number 6
+            init_pair(6, COLOR_WHITE, COLOR_GREEN);
             attron(COLOR_PAIR(6));
             mvprintw(y + 1, x + 2, "🐧");
             attroff(COLOR_PAIR(6));
@@ -292,36 +304,40 @@ void ColorPenguins(Tile tile, Player *player, int nbPlayer, int y, int x) {
 
 
 int showTile(Tile tile, Player *player, int nbPlayer) {     // Print a "tile" with the coordinates stored in the "Tile" parameter
-int x = tile.posX;
-int y = tile.posY;
-int color;
-if (tile.isAlive == 0) { 
-    init_pair(27, COLOR_WHITE, COLOR_CYAN);  
+    int x = tile.posX;
+    int y = tile.posY;
+    int color;
+    if(!player){
+        exit(1);
+    }
+    if (tile.isAlive == 0) { 
+        init_pair(27, COLOR_WHITE, COLOR_CYAN);  
 
-    /* We initialise the window background with those colors and attribute them the number 27. 
-    The ice floe is shown in cyan to represent the ocean after the ice pack has melted */
+        /* We initialise the window background with those colors and attribute them the number 27. 
+        The ice floe is shown in cyan to represent the ocean after the ice pack has melted */
 
-    attron(COLOR_PAIR(27));   // We start using those colors*
+        attron(COLOR_PAIR(27));   // We start using those colors*
 
-    mvprintw(y, x + 2, "   ");
-    mvprintw(y + 1, x, "       "); // If tile not alive, then don't go further : no tile draw
-    mvprintw(y + 2, x, "       ");
-    mvprintw(y + 3, x + 2, "   ");
+        mvprintw(y, x + 2, "   ");
+        mvprintw(y + 1, x, "       "); // If tile not alive, then don't go further : no tile draw
+        mvprintw(y + 2, x, "       ");
+        mvprintw(y + 3, x + 2, "   ");
 
-    attroff(COLOR_PAIR(27));    // We stop using those colors       
-    return 0;
-}
+        attroff(COLOR_PAIR(27));    // We stop using those colors       
+        return 0;
+    }
 
     // height =  4 ; width = 7
 
     if (tile.isRed == 1) {      //If the player is going to move to this square or the penguin he has selected is on this square, the square is shown in red
         color = 10;
-    } else {
+    }
+    else {
         color = 11;
     }
 
-init_pair(10, COLOR_WHITE, COLOR_RED); // We initialise the window background with those colors and attribute them the number 10
-init_pair(11, COLOR_WHITE, COLOR_WHITE); // We initialise the window background with those colors and attribute them the number 11
+    init_pair(10, COLOR_WHITE, COLOR_RED); // We initialise the window background with those colors and attribute them the number 10
+    init_pair(11, COLOR_WHITE, COLOR_WHITE); // We initialise the window background with those colors and attribute them the number 11
 
 
     attron(COLOR_PAIR(color));  // We start using those colors
@@ -353,9 +369,8 @@ init_pair(11, COLOR_WHITE, COLOR_WHITE); // We initialise the window background 
         mvprintw(y + 2, x, "       ");
         mvprintw(y + 3, x + 2, "   ");
 
-        attroff(COLOR_PAIR(color));  // We stop using those colors
+        attroff(COLOR_PAIR(color));  // We stop using this color
         ColorPenguins(tile, player, nbPlayer, y, x); // The penguin is not displayed on the tile after the player has played
-
     }
 
 
@@ -366,6 +381,10 @@ init_pair(11, COLOR_WHITE, COLOR_WHITE); // We initialise the window background 
 
 
 void showIceFloe(Tile **board, Player *player, int nbPlayer) {              // Shows the ice floe and score
+
+    if(!player || !board){
+        exit(1);
+    }
     
     for (int i = 0; i < l; i++) { // Loop over the number of lines
         for (int j = 0; j < c; j++) { // Loop over the number of columns of rows
@@ -429,7 +448,7 @@ void HomePage(){                    // This is the home page which is displayed 
     attron(COLOR_PAIR(12));   
 
 
-        // Repeat the same steps to display the menu 
+    // Repeat the same steps to display the menu 
     int start_length = strlen(" _ __     ___| |_ __ _ _ __| |_  | |_| |__   ___    __ _  __ _ _ __ ___   ___");
     int start_width = (getmaxx(stdscr) - start_length) / 2;
 
@@ -490,6 +509,10 @@ void movePreview(Tile **board, Player *player, Penguin *virtualPenguin, int touc
     int isBlocked = 0;                                  // Can the penguin move ? (If the next tile is either not on the board, dead or taken by another penguin) 
     int initialPosX = virtualPenguin->tileX;            // Save the original x position of the virtual penguin
     int initialPosY = virtualPenguin->tileY;            // Save the original y position of the virtual penguin
+
+    if(!board || !player || !virtualPenguin || !retry){
+        exit(1);
+    }
 
     switch (touch) {  // rajouter des conditions pour x = 0;
         // In this switch, we use a "virtual penguin" to check if movements wanted by user are possible, and move the "true penguin" if possible
@@ -758,6 +781,11 @@ void movePreview(Tile **board, Player *player, Penguin *virtualPenguin, int touc
 void movePenguin(Tile **board, Player *player, Penguin *virtualPenguin, int nbPlayer, int currentPlayer, int turn) {
 
     int touch;              // Input from user
+
+    if(!board || !player || !virtualPenguin){
+        exit(1);
+    }
+
     mvprintw(15, 100, "                                                                                   ");
 
     int movementNb;
@@ -815,6 +843,9 @@ void Score(Player *player, Tile *tile) {        // Add fishes collected by the p
 }
 
 int simple(Tile** board, Penguin penguin, int y, int x) { // To make the code more readable, we have separated the conditions into several functions
+    if(!board){
+        exit(1);
+    }
     if (tileDontExist(penguin.tileY + y, penguin.tileX + x) ||
         board[penguin.tileY + y][penguin.tileX + x].isAlive == 0 ||
         board[penguin.tileY + y][penguin.tileX + x].isTherePlayer == 1) {
@@ -826,6 +857,10 @@ int simple(Tile** board, Penguin penguin, int y, int x) { // To make the code mo
 
 
 int isPenguinMoveable(Tile** board, Penguin penguin){
+
+    if(!board){
+        exit(1);
+    }
 
     if (penguin.tileY % 2 == 0) { // Conditions on even-numbered lines
 
@@ -850,7 +885,9 @@ int isPenguinMoveable(Tile** board, Penguin penguin){
 
 
 int isAllPlayerBlocked(Tile** board, Player* player, int nbPlayer){         // Reminder : if all players can't move, the game end
-
+    if(!board || !player){
+        exit(1);
+    }
     int blockedCount = 0;
     for (int i = 0; i < nbPlayer; ++i) {
         for (int j = 0; j < PenguinsPerPlayer(nbPlayer); ++j) {
@@ -876,6 +913,9 @@ int isAllPlayerBlocked(Tile** board, Player* player, int nbPlayer){         // R
 
 
 void Winners(Player *player, int SIZE){
+    if(!player){
+        exit(1);
+    }
     int j = 0;
     int nbWinner = 0;
     Player win = player[0];
@@ -911,6 +951,9 @@ void Winners(Player *player, int SIZE){
 }
 
 void Game(Tile **board, int* rematch) {                 // The main game function
+    if(!board || rematch==NULL){
+        exit(1);
+    }
     int touch;
     int turn = 0;
     int currentPlayer = 0;
