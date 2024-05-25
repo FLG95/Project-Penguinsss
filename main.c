@@ -493,6 +493,7 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
                 break;
             case 27:                        // Escape =  quit the game
                 clear();
+                endWin();
                 exit(1);
                 break;
 
