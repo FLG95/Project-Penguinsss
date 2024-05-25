@@ -31,7 +31,7 @@ void movePreview(Tile **board, Player *player, Penguin *virtualPenguin, int touc
     int initialPosX = virtualPenguin->tileX;            // Save the original x position of the virtual penguin
     int initialPosY = virtualPenguin->tileY;            // Save the original y position of the virtual penguin
 
-    if(!board || !player || !virtualPenguin || !retry){
+    if(!board || !player || !virtualPenguin || !retry){ // We check if the pointers are null if there are we leave the game
         exit(1);
     }
 
@@ -273,17 +273,18 @@ void movePreview(Tile **board, Player *player, Penguin *virtualPenguin, int touc
             colorPerPlayer(currentPlayer); // Tell the current player the color of his penguin(s)
             for (int i = 0; i < PenguinsPerPlayer(nbPlayer); ++i) {
                 if(player[currentPlayer].penguin[i].isMoveable){
-                    mvprintw(7 + i, 100, "penguins %d : in y: %d, x: %d", i + 1,
+                    mvprintw(7 + i, 100, "Penguin %d : in y: %d, x: %d", i + 1,
                              player[currentPlayer].penguin[i].tileY+1, player[currentPlayer].penguin[i].tileX+1);
                 }
                 else{
-                    mvprintw(7 + i, 100, "Penguins %d : in y: %d, x: %d NOT MOVEABLE", i + 1, player[currentPlayer].penguin[i].tileY+1, player[currentPlayer].penguin[i].tileX+1);
+                    mvprintw(7 + i, 100, "Penguin %d : in y: %d, x: %d NOT MOVEABLE", i + 1, player[currentPlayer].penguin[i].tileY+1, player[currentPlayer].penguin[i].tileX+1);
                 }
             }
-            mvprintw(13, 100, "Enter the number of movement you want to do ( between 1 and 6 ), then press enter.");
-            mvprintw(14, 100, "You will move of  %d tile(s).", movementNb);
+            mvprintw(13, 100, "Enter the number of movement you want to do ( between 1 and 6 )");
+            mvprintw(14, 100, "You will move of  %d tile(s)", movementNb);
             mvprintw(15, 100, "Now move your penguin.");
             refresh();
+            *retry = 1;
             break;
 
         default :
@@ -302,10 +303,10 @@ void movePreview(Tile **board, Player *player, Penguin *virtualPenguin, int touc
     }
 }
 
-void movePenguin(Tile **board, Player *player, Penguin *virtualPenguin, int nbPlayer, int currentPlayer, int turn) {
+void movePenguin(Tile **board, Player *player, Penguin *virtualPenguin, int nbPlayer, int currentPlayer, int selectedPenguinNb, int turn) {
 
+    int nbPenguin = PenguinsPerPlayer(nbPlayer);
     int touch;              // Input from user
-
     if(!board || !player || !virtualPenguin){
         exit(1);
     }
@@ -318,26 +319,72 @@ void movePenguin(Tile **board, Player *player, Penguin *virtualPenguin, int nbPl
     do {
         board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
         showIceFloe(board, player, nbPlayer);
-
         if(retry == 1){                             // If the movement requested by user is impossible
-            mvprintw(16, 100, "Please press k ");   // We tell the user to press k to retry another movement
+            mvprintw(16, 100, "Please press 1 ");   // We tell the user to press k to retry another movement
             refresh();
             do{
                 touch = getch();
-            }while(touch != 'k');
+            }while(touch != '1');
             mvprintw(15, 100, "                                                                          ");
             mvprintw(16, 100, "                                                 ");
             refresh();
-
             board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
         }
 
         do{
-            movementNb = 0;
-            mvprintw(13, 100, "Enter the number of movement you want to do ( between 1 and 6 ), then press enter.");
+            mvprintw(13, 100, "Enter the number of movement you want to do ( between 1 and 6 )");
             refresh();
-            scanw("%d", &movementNb);
-        }while( movementNb < 1 || movementNb > 6);
+            touch = getch();
+            switch(touch){
+                case '1':
+                    movementNb = 1;
+                    break;
+
+                case '2':
+                    movementNb = 2;
+                    break;
+
+                case '3':
+                    movementNb = 3;
+                    break;
+
+                case '4':
+                    movementNb = 4;
+                    break;
+
+                case '5':
+                    movementNb = 5;
+                    break;
+
+                case '6':
+                    movementNb = 6;
+                    break;
+
+                case KEY_RESIZE:
+                    showIceFloe(board, player, nbPlayer);
+                    mvprintw(2, 36, " Tour : %d", turn);
+                    mvprintw(5, 100, "Player %d : %s", currentPlayer+1, player[currentPlayer].name); // Debug only
+                    colorPerPlayer(currentPlayer); // Tell the current player the color of his penguin(s)
+                    for (int i = 0; i < nbPenguin; ++i) {
+                        if(player[currentPlayer].penguin[i].isMoveable){
+                            mvprintw(7 + i, 100, "Penguin %d : in y: %d, x: %d", i + 1,
+                                     player[currentPlayer].penguin[i].tileY+1, player[currentPlayer].penguin[i].tileX+1);
+                        }
+                        else{
+                            mvprintw(7 + i, 100, "Penguin %d :   in y: %d, x: %d NOT MOVEABLE", i + 1,
+                                     player[currentPlayer].penguin[i].tileY+1, player[currentPlayer].penguin[i].tileX+1);
+                        }
+                    }
+                    mvprintw(11, 100, "Press the number of the penguin you want to play");
+                    mvprintw(12, 100, "You chose the penguin %d", selectedPenguinNb+1);
+                    mvprintw(13, 100, "Enter the number of movement you want to do. Between 1 and 6.");
+                    refresh();
+                    break;
+
+                default:
+                    break;
+            }
+        }while( touch != '1' && touch != '2' && touch != '3' && touch != '4' && touch != '5' && touch != '6');
 
         retry = 0;
         mvprintw(14, 100, "You will move of  %d tile(s)", movementNb);
@@ -345,14 +392,13 @@ void movePenguin(Tile **board, Player *player, Penguin *virtualPenguin, int nbPl
         refresh();
         touch = getch();
         movePreview(board, player, virtualPenguin, touch, nbPlayer, movementNb, &retry, currentPlayer, turn);
-
         mvprintw(13, 100, "                                                                                      ");
         mvprintw(14, 100, "                                                                                      ");
         refresh();
 
     } while (touch != 'a' && touch != 'e' && touch != 'q' && touch != 'd' && touch != 'w' && touch != 'c' || retry == 1); // While the user is pressing keys other than those expected
 
-    mvprintw(15, 100, "Press l to confirm your move or press k to remake it            ");
+    mvprintw(15, 100, "Press 1 to confirm your move or press 2 to remake it            ");
     refresh();
     board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 0;
 }
@@ -493,7 +539,7 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
                 break;
             case 27:                        // Escape =  quit the game
                 clear();
-                endWin();
+                endwin();
                 exit(1);
                 break;
 
@@ -505,13 +551,45 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
                 break;
         }
     } while (touch != 'p');               // While the user hasn't started a game
-
     clear();
+
     do{
-        mvprintw(4, 2, "How many players? (between 2 and 6) press enter after you press the number");
+        mvprintw(4, 2, "How many players? (between 2 and 6)");
         refresh();
-        scanw("%d", &nbPlayer);
-    }while(nbPlayer<2 || nbPlayer>6);
+        touch = getch();
+        switch (touch) {
+            case '2':
+                nbPlayer = 2;
+                break;
+
+            case '3':
+                nbPlayer = 3;
+                break;
+
+            case '4':
+
+                nbPlayer = 4;
+                break;
+
+            case '5':
+
+                nbPlayer = 5;
+                break;
+
+            case '6':
+                nbPlayer = 6;
+                break;
+
+            case KEY_RESIZE:
+                mvprintw(4, 2, "How many players? (between 2 and 6)");
+                break;
+
+            case 27:
+                returnMenu = 1;
+                break;
+
+        }
+    }while(touch != '2' && touch != '3' && touch != '4' && touch != '5' && touch != '6');
 
     player = createTabPlayers(board, nbPlayer);
     nbPenguin = PenguinsPerPlayer(nbPlayer);
@@ -535,12 +613,12 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
                     mvprintw(7 + i, 100, "Penguin %d : in y: %d, x: %d NOT MOVEABLE", i + 1, player[currentPlayer].penguin[i].tileY+1, player[currentPlayer].penguin[i].tileX+1);  //  If the pinguin is blocked and can no longer move, "NOT MOVEABLE" is displayed next to it
                 }
             }
-            mvprintw(11, 100, "Choose Your Penguin : ");
 
+            mvprintw(11, 100, "Press the number of the penguin you want to play");
             do { // We wait for the user to press the good key for the selection of his penguins
                 touch = getch();
                 switch (touch) {
-                    case 'y': //a
+                    case '1':
                         if(player[currentPlayer].penguin[0].isMoveable == 1){
                             selectedPenguinNb = 0;
                             impossibleSelection = 0;
@@ -548,9 +626,9 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
                         else{
                             impossibleSelection = 1;
                         }
-
                         break;
-                    case 'u': //z
+
+                    case '2':
                         if(player[currentPlayer].penguin[1].isMoveable == 1){
                             selectedPenguinNb = 1;
                             impossibleSelection = 0;
@@ -559,7 +637,8 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
                             impossibleSelection = 1;
                         }
                         break;
-                    case 'i': //e
+
+                    case '3':
                         if(player[currentPlayer].penguin[2].isMoveable == 1){
                             selectedPenguinNb = 2;
                             impossibleSelection = 0;
@@ -568,7 +647,8 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
                             impossibleSelection = 1;
                         }
                         break;
-                    case 'o': //r
+
+                    case '4':
                         if(player[currentPlayer].penguin[3].isMoveable == 1){
                             selectedPenguinNb = 3;
                             impossibleSelection = 0;
@@ -594,8 +674,7 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
                                 impossibleSelection = 1;
                             }
                         }
-
-                        mvprintw(11, 100, "Choose Your penguin : ");
+                        mvprintw(11, 100, "Press the number of the penguin you want to play");
                         refresh();
                         break;
 
@@ -606,56 +685,46 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
                     default:
                         break;
                 }
-            } while ((touch != 'a' && touch != 'z' && touch != 'e' && touch != 'r' || selectedPenguinNb > nbPenguin || impossibleSelection) && !returnMenu);
-
+            } while ((touch != '1' && touch != '2' && touch != '3' && touch != '4' || selectedPenguinNb > nbPenguin || impossibleSelection) && !returnMenu);
             mvprintw(12, 100, "You chose the penguin %d", selectedPenguinNb+1);
             refresh();
             Penguin virtualPenguin = player[currentPlayer].penguin[selectedPenguinNb];
             board[virtualPenguin.tileY][virtualPenguin.tileX].isRed = 1;
             showIceFloe(board, player, nbPlayer); // Refresh the board to show the red selection tile
 
-
             disableL = 1;
-            if(!returnMenu){
-                touch = 'k';
-                passK = 1;
-            }
 
             if(!returnMenu){
+                touch = '2';
+                passK = 1;
                 do {
                     if(passK != 1){
                         touch = getch();
                     }
-
                     switch (touch) {
-                        case 'l':
-
+                        case '1':
                             if(disableL == 1){
                                 break;
                             }
 
                             board[player[currentPlayer].penguin[selectedPenguinNb].tileY][player[currentPlayer].penguin[selectedPenguinNb].tileX].isTherePlayer = 0;
                             board[player[currentPlayer].penguin[selectedPenguinNb].tileY][player[currentPlayer].penguin[selectedPenguinNb].tileX].isAlive = 0;
-
                             player[currentPlayer].penguin[selectedPenguinNb] = virtualPenguin;
                             Score(&player[currentPlayer], &board[virtualPenguin.tileY][virtualPenguin.tileX]);  // Add fishes collected by the player to his points
-
                             board[virtualPenguin.tileY][virtualPenguin.tileX].isTherePlayer = 1;
                             board[virtualPenguin.tileY][virtualPenguin.tileX].penguinColor = currentPlayer + 1; // +1 parce que currentPlayer commence a 0 alors que le system de couleur commence a 1
-
                             break;
 
-                        case 'k':
+                        case '2':
 
                             board[virtualPenguin.tileY][virtualPenguin.tileX].isRed = 0;
                             virtualPenguin = player[currentPlayer].penguin[selectedPenguinNb];
                             showIceFloe(board, player, nbPlayer);
-                            movePenguin(board, player, &virtualPenguin, nbPlayer, currentPlayer, turn);
+                            movePenguin(board, player, &virtualPenguin, nbPlayer, currentPlayer, selectedPenguinNb, turn);
                             disableL = 0;
                             break;
 
                         case KEY_RESIZE:
-
                             showIceFloe(board, player, nbPlayer);
                             mvprintw(2, 36, " Tour : %d", turn);
                             mvprintw(5, 100, "Player %d : %s", currentPlayer+1, player[currentPlayer].name); // Debug only
@@ -670,10 +739,10 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
                                              player[currentPlayer].penguin[i].tileY+1, player[currentPlayer].penguin[i].tileX+1);
                                 }
                             }
-                            mvprintw(11, 100, "Choose Your penguin");
+                            mvprintw(11, 100, "Press the number of the penguin you want to play");
                             mvprintw(12, 100, "You chose the penguin %d", selectedPenguinNb+1);
                             mvprintw(13, 100, "Enter the number of movement you want to do. Between 1 and 6.");
-                            mvprintw(15, 100, "Press l to confirm your move or press k to remake it           "); // The "     " are here to write of some other line
+                            mvprintw(15, 100, "Press 1 to confirm your move or press 2 to remake it           "); // The "     " are here to write of some other line
                             mvprintw(16, 100, "                                                ");
                             refresh();
                             break;
@@ -687,7 +756,7 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
                     }
                     passK = 0;
 
-                } while ((touch != 'l' || disableL == 1) && !returnMenu);
+                } while ((touch != '1' || disableL == 1) && !returnMenu);
             }
         }
 
@@ -711,13 +780,6 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
 }
 
 
-
-
-
-
-
-
-
 void InitCurse() {                  // curses initialization for our window
     // All the functions are part of the curses library
     setlocale(LC_ALL, "");          // Check if the shell is in "UTF-8"
@@ -730,14 +792,13 @@ void InitCurse() {                  // curses initialization for our window
     refresh();                      // Refresh the window so all we did here is saved
 }
 
+
 int main() {
     int nbPlayer;
     int rematch = 0;
     Tile **board = NULL;
     Player *players = NULL;
-
     srand(time(NULL));                      // Necessary for the rand() function to work proprely
-
     InitCurse();                            // Initialising curses
 
     do{
@@ -747,7 +808,7 @@ int main() {
         Game(board, &rematch);
     } while (rematch == 1);
 
-
+    
     endwin();                               // Close the window and disable ncurses
 
     // Freeing all the memory used

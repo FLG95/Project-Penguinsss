@@ -166,27 +166,22 @@ void showIceFloe(Tile **board, Player *player, int nbPlayer) {              // S
     if(!player || !board){
         exit(1);
     }
-
     for (int i = 0; i < l; i++) { // Loop over the number of lines
         for (int j = 0; j < c; j++) { // Loop over the number of columns of rows
             showTile(board[i][j], player, nbPlayer); // We print the tile using the data stored in board
         }
     }
-
     // At each frame, the score for each player is updated
     mvprintw(5, 150, "Score : ");
     for (int i = 0; i < nbPlayer; ++i) {
         mvprintw(6 + i, 150, "%s : %d", player[i].name, player[i].score);
     }
-
     for (int i = 0; i < l; ++i) {
         mvprintw( startTilesTabY + i * tileHeight, 3, "%d", i+1);
     }
-
     for (int i = 0; i < c; ++i) {
         mvprintw( 3, startTilesTabX + 3 + i * tileWidth, "%d", i+1);
     }
-
     refresh();
 }
 
