@@ -6,3 +6,4 @@ deps/
 *.dll
 **/*/.exe
 *.o
+CMakeLists.txt

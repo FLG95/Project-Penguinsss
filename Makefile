@@ -5,7 +5,7 @@ CC = gcc
 CFLAGS = -std=c11
 
 # Libraries
-LIBS = -lncurses
+LIBS = -lncursesw
 
 # Source files
 SRC = main.c display.c create.c
@@ -14,7 +14,7 @@ SRC = main.c display.c create.c
 OBJ = $(SRC:.c=.o)
 
 # Executable
-TARGET = Project_Pinguinsss
+TARGET = NFS_Pinguins
 
 # Default target
 all: $(TARGET)
@@ -23,9 +23,6 @@ all: $(TARGET)
 $(TARGET): $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
-# Compiling object files
-%.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
 
 # Clean target
 clean:
