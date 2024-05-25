@@ -1,7 +1,7 @@
-
+//#include "ncurses\curses.h"
 #include "ncurses.h"
 #include "locale.h"
-//#include "ncurses\curses.h"
+
 #include "stdlib.h"
 #include "string.h"
 #include "time.h"
@@ -13,8 +13,6 @@ const int l = 9; // y
 const int c = 9; // x
 const int tileHeight = 4;
 const int tileWidth = 8;
-
-
 const int startTilesTabX = 5;       // In the window, X coordinate of the first tile at the top left of the game board
 const int startTilesTabY = 5;       // In the window, Y coordinate of the first tile at the top left of the game board
 
@@ -399,17 +397,6 @@ void showIceFloe(Tile **board, Player *player, int nbPlayer) {              // S
 }
 
 
-void InitCurse() {                  // curses initialization for our window
-    // All the functions are part of the curses library
-    setlocale(LC_ALL, "");          // Check if the shell is in "UTF-8"
-    initscr();                      // Initialise the window
-    start_color();                  // Starting colors
-    cbreak();                       // Configure the terminal to make user input more fluid in the terminal
-    noecho();                       // Avoid the user input to be displayed at the screen
-    keypad(stdscr, true);
-    curs_set(0);                    // Deactivate the mouse cursor
-    refresh();                      // Refresh the window so all we did here is saved
-}
 
 
 void HomePage(){                    // This is the home page which is displayed when the game is launched
@@ -1183,6 +1170,18 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
     }while(*rematch !=1 && *rematch !=2);
 }
 
+
+void InitCurse() {                  // curses initialization for our window
+    // All the functions are part of the curses library
+    setlocale(LC_ALL, "");          // Check if the shell is in "UTF-8"
+    initscr();                      // Initialise the window
+    start_color();                  // Starting colors
+    cbreak();                       // Configure the terminal to make user input more fluid in the terminal
+    noecho();                       // Avoid the user input to be displayed at the screen
+    keypad(stdscr, true);
+    curs_set(0);                    // Deactivate the mouse cursor
+    refresh();                      // Refresh the window so all we did here is saved
+}
 
 int main() {
     int nbPlayer;
