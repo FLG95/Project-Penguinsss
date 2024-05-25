@@ -4,7 +4,6 @@
 
 #include "ncurses.h"
 #include "create.h"
-#include "create.h"
 
 
 

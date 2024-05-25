@@ -1,0 +1,17 @@
+all: exe
+
+create.o: create.c create.h
+    gcc -c create.c -o create.o
+
+display.o: display.c display.h create.h
+    gcc -c display.c -o display.o
+
+main.o: main.c display.h create.h
+    gcc -c main.c -o main.o
+
+exe: main.o create.o display.o
+    gcc main.o create.o display.o -o exe
+
+clean:
+    rm -f *.o
+    rm -f exe
