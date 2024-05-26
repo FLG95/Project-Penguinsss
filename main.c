@@ -371,7 +371,7 @@ void movePenguin(Tile **board, Player *player, Penguin *virtualPenguin, int nbPl
                                      player[currentPlayer].penguin[i].tileY+1, player[currentPlayer].penguin[i].tileX+1);
                         }
                         else{
-                            mvprintw(7 + i, 100, "Penguin %d :   in y: %d, x: %d NOT MOVEABLE", i + 1,
+                            mvprintw(7 + i, 100, "Penguin %d : in y: %d, x: %d NOT MOVEABLE", i + 1,
                                      player[currentPlayer].penguin[i].tileY+1, player[currentPlayer].penguin[i].tileX+1);
                         }
                     }
@@ -428,6 +428,7 @@ int isPenguinMoveable(Tile** board, Penguin penguin){
         exit(1);
     }
 
+    /*
     if (penguin.tileY % 2 == 0) { // Conditions on even-numbered lines
 
         if (simple(board, penguin, -1, 0) && simple(board, penguin, -1, +1) && simple(board, penguin, 0, -1) &&
@@ -446,6 +447,25 @@ int isPenguinMoveable(Tile** board, Penguin penguin){
         else{
             return 1;
         }
+    }*/
+
+    if (penguin.tileY % 2 == 0) { // Conditions on even-numbered lines
+
+        if (simple(board, penguin, -1, -1) && simple(board, penguin, -1, 0) && simple(board, penguin, 0, -1) &&
+            simple(board, penguin, 0, +1) && simple(board, penguin, +1, -1) && simple(board, penguin, +1, 0)) { // if penguin can't move
+            return 0;
+        }
+        else{
+            return 1;
+        }
+    } else { // Conditions on odd-numbered lines
+        if (simple(board, penguin, -1, 0) && simple(board, penguin, -1, 1) && simple(board, penguin, 0, -1) &&
+            simple(board, penguin, 0, +1) && simple(board, penguin, +1, 0) &&
+            simple(board, penguin, +1, +1)) { // if penguin can't move
+            return 0;
+        } else {
+            return 1;
+        }
     }
 }
 
@@ -454,9 +474,10 @@ int isAllPlayerBlocked(Tile** board, Player* player, int nbPlayer){         // R
     if(!board || !player){
         exit(1);
     }
-    int blockedCount = 0;
+    int blockedCount;
     for (int i = 0; i < nbPlayer; ++i) {
         for (int j = 0; j < PenguinsPerPlayer(nbPlayer); ++j) {
+            blockedCount = 0;
             if(isPenguinMoveable(board, player[i].penguin[j])){
                 player[i].penguin[j].isMoveable = 1;
             }
@@ -464,7 +485,7 @@ int isAllPlayerBlocked(Tile** board, Player* player, int nbPlayer){         // R
                 player[i].penguin[j].isMoveable = 0;
                 blockedCount++;
             }
-            if ((blockedCount % 4) == PenguinsPerPlayer(nbPlayer)){ // +1 to avoid /0 opération
+            if (blockedCount == PenguinsPerPlayer(nbPlayer)){ // +1 to avoid /0 opération
                 player[i].canPlay = 0;
             }
         }
@@ -794,7 +815,6 @@ void InitCurse() {                  // curses initialization for our window
 
 
 int main() {
-    int nbPlayer;
     int rematch = 0;
     Tile **board = NULL;
     Player *players = NULL;

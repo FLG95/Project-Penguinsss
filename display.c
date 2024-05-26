@@ -127,20 +127,20 @@ int showTile(Tile tile, Player *player, int nbPlayer) {     // Print a "tile" wi
         // Can be replaced by a switch
         if (tile.fish == 1) {
             mvprintw(y, x + 2, "   ");
-            mvprintw(y + 1, x, "   \U0001f41f  "); // The blue fish emoji is displayed thanks to its unicode character
+            mvprintw(y + 1, x, "   \U0001f420  "); // The blue fish emoji is displayed thanks to its unicode character U0001f41f
             mvprintw(y + 2, x, "       ");
             mvprintw(y + 3, x + 2, "   ");
         }
         else if (tile.fish == 2) {
             mvprintw(y, x + 2, "   ");
-            mvprintw(y + 1, x, "   \U0001f41f  ");
-            mvprintw(y + 2, x, "   \U0001f41f  ");
+            mvprintw(y + 1, x, "   \U0001f420  ");
+            mvprintw(y + 2, x, "   \U0001f420  ");
             mvprintw(y + 3, x + 2, "   ");
         }
         else {
             mvprintw(y, x + 2, "   ");
-            mvprintw(y + 1, x, "  \U0001f41f\U0001f41f ");
-            mvprintw(y + 2, x, "  \U0001f41f   ");
+            mvprintw(y + 1, x, "  \U0001f420\U0001f420 ");
+            mvprintw(y + 2, x, "  \U0001f420   ");
             mvprintw(y + 3, x + 2, "   ");
         }
     }
@@ -154,9 +154,7 @@ int showTile(Tile tile, Player *player, int nbPlayer) {     // Print a "tile" wi
         ColorPenguins(tile, player, nbPlayer, y, x); // The penguin is not displayed on the tile after the player has played
     }
 
-
     attroff(COLOR_PAIR(color));   // We stop using those colors
-
     return 1;
 }
 
