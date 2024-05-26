@@ -94,11 +94,10 @@ Everything else is explained in game.
 | `D` | Move your penguin to the **right** iceberg |
 | `W` | Move your penguin to the **down left** iceberg |
 | `C` | Move your penguin to the **down right** iceberg |
-| `K` | When asked, just press it |
-| `Y` | When asked for, select your **first** penguin |
-| `U` | When asked for, select your **second** penguin |
-| `I` | When asked for, select your **third** penguin |
-| `O` | When asked for, select your **fourth** penguin |
+| `1` | When asked for, select your **first** penguin |
+| `2` | When asked for, select your **second** penguin |
+| `3` | When asked for, select your **third** penguin |
+| `4` | When asked for, select your **fourth** penguin |
 | `ESC` | Quit the game at any moment |
 
 At the end of the game, the name of the winner and the scores of each player will be shown.
