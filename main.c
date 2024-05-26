@@ -261,11 +261,6 @@ void movePreview(Tile **board, Player *player, Penguin *virtualPenguin, int touc
             }
             break;
 
-        case 27:                    // 27 = escape : go back to the menu
-            clear();
-            exit(7);
-            break;
-
         case KEY_RESIZE:                         // If the user resize the window, we update the window
             showIceFloe(board, player, nbPlayer);
             mvprintw(2, 36, " Tour : %d", turn);
@@ -319,6 +314,7 @@ void movePenguin(Tile **board, Player *player, Penguin *virtualPenguin, int nbPl
     do {
         board[virtualPenguin->tileY][virtualPenguin->tileX].isRed = 1;
         showIceFloe(board, player, nbPlayer);
+
         if(retry == 1){                             // If the movement requested by user is impossible
             mvprintw(16, 100, "Please press 1 ");   // We tell the user to press k to retry another movement
             refresh();
@@ -428,27 +424,6 @@ int isPenguinMoveable(Tile** board, Penguin penguin){
         exit(1);
     }
 
-    /*
-    if (penguin.tileY % 2 == 0) { // Conditions on even-numbered lines
-
-        if (simple(board, penguin, -1, 0) && simple(board, penguin, -1, +1) && simple(board, penguin, 0, -1) &&
-            simple(board, penguin, 0, +1) && simple(board, penguin, +1, 0) && simple(board, penguin, -1, +1)) { // if penguin can't move
-            return 0;
-        }
-        else{
-            return 1;
-        }
-
-    } else { // Conditions on odd-numbered lines
-        if (simple(board, penguin, -1, -1) && simple(board, penguin, -1, 0) && simple(board, penguin, 0, -1) &&
-            simple(board, penguin, 0, +1) && simple(board, penguin, +1, -1) && simple(board, penguin, -1, 0)) { // if penguin can't move
-            return 0;
-        }
-        else{
-            return 1;
-        }
-    }*/
-
     if (penguin.tileY % 2 == 0) { // Conditions on even-numbered lines
 
         if (simple(board, penguin, -1, -1) && simple(board, penguin, -1, 0) && simple(board, penguin, 0, -1) &&
@@ -478,6 +453,7 @@ int isAllPlayerBlocked(Tile** board, Player* player, int nbPlayer){         // R
     for (int i = 0; i < nbPlayer; ++i) {
         for (int j = 0; j < PenguinsPerPlayer(nbPlayer); ++j) {
             blockedCount = 0;
+
             if(isPenguinMoveable(board, player[i].penguin[j])){
                 player[i].penguin[j].isMoveable = 1;
             }
@@ -485,6 +461,7 @@ int isAllPlayerBlocked(Tile** board, Player* player, int nbPlayer){         // R
                 player[i].penguin[j].isMoveable = 0;
                 blockedCount++;
             }
+
             if (blockedCount == PenguinsPerPlayer(nbPlayer)){ // +1 to avoid /0 opération
                 player[i].canPlay = 0;
             }
@@ -499,7 +476,7 @@ int isAllPlayerBlocked(Tile** board, Player* player, int nbPlayer){         // R
 }
 
 
-void Winners(Player *player, int SIZE){
+void Winners(Player *player, int nbPlayer){
     if(!player){
         exit(1);
     }
@@ -507,12 +484,12 @@ void Winners(Player *player, int SIZE){
     int nbWinner = 0;
     Player win = player[0];
 
-    Player* winners = malloc(SIZE * sizeof(Player));
+    Player* winners = malloc(nbPlayer * sizeof(Player));
     if(winners == NULL){
         exit(-1);
     }
 
-    for(int i = 1; i < SIZE; i++){ // We're looking for the highest score
+    for(int i = 0; i < nbPlayer; i++){ // We're looking for the highest score
         if(win.score < player[i].score){
             win = player[i];
         }
@@ -520,21 +497,27 @@ void Winners(Player *player, int SIZE){
         j++;
         nbWinner += 1;
 
-        for(int k = 1; k < SIZE; k++){ // We check that there is only one winner and if there is more than one, we add them all to the winners' table
+        for(int k = 0; k < nbPlayer; k++){ // We check that there is only one winner and if there is more than one, we add them all to the winners' table
             winners[j] = player[k];
             nbWinner++;
         }
     }
+    mvprintw(10, 2, "The winner is %s", winners[0].name);
+    refresh();
 
+    /*
     if(nbWinner == 1){    // The name(s) of the winner(s) are displayed
-        mvprintw(10, 110, "The winner is %s", winners[0].name);
+        mvprintw(10, 2, "The winner is %s", winners[0].name);
+        refresh();
     }
     else{
         mvprintw(10, 110, "The winners are : ");
         for(int i = 0; i < nbWinner; i++){
-            mvprintw(10, 110, "%s\n", winners[i].name);
+            mvprintw(11+i, 5, "%s\n", winners[i].name);
         }
-    }
+    }*/
+    refresh();
+    free(winners);
 }
 
 void Game(Tile **board, int* rematch) {                 // The main game function
@@ -551,6 +534,9 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
     int disableL;
     int passK = 0;
     int returnMenu = 0;
+    int blockedPenguinCount;
+    int blockedPlayerCount;
+    int gameEnd = 0;
     Player *player;
     HomePage();                             // Shows the home page
     do {
@@ -588,12 +574,10 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
                 break;
 
             case '4':
-
                 nbPlayer = 4;
                 break;
 
             case '5':
-
                 nbPlayer = 5;
                 break;
 
@@ -608,6 +592,8 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
             case 27:
                 returnMenu = 1;
                 break;
+            default:
+                break;
 
         }
     }while(touch != '2' && touch != '3' && touch != '4' && touch != '5' && touch != '6');
@@ -615,9 +601,20 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
     player = createTabPlayers(board, nbPlayer);
     nbPenguin = PenguinsPerPlayer(nbPlayer);
 
-
     // PRINT LOOP :
-    while (!isAllPlayerBlocked(board, player, nbPlayer) && !returnMenu) {          // Stop conditions : see game rules
+    while (!isAllPlayerBlocked(board, player, nbPlayer) && !returnMenu && !gameEnd) {          // Stop conditions : see game rules
+
+        blockedPenguinCount = 0;
+        for (int i = 0; i < nbPenguin; ++i) {                      // We check if every penguin can move
+            if(player[currentPlayer].penguin[i].isMoveable == 0){
+                blockedPenguinCount ++;
+            }
+        }
+        if(blockedPenguinCount == nbPenguin){            // If all the penguin of a player are blocked he cant player anymore
+            player[currentPlayer].canPlay = 0;
+            turn--;
+        }
+
 
         if(player[currentPlayer].canPlay){                    // If a player cant play his turn will be skipped
             clear();
@@ -778,26 +775,49 @@ void Game(Tile **board, int* rematch) {                 // The main game functio
                     passK = 0;
 
                 } while ((touch != '1' || disableL == 1) && !returnMenu);
+
+
             }
         }
 
         clear();
+        refresh();
         player[currentPlayer].currentPenguins += (player[currentPlayer].currentPenguins + 1) % nbPenguin; // Loop over the pinguins of this player
         currentPlayer = (currentPlayer + 1) % nbPlayer; // Loop over the players
         turn++;
+
+        blockedPlayerCount = 0;
+        for (int i = 0; i < nbPlayer; ++i) {  // To put the while false if all player are blocked
+            if(player[i].canPlay == 0){
+                blockedPlayerCount++;
+            }
+        }
+        if(blockedPlayerCount == nbPlayer){ // if all player are blocked we end the while
+            gameEnd = 1;
+        }
     }
     clear();
     refresh();
 
-    if(!returnMenu){ // If we don't want to return to the before the end of the gale we show the winner
-        Winners(player, nbPlayer-1);
+    if(!returnMenu){ // If we don't want to return to the before the end of the game we show the winner
+        Winners(player, nbPlayer);
     }
 
     do{
-        mvprintw(10, 2, "Press 1 if you want to Rematch or press 2 if you want to Leave the game, then press Enter");
+        mvprintw(15, 2, "Press 1 if you want to Rematch or press 2 if you want to Leave the game, then press Enter");
         refresh();
-        scanw("%d", &(*rematch));
-    }while(*rematch !=1 && *rematch !=2);
+        touch = getch();
+        switch(touch){
+            case '1':
+                *rematch = 1;
+                break;
+            case '2':
+                *rematch = 2;
+                break;
+            default:
+                break;
+        }
+    }while(touch!= '1' && touch != '2');
 }
 
 
@@ -817,7 +837,6 @@ void InitCurse() {                  // curses initialization for our window
 int main() {
     int rematch = 0;
     Tile **board = NULL;
-    Player *players = NULL;
     srand(time(NULL));                      // Necessary for the rand() function to work proprely
     InitCurse();                            // Initialising curses
 
@@ -828,11 +847,9 @@ int main() {
         Game(board, &rematch);
     } while (rematch == 1);
 
-    
-    endwin();                               // Close the window and disable ncurses
+    endwin();                         // Close the window (stdscr) and disable ncurses
 
     // Freeing all the memory used
-    free(players);
     free(board);
     return 0;
 }
